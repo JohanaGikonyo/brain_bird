@@ -126,7 +126,7 @@ function Main() {
                 <div className="flex items-start gap-4 ml-3">
                   <div className="flex-1">
                     <div className="p-4 rounded-lg text-gray-400 w-full flex justify-between items-center">
-                      <span className="font-bold flex gap-1 items-center">
+                      <span className="font-bold flex gap-1 items-center" onClick={() => handleView(post)}>
                         <UserAvatar email={post.email} />
                         {getUsernameFromEmail(post.email)}
                       </span>
