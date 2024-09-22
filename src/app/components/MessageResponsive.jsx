@@ -34,7 +34,7 @@ function MessageResponsive() {
           <input
             type="text"
             placeholder="Search messages..."
-            className="mb-4 p-2 rounded-lg bg-transparent bg-slate-300 text-slate-950 focus:outline-0"
+            className="mb-4 p-2 rounded-lg  bg-slate-300 text-slate-950 focus:outline-0"
           />
 
           {/* Message Buttons */}
