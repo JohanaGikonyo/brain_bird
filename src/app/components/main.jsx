@@ -9,6 +9,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import RepeatIcon from "@mui/icons-material/Repeat";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import LikeButton from "./LikeButton";
+import Profile from "./Profile";
 import Follow from "./Follow";
 import { useUser } from "../store/useStore";
 function Main() {
@@ -106,12 +107,11 @@ function Main() {
 
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg p-4">
-      <div>
-        <UserPost />
-      </div>
-
       {selectedItem == "" && (
         <div className="flex flex-col gap-4 mt-4 w-full">
+          <div>
+            <UserPost />
+          </div>
           {posts.length === 0 ? (
             <p>No posts yet. Be the first to post!</p>
           ) : (
@@ -191,6 +191,7 @@ function Main() {
       )}
 
       {selectedItem == "Stocks" && <h1>Stocks Selected</h1>}
+      {selectedItem == "profile" && <Profile />}
       {selectedItem == "Weather" && <h1>Weather Selected</h1>}
       {selectedItem == "Groups" && <h1>Groups Selected</h1>}
       {selectedItem == "Sports" && <h1>Sports Selected</h1>}

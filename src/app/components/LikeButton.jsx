@@ -19,15 +19,15 @@ function LikeButton({ post }) {
         const { data, error } = await supabase.from("posts").select("liked").eq("id", post.id).single();
 
         if (error) {
-          console.error("Error fetching like status:", error);
+          console.error("Error fetching like status:", error.message, error.details);
           return;
         }
 
         const likedUsers = data.liked || [];
         setLiked(likedUsers.includes(userId));
-        setLikeCount(likedUsers.length); // Update the like count
+        setLikeCount(likedUsers.length);
       } catch (err) {
-        console.error("Unexpected error:", err);
+        console.error("Unexpected error:", err.message);
       }
     };
 

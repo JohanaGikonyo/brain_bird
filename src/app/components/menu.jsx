@@ -11,7 +11,7 @@ import UserName from "./userName";
 import UserAvatar from "./UserAvatar";
 import { supabase } from "../lib/supabaseClient";
 import { getNameFromEmail } from "../utils/userUtils";
-function Menu() {
+function Menu({ open }) {
   const { setSelectedItem } = useSelected();
   const [user, setUser] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -48,7 +48,11 @@ function Menu() {
   }, []);
 
   return (
-    <div className="m-2 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4">
+    <div
+      className={
+        open ? `text-slate-900` : `m-2 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4`
+      }
+    >
       {/* Menu Items */}
       <button
         onClick={() => setSelectedItem("")}
@@ -87,7 +91,7 @@ function Menu() {
       </button>
       <button
         onClick={() => setSelectedItem("Account")}
-        className="text-xl text-white bg-blue-500 px-4 py-3 w-full rounded-3xl hover:text-slate-200 hover:bg-blue-700 flex items-center justify-center gap-3 transition"
+        className="my-4 text-xl text-white bg-blue-500 px-4 py-3 w-full rounded-3xl hover:text-slate-200 hover:bg-blue-700 flex items-center justify-center gap-3 transition"
       >
         Post
       </button>
@@ -95,7 +99,14 @@ function Menu() {
       <Divider className="w-full bg-slate-400 my-2" />
 
       {/* User Profile Section */}
-      <div className="flex items-center space-x-4 p-3 rounded-3xl hover:cursor-pointer hover:bg-slate-800">
+      <div
+        className={
+          open
+            ? `hover:bg-slate-200 flex items-center space-x-4 p-3 rounded-3xl hover:cursor-pointer`
+            : `flex items-center space-x-4 p-3 rounded-3xl hover:cursor-pointer hover:bg-slate-800`
+        }
+        onClick={() => setSelectedItem("profile")}
+      >
         <UserAvatar avatarUrl={avatarUrl} name={user ? getNameFromEmail(user.email) : "G"} />
         <UserName email={user ? `${user.email}` : ""} />
       </div>
