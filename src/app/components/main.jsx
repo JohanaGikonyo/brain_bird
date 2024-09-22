@@ -41,7 +41,13 @@ function Main() {
   }, []);
 
   if (loading) {
-    return <p>Loading posts...</p>;
+    return (
+      <div className="text-3xl font-extrabold flex items-center justify-center">
+        <h1 className="text-3xl font-extrabold flex items-center justify-center text-slate-50">
+          WelCome to Brain Bird. Your Social Environment.
+        </h1>
+      </div>
+    );
   }
 
   const getUsernameFromEmail = (email) => {
