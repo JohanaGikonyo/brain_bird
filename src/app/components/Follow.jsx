@@ -5,20 +5,20 @@ import { supabase } from "../lib/supabaseClient";
 function Follow({ post }) {
   const [following, setFollowing] = useState(false);
   const { user } = useUser();
-  const followerEmail = user?.email; // Email of the user performing the follow action
-  const followedEmail = post?.email; // Email of the user to be followed
+  const followerId = user?.id; // ID of the user performing the follow action
+  const followedId = post?.id; // ID of the user to be followed (from the post)
 
-  // Fetch follow status when component mounts or emails change
+  // Fetch follow status when component mounts or IDs change
   useEffect(() => {
     const checkFollowStatus = async () => {
-      if (!followerEmail || !followedEmail) return;
+      if (!followerId || !followedId) return;
 
       try {
         const { data, error } = await supabase
           .from("follows")
           .select("id")
-          .eq("follower_email", followerEmail)
-          .eq("followed_email", followedEmail)
+          .eq("follower_id", followerId)
+          .eq("followed_id", followedId)
           .single();
 
         if (error && error.code !== "PGRST116") {
@@ -34,10 +34,10 @@ function Follow({ post }) {
     };
 
     checkFollowStatus();
-  }, [followerEmail, followedEmail]);
+  }, [followerId, followedId]);
 
   const handleFollowToggle = async () => {
-    if (!followerEmail || !followedEmail) return;
+    if (!followerId || !followedId) return;
 
     try {
       if (following) {
@@ -45,8 +45,8 @@ function Follow({ post }) {
         const { error } = await supabase
           .from("follows")
           .delete()
-          .eq("follower_email", followerEmail)
-          .eq("followed_email", followedEmail);
+          .eq("follower_id", followerId)
+          .eq("followed_id", followedId);
 
         if (error) {
           console.error("Error unfollowing:", error.message);
@@ -56,9 +56,7 @@ function Follow({ post }) {
         setFollowing(false); // Update UI after unfollowing
       } else {
         // Follow: Insert a new follow relationship
-        const { error } = await supabase
-          .from("follows")
-          .insert({ follower_email: followerEmail, followed_email: followedEmail });
+        const { error } = await supabase.from("follows").insert({ follower_id: followerId, followed_id: followedId });
 
         if (error) {
           console.error("Error following:", error.message);
