@@ -5,105 +5,70 @@ import { supabase } from "../lib/supabaseClient";
 function Follow({ post }) {
   const [following, setFollowing] = useState(false);
   const { user } = useUser();
-  const follower_email = user.email;
-  const followed_email = post.email;
+  const followerEmail = user?.email; // Email of the user performing the follow action
+  const followedEmail = post?.email; // Email of the user to be followed
 
+  // Fetch follow status when component mounts or emails change
   useEffect(() => {
-    let interval;
+    const checkFollowStatus = async () => {
+      if (!followerEmail || !followedEmail) return;
 
-    async function checkFollowingStatus() {
-      const { data, error } = await supabase
-        .from("users")
-        .select("followed_email")
-        .eq("email", follower_email)
-        .maybeSingle();
-
-      if (error) {
-        console.log("The User is: ", user);
-        console.error("Error checking follow status:", error);
-      } else {
-        const isFollowing = data?.followed_email?.includes(followed_email);
-        setFollowing(isFollowing);
-      }
-    }
-
-    // Check follow status initially
-    checkFollowingStatus();
-
-    // Set up polling
-    interval = setInterval(checkFollowingStatus, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [follower_email, followed_email, user]);
-
-  const handleFollowToggle = async () => {
-    const { data, error } = await supabase.from("users").select("followed_email").eq("email", follower_email).single();
-
-    if (error) {
-      if (error.message.includes("no rows")) {
-        // Create a default entry if no row exists
-        const { error: insertError } = await supabase
-          .from("users")
-          .insert([{ email: follower_email, followed_email: [] }]);
-
-        if (insertError) {
-          console.error("Error creating follow entry:", insertError);
-          return;
-        }
-        // Retry fetching data
-        const { data: newData, error: fetchError } = await supabase
-          .from("users")
-          .select("followed_email")
-          .eq("email", follower_email)
+      try {
+        const { data, error } = await supabase
+          .from("follows")
+          .select("id")
+          .eq("follower_email", followerEmail)
+          .eq("followed_email", followedEmail)
           .single();
 
-        if (fetchError) {
-          console.error("Error fetching newly created follow data:", fetchError);
+        if (error && error.code !== "PGRST116") {
+          // Handle unexpected errors (ignore if the relationship doesn't exist)
+          console.error("Error checking follow status:", error.message);
           return;
         }
-        const followedEmails = newData?.followed_email || [];
-        handleFollowUpdate(followedEmails);
-      } else {
-        console.log("The User is: ", user);
 
-        console.error("Error fetching follow data:", error);
+        setFollowing(!!data); // Set following to true if a follow relationship exists
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
       }
-    } else {
-      const followedEmails = data?.followed_email || [];
-      handleFollowUpdate(followedEmails);
-    }
-  };
+    };
 
-  const handleFollowUpdate = async (followedEmails) => {
-    if (following) {
-      // Unfollow: Remove followed_email from array
-      const updatedEmails = followedEmails.filter((email) => email !== followed_email);
+    checkFollowStatus();
+  }, [followerEmail, followedEmail]);
 
-      const { error } = await supabase
-        .from("users")
-        .update({ followed_email: updatedEmails })
-        .eq("email", follower_email);
+  const handleFollowToggle = async () => {
+    if (!followerEmail || !followedEmail) return;
 
-      if (error) {
-        console.error("Error unfollowing:", error);
+    try {
+      if (following) {
+        // Unfollow: Delete the follow relationship
+        const { error } = await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_email", followerEmail)
+          .eq("followed_email", followedEmail);
+
+        if (error) {
+          console.error("Error unfollowing:", error.message);
+          return;
+        }
+
+        setFollowing(false); // Update UI after unfollowing
       } else {
-        setFollowing(false);
-      }
-    } else {
-      // Follow: Add followed_email to array
-      const updatedEmails = [...followedEmails, followed_email];
+        // Follow: Insert a new follow relationship
+        const { error } = await supabase
+          .from("follows")
+          .insert({ follower_email: followerEmail, followed_email: followedEmail });
 
-      const { error } = await supabase
-        .from("users")
-        .update({ followed_email: updatedEmails })
-        .eq("email", follower_email);
+        if (error) {
+          console.error("Error following:", error.message);
+          return;
+        }
 
-      if (error) {
-        console.error("Error following:", error);
-      } else {
-        console.log("Follow up added!");
-        setFollowing(true);
+        setFollowing(true); // Update UI after following
       }
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
     }
   };
 

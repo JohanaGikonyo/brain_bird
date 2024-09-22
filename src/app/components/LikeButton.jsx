@@ -11,21 +11,40 @@ function LikeButton({ post }) {
 
   // Fetch like status and count whenever userId or post.id changes
   useEffect(() => {
-    // Ensure userId is available before fetching like status
-    const fetchLikeStatus = async () => {
+    const fetchLikeStatusAndCount = async () => {
       if (!userId || !post.id) return;
 
       try {
-        const { data, error } = await supabase.from("posts").select("liked").eq("id", post.id).single();
+        // Fetch the count of likes for the post
+        const { data: likeData, error: likeError } = await supabase
+          .from("likes")
+          .select("*", { count: "exact" })
+          .eq("post_id", post.id);
 
-        if (error) {
-          console.error("Error fetching like status:", error.message, error.details);
+        if (likeError) {
+          console.error("Error fetching like count:", likeError.message);
           return;
         }
 
-        const likedUsers = data.liked || [];
-        setLiked(likedUsers.includes(userId));
-        setLikeCount(likedUsers.length);
+        // Set the like count
+        setLikeCount(likeData.length);
+
+        // Check if the current user has liked the post
+        const { data: userLikeData, error: userLikeError } = await supabase
+          .from("likes")
+          .select("id")
+          .eq("post_id", post.id)
+          .eq("user_id", userId)
+          .single();
+
+        if (userLikeError && userLikeError.code !== "PGRST116") {
+          // "PGRST116" indicates that the user hasn't liked the post yet (no match found)
+          console.error("Error fetching user like status:", userLikeError.message);
+          return;
+        }
+
+        // Update liked status based on whether a record is found for the user
+        setLiked(!!userLikeData);
       } catch (err) {
         console.error("Unexpected error:", err.message);
       }
@@ -33,42 +52,40 @@ function LikeButton({ post }) {
 
     if (user) setUserId(user.id);
 
-    fetchLikeStatus(); // Fetch the like status initially
-
-    // Optional: Real-time polling for updates every 1 seconds
-    const interval = setInterval(fetchLikeStatus, 1000);
-
-    return () => clearInterval(interval); // Cleanup interval when component unmounts
+    fetchLikeStatusAndCount(); // Fetch the like status and count initially
   }, [userId, post.id, user]);
 
   const handleLike = async () => {
-    if (!userId) return; // Ensure userId is set
+    if (!userId) return; // Ensure user is logged in
 
     try {
-      const { data, error } = await supabase.from("posts").select("liked").eq("id", post.id).single();
+      if (liked) {
+        // If the post is already liked, remove the like
+        const { error: unlikeError } = await supabase
+          .from("likes")
+          .delete()
+          .eq("post_id", post.id)
+          .eq("user_id", userId);
 
-      if (error) {
-        console.error("Error fetching like status:", error);
-        return;
+        if (unlikeError) {
+          console.error("Error unliking the post:", unlikeError);
+          return;
+        }
+
+        setLiked(false); // Update the UI
+        setLikeCount((prevCount) => prevCount - 1); // Decrease the like count
+      } else {
+        // If the post is not liked yet, add the like
+        const { error: likeError } = await supabase.from("likes").insert({ post_id: post.id, user_id: userId });
+
+        if (likeError) {
+          console.error("Error liking the post:", likeError);
+          return;
+        }
+
+        setLiked(true); // Update the UI
+        setLikeCount((prevCount) => prevCount + 1); // Increase the like count
       }
-
-      const likedUsers = data.liked || [];
-      const isLiked = likedUsers.includes(userId);
-
-      // Toggle like status
-      const newLikedUsers = isLiked
-        ? likedUsers.filter((id) => id !== userId) // Remove the like
-        : [...likedUsers, userId]; // Add the like
-
-      const { error: updateError } = await supabase.from("posts").update({ liked: newLikedUsers }).eq("id", post.id);
-
-      if (updateError) {
-        console.error("Error updating like status:", updateError);
-        return;
-      }
-
-      setLiked(!isLiked); // Update the UI
-      setLikeCount(newLikedUsers.length); // Update the like count
     } catch (err) {
       console.error("Unexpected error:", err);
     }
