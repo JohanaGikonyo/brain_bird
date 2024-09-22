@@ -4,8 +4,9 @@ import { supabase } from "../../lib/supabaseClient";
 import TopItems from "../../components/TopItems";
 import Main from "../../components/main";
 import Menu from "../../components/menu";
-import Messages from "../../components/messages";
 import { useUser } from "@apply/app/store/useStore";
+import MessagesResponsive from "../../components/MessageResponsive";
+import Messages from "../../components/messages";
 import Drawer from "../../components/Drawer";
 function Mainpage() {
   useUser();
@@ -45,9 +46,10 @@ function Mainpage() {
 
   return (
     <div className="flex flex-col h-screen p-0 m-0 bg-slate-950 text-white-900">
-      <div className="lg:hidden block">
+      <div className="lg:hidden flex items-center justify-between px-2 py-2 top-0 sticky bg-slate-950 z-50">
         <Drawer />
-      </div>{" "}
+        <MessagesResponsive />
+      </div>
       <div className=" top-0">
         <TopItems />
       </div>

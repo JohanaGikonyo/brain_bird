@@ -47,6 +47,18 @@ function Menu({ open }) {
     fetchUser();
   }, []);
 
+  // Handle the logout process
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut(); // Supabase sign out method
+    if (error) {
+      console.error("Error logging out:", error.message);
+    } else {
+      console.log("Successfully logged out");
+      // Optionally, redirect the user after successful logout
+      window.location.href = "/auth/login"; // Redirect to login page or homepage
+    }
+  };
+
   return (
     <div
       className={
@@ -109,6 +121,15 @@ function Menu({ open }) {
       >
         <UserAvatar avatarUrl={avatarUrl} name={user ? getNameFromEmail(user.email) : "G"} />
         <UserName email={user ? `${user.email}` : ""} />
+      </div>
+      <Divider />
+      <div className="py-3 my-3  flex justify-center items-center">
+        <button
+          className="text-blue-500 border border-blue-500 rounded-xl px-3 py-1"
+          onClick={handleLogout} // Add logout functionality here
+        >
+          Log Out
+        </button>
       </div>
     </div>
   );

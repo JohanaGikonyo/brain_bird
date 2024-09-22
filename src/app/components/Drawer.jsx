@@ -27,7 +27,9 @@ export default function TemporaryDrawer() {
   return (
     <div>
       <Button onClick={toggleDrawer(true)}>
-        <MenuIcon />
+        <div className="text-slate-50 flex items-center py-2 px-1  flex-1 justify-between">
+          <MenuIcon />
+        </div>
       </Button>
       <Drawer open={open} onClose={toggleDrawer(false)}>
         {DrawerList}
