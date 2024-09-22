@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ChatIcon from "@mui/icons-material/Chat";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 function MessageResponsive() {
   const [view, setView] = useState(false);
 
@@ -23,16 +23,18 @@ function MessageResponsive() {
         <div className="fixed inset-0 bg-gray-950  flex flex-col p-4 z-50">
           <div className="flex items-center mb-4 justify-between">
             {/* Back Icon */}
-            <ArrowBackIcon className="text-white cursor-pointer" onClick={toggleView} />
-            <h2 className="text-xl text-slate-50 font-bold ml-2">Messages</h2>
-            <div></div>
+            <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
+            <h2 className="text-xl text-slate-200 font-bold ml-2">Messages</h2>
+            <div className="text-slate-400">
+              <MoreVertIcon />
+            </div>
           </div>
 
           {/* Search Bar */}
           <input
             type="text"
             placeholder="Search messages..."
-            className="mb-4 p-2 rounded-lg text-gray-800 focus:outline-0"
+            className="mb-4 p-2 rounded-lg bg-transparent bg-slate-300 text-slate-950 focus:outline-0"
           />
 
           {/* Message Buttons */}
