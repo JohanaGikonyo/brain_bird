@@ -33,7 +33,7 @@ function Menu({ open }) {
           : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4`
       }
     >
-      <Image alt="logo image" src={logo} width={100} height={50} />
+      <div className="mb-4 ml-4 rounded-full"><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div>
       <Divider />
       <button
         onClick={() => setSelectedItem("")}

@@ -17,8 +17,6 @@ export default function TemporaryDrawer() {
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
-        <h1 className="my-3 mx-2">Brain Bird</h1>
-        <Divider className="my-5" />
         <Menu open={open} />
       </List>
     </Box>
