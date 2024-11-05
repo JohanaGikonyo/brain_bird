@@ -269,7 +269,7 @@ const [postEmail, setPostEmail]=useState("")
             <div>
               <h3 className="font-semibold text-base">About:</h3>
               <p className="text-sm">
-                Brief description or bio of the user is here, providing insight into their profile.
+                Brief description or bio of the user  here, providing insight into their profile.
               </p>
             </div>
             {/* Add more sections as needed */}
