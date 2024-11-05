@@ -5,7 +5,6 @@ import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import MenuIcon from "@mui/icons-material/Menu";
 import Menu from "./menu";
-import { Divider } from "@mui/material";
 
 export default function TemporaryDrawer() {
   const [open, setOpen] = React.useState(false);
