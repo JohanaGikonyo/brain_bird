@@ -174,7 +174,7 @@ const [postEmail, setPostEmail]=useState("")
             posts.map((post, index) => (
               <div
                 key={index}
-                className="border-b border-slate-900 w-full py-4 lg:px-4  hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
+                className="border-b border-slate-900 w-full py-4 px-4 sm:px-5 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
               >
 
                 <div className="flex items-start gap-3 sm:gap-4 ml-2 sm:ml-3">
