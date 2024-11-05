@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { formatDistanceToNow } from "date-fns";
+// import { formatDistanceToNow } from "date-fns";
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
@@ -8,24 +8,30 @@ import CommentSection from "./commentsSection";
 import MessageIcon from "@mui/icons-material/Message";
 import RepeatIcon from "@mui/icons-material/Repeat";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import CustomeAvatar from "./CustomAvatar";
 import LikeButton from "./LikeButton";
 import Profile from "./Profile";
-import Follow from "./Follow";
+import Follow from "./Follow"; // Updated for user follow
 import { useUser } from "../store/useStore";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
+import PostMedia from "./PostMedia";
+
 function Main() {
   const { selectedItem } = useSelected();
-  const {} = useUser();
+  const { user } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showComments, setShowComments] = useState(false); // To toggle comments
-
-  const [viewingPost, setViewingPost] = useState(null); // State to hold the post being viewed
+  const [commentsVisible, setCommentsVisible] = useState(null);
+  const [viewingPost, setViewingPost] = useState(null);
+  const [following, setFollowing] = useState({});
+  const [followersNumber, setFollowersNumber] = useState(0);
 
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
-        .select("id, post, created_at, email, comments, reposts, views")
+        .select("id, post, created_at, email, comments, reposts, views, follower_count, media")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -36,24 +42,32 @@ function Main() {
       setLoading(false);
     };
 
-    const interval = setInterval(fetchPosts, 1000); // Fetch every 1 second
-    return () => clearInterval(interval); // Clean up interval on component unmount
+    const interval = setInterval(fetchPosts, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="text-3xl font-extrabold flex items-center justify-center">
-        <h1 className="text-3xl font-extrabold flex items-center justify-center text-slate-50">
-          WelCome to Brain Bird. Your Social Environment.
-        </h1>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchFollowingStatus = async () => {
+      if (!user.email) return;
+      const { data, error } = await supabase.from("follow").select("followed_email").eq("follower_email", user.email);
+
+      if (error) {
+        console.error("Error fetching following status:", error);
+      } else {
+        const followingMap = {};
+        data.forEach((follow) => {
+          followingMap[follow.followed_email] = true;
+        });
+        setFollowing(followingMap);
+      }
+    };
+
+    fetchFollowingStatus();
+  }, [user.email]);
 
   const getUsernameFromEmail = (email) => {
     if (!email) {
-      // Handle the case where email is null or undefined
-      return "@user"; // or return null, or any default username you prefer
+      return "@user";
     }
     const username = email.split("@")[0];
     const cleanedUsername = username.replace(/\d+/g, "");
@@ -61,14 +75,20 @@ function Main() {
   };
 
   const handleAddComment = async (postId, comment) => {
-    const { data: post } = await supabase.from("posts").select("comments").eq("id", postId).single();
+    const { data: post, error: fetchError } = await supabase.from("posts").select("comments").eq("id", postId).single();
 
-    const updatedComments = [...(post.comments || []), comment];
+    if (fetchError) {
+      console.error("Error fetching post comments:", fetchError);
+      return;
+    }
 
-    const { error } = await supabase.from("posts").update({ comments: updatedComments }).eq("id", postId);
+    const existingComments = post.comments?.map((c) => (typeof c === "string" ? JSON.parse(c) : c)) || [];
+    const updatedComments = [...existingComments, comment];
 
-    if (error) {
-      console.error("Error adding comment:", error);
+    const { error: updateError } = await supabase.from("posts").update({ comments: updatedComments }).eq("id", postId);
+
+    if (updateError) {
+      console.error("Error adding comment:", updateError);
     }
   };
 
@@ -88,10 +108,8 @@ function Main() {
   };
 
   const handleView = async (selectedPost) => {
-    // Show the modal with the selected post data
     setViewingPost(selectedPost);
 
-    // Update the views count in Supabase
     const { error } = await supabase
       .from("posts")
       .update({ views: selectedPost.views + 1 })
@@ -100,50 +118,94 @@ function Main() {
     if (error) {
       console.error("Error updating views:", error);
     } else {
-      // Optimistically update the state
       setPosts((prevPosts) =>
         prevPosts.map((post) => (post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post))
       );
     }
   };
 
+  const toggleCommentsVisibility = (postId) => {
+    setCommentsVisible((prev) => (prev === postId ? null : postId));
+  };
+
   const closeModal = () => {
     setViewingPost(null);
   };
 
+  if (loading) {
+    return (
+      <div className="text-2xl font-extrabold flex items-center justify-center mt-60">
+        <Box sx={{ display: "flex" }} className="flex gap-5">
+          <CircularProgress />
+          <p>Please wait ...</p>
+        </Box>
+      </div>
+    );
+  }
+  const formatTimeAgo = (date) => {
+    const diff = Math.abs(new Date() - new Date(date));
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (years > 0) return `${years}y`;
+    if (months > 0) return `${months}mo`;
+    if (days > 0) return `${days}d`;
+    if (hours > 0) return `${hours}h`;
+    if (minutes > 0) return `${minutes}m`;
+    return `${seconds}s`;
+  };
+
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg p-4">
-      {selectedItem == "" && (
-        <div className="flex flex-col gap-4 mt-4 w-full">
-          <div>
-            <UserPost />
-          </div>
+      {selectedItem === "" && (
+        <div className="flex flex-col gap-4 lg:mt-4 mt-16 w-full">
+          <UserPost />
           {posts.length === 0 ? (
-            <p>No posts yet. Be the first to post!</p>
+            <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
+              <Box sx={{ display: "flex" }} className="flex gap-5">
+                <CircularProgress />
+                <p>Please wait ...</p>
+              </Box>
+            </div>
           ) : (
             posts.map((post, index) => (
-              <div key={index} className="border-b border-slate-900 w-full py-4 hover:cursor-pointer">
-                <div className="flex items-start gap-4 ml-3">
+              <div
+                key={index}
+                className="border-b border-slate-900 w-full py-4 px-4 sm:px-5 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
+              >
+                <div className="flex items-start gap-3 sm:gap-4 ml-2 sm:ml-3">
                   <div className="flex-1">
-                    <div className="p-4 rounded-lg text-gray-400 w-full flex justify-between items-center">
-                      <span className="font-bold flex gap-1 items-center" onClick={() => handleView(post)}>
-                        <UserAvatar email={post.email} />
-                        {getUsernameFromEmail(post.email)}
+                    <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                      <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
+                        <CustomeAvatar email={post.email} avatarUrl={post.avatar_url} />
+                        <span className="truncate">{getUsernameFromEmail(post.email)}</span>
                       </span>
-                      <Follow post={post} />
+                      {following[post.email] ? (
+                        <span className="text-green-500 mt-2 sm:mt-0">You are following</span>
+                      ) : (
+                        <Follow
+                          email={post.email}
+                          currentUserEmail={user.email}
+                          setFollowersNumber={setFollowersNumber}
+                          postedDate={` ${formatTimeAgo(post.created_at)}`}
+                        />
+                      )}
                     </div>
-
-                    <div className="text-lg text-white mt-2">
+                    <div className="text-lg text-white mt-2 break-words">
                       {typeof post.post === "string" ? post.post : JSON.stringify(post.post)}
+                      {post.media && (
+                        <div className="w-full max-w-full mt-2 overflow-hidden rounded-lg">
+                          <PostMedia mediaUrls={post.media} />
+                        </div>
+                      )}
                     </div>
-
-                    <div className="text-gray-400 text-sm mt-2">
-                      {`Posted ${formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}`}
-                    </div>
-
                     <div className="flex items-center justify-around text-gray-400 mt-2">
                       <div className="flex items-center space-x-1">
-                        <button onClick={() => setShowComments(!showComments)}>
+                        <button onClick={() => toggleCommentsVisibility(post.id)}>
                           <MessageIcon titleAccess="message" />
                         </button>
                         <span>{Array.isArray(post.comments) ? post.comments.length : 0}</span>
@@ -161,12 +223,10 @@ function Main() {
                         <span>{post.views}</span>
                       </button>
                     </div>
-
                     <CommentSection
                       postId={post.id}
                       comments={Array.isArray(post.comments) ? post.comments : []}
-                      showComments={showComments}
-                      setShowComments={setShowComments}
+                      showComments={commentsVisible === post.id}
                       handleAddComment={handleAddComment}
                     />
                   </div>
@@ -176,32 +236,28 @@ function Main() {
           )}
         </div>
       )}
-
       {viewingPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 text-black">
+          <div className="bg-gray-700 p-6 rounded-lg w-96 text-black">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <UserAvatar email={viewingPost.email} />
-                <span className="ml-2 font-bold">{getUsernameFromEmail(viewingPost.email)}</span>
               </div>
               <button onClick={closeModal} className="text-red-500 text-lg">
                 &times;
               </button>
             </div>
-            <div className="mt-4">
-              <p>{viewingPost.post}</p>
-            </div>
+            <div className="mt-4 text-slate-100">{viewingPost.post}</div>
+            <div className="mt-4 text-slate-100">{followersNumber} Followers</div>
           </div>
         </div>
       )}
-
-      {selectedItem == "Stocks" && <h1>Stocks Selected</h1>}
-      {selectedItem == "profile" && <Profile />}
-      {selectedItem == "Weather" && <h1>Weather Selected</h1>}
-      {selectedItem == "Groups" && <h1>Groups Selected</h1>}
-      {selectedItem == "Sports" && <h1>Sports Selected</h1>}
-      {selectedItem == "Account" && <h1>Account Selected</h1>}
+      {selectedItem === "Stocks" && <h1>Stocks Selected</h1>}
+      {selectedItem === "profile" && <Profile />}
+      {selectedItem === "Weather" && <h1>Weather Selected</h1>}
+      {selectedItem === "Groups" && <h1>Groups Selected</h1>}
+      {selectedItem === "Sports" && <h1>Sports Selected</h1>}
+      {selectedItem === "Account" && <h1>Account </h1>}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 // components/Menu.js
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelected } from "../store/useSection";
 import HomeIcon from "@mui/icons-material/Home";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -7,45 +7,12 @@ import CloudIcon from "@mui/icons-material/Cloud";
 import SportsHandballIcon from "@mui/icons-material/SportsHandball";
 import GroupsIcon from "@mui/icons-material/Groups";
 import Divider from "@mui/material/Divider";
-import UserName from "./userName";
 import UserAvatar from "./UserAvatar";
 import { supabase } from "../lib/supabaseClient";
-import { getNameFromEmail } from "../utils/userUtils";
+import logo from "../../../public/brain_bird_logo.png";
+import Image from "next/image";
 function Menu({ open }) {
   const { setSelectedItem } = useSelected();
-  const [user, setUser] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState("");
-
-  useEffect(() => {
-    // Fetch the current user session
-    const fetchUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session) {
-        setUser(session.user);
-        // Check for avatar from Google profile if user used Google sign-in
-        const googleAvatarUrl = session.user?.user_metadata?.avatar_url;
-
-        if (googleAvatarUrl) {
-          setAvatarUrl(googleAvatarUrl); // Use Google avatar if available
-        } else {
-          // Fetch avatar from your own profiles table if available
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("avatar_url")
-            .eq("id", session.user.id)
-            .single();
-          if (profile?.avatar_url) {
-            setAvatarUrl(profile.avatar_url);
-          }
-        }
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   // Handle the logout process
   const handleLogout = async () => {
@@ -54,18 +21,20 @@ function Menu({ open }) {
       console.error("Error logging out:", error.message);
     } else {
       console.log("Successfully logged out");
-      // Optionally, redirect the user after successful logout
-      window.location.href = "/auth/login"; // Redirect to login page or homepage
+      window.location.href = "/auth/login"; // Redirect to login page
     }
   };
 
   return (
     <div
       className={
-        open ? `text-slate-900` : `m-2 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4`
+        open
+          ? `text-slate-900`
+          : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4`
       }
     >
-      {/* Menu Items */}
+      <Image alt="logo image" src={logo} width={100} height={50} />
+      <Divider />
       <button
         onClick={() => setSelectedItem("")}
         className="text-xl hover:text-slate-800 hover:bg-gray-300 font-bold p-2 w-full rounded-lg flex items-center gap-3 hover:cursor-pointer transition"
@@ -119,8 +88,7 @@ function Menu({ open }) {
         }
         onClick={() => setSelectedItem("profile")}
       >
-        <UserAvatar avatarUrl={avatarUrl} name={user ? getNameFromEmail(user.email) : "G"} />
-        <UserName email={user ? `${user.email}` : ""} />
+        <UserAvatar />
       </div>
       <Divider />
       <div className="py-3 my-3  flex justify-center items-center">

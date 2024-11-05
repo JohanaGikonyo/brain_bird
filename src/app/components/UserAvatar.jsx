@@ -1,5 +1,7 @@
 import React from "react";
 import Avatar from "@mui/material/Avatar";
+import Typography from "@mui/material/Typography";
+import { useUser } from "../store/useStore";
 
 // Function to get the initials from the email
 const getInitials = (email) => {
@@ -42,24 +44,35 @@ const getColorForInitial = (initial) => {
   return colorMap[initial] || colorMap.default;
 };
 
-const UserAvatar = ({ avatarUrl, email }) => {
-  const initials = !avatarUrl ? getInitials(email) : "";
+const UserAvatar = () => {
+  const { user } = useUser();
+
+  // Get the full name and avatar URL
+  const fullName = user.user_metadata?.full_name || "User"; // Use full name or default to "User"
+  const avatarUrl = user.avatar_url;
+
+  // Determine initials and background color if avatar does not exist
+  const initials = !avatarUrl ? getInitials(user.email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
 
   return (
-    <Avatar
-      alt="User Avatar"
-      src={avatarUrl}
-      sx={{
-        bgcolor: backgroundColor, // Keep background transparent
-        color: "white",
-        fontSize: "1.5rem",
-
-        // border: () => `1px solid white`,
-      }}
-    >
-      {!avatarUrl && initials}
-    </Avatar>
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <Avatar
+        alt="User Avatar"
+        src={avatarUrl}
+        sx={{
+          bgcolor: backgroundColor,
+          color: "white",
+          fontSize: "1.5rem",
+          marginRight: "8px", // Space between avatar and name
+        }}
+      >
+        {!avatarUrl && initials}
+      </Avatar>
+      <Typography variant="body1" style={{ color: "" }} className="lg:text-slate-50 text-slate-800">
+        @{fullName}
+      </Typography>
+    </div>
   );
 };
 

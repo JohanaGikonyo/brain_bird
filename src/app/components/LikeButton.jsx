@@ -93,11 +93,11 @@ function LikeButton({ post }) {
 
   return (
     <button
-      className={`flex items-center space-x-1 ${liked ? "text-red-500" : "text-gray-400"} rounded-full p-2`}
+      className={`flex items-center space-x-1 ${liked ? "text-blue-500" : "text-gray-400"} rounded-full p-2`}
       onClick={handleLike}
     >
       <FavoriteIcon titleAccess="like" />
-      <span>{likeCount}</span> {/* Display the number of likes */}
+      <span>{likeCount}</span>
     </button>
   );
 }

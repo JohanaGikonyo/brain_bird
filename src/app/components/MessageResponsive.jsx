@@ -20,7 +20,7 @@ function MessageResponsive() {
 
       {/* Message Overlay */}
       {view && (
-        <div className="fixed inset-0 bg-gray-950  flex flex-col p-4 z-50">
+        <div className="fixed inset-0 bg-gray-950  flex flex-col p-4 z-50 mt-0">
           <div className="flex items-center mb-4 justify-between">
             {/* Back Icon */}
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />

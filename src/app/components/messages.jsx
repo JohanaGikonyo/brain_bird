@@ -4,7 +4,7 @@ import React from "react";
 function Messages() {
   //   const { selected, setSelectedItem } = useSelected();
   return (
-    <div className="flex flex-col my-7 items-center   text-slate-100 shadow-lg p-4 rounded-lg">
+    <div className="m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4">
       <h2 className="text-xl font-bold mb-4">Messages</h2>
       <button className=" text-white  p-2 mb-2 rounded-lg hover:bg-red-300 transition ">Messages</button>
       <button className=" text-white  p-2 mb-2 rounded-lg hover:bg-red-300 transition ">Kids Messages</button>

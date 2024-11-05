@@ -8,7 +8,11 @@ const CommentSection = ({ postId, comments = [], handleAddComment, showComments 
 
   const submitComment = () => {
     if (newComment.trim()) {
-      handleAddComment(postId, newComment); // Call the passed function
+      const commentData = {
+        text: newComment,
+        commenterEmail: user.email,
+      };
+      handleAddComment(postId, commentData); // Pass the comment object
       setNewComment(""); // Clear the input
     }
   };
@@ -24,17 +28,19 @@ const CommentSection = ({ postId, comments = [], handleAddComment, showComments 
       {showComments && (
         <div className="mt-2">
           {comments && comments.length > 0 ? (
-            comments.map((comment, index) => (
-              <div key={index} className="flex items-start gap-2 mt-1 text-white">
-                {/* Display user avatar and username */}
-                {/* <UserAvatar email={user.email} /> */}
+            comments.map((comment, index) => {
+              // Parse the comment if it's stored as a JSON string
+              const parsedComment = typeof comment === "string" ? JSON.parse(comment) : comment;
 
-                <div>
-                  <div className="text-gray-400 text-sm">{getUsernameFromEmail(user.email)}</div>
-                  <div className="mt-1 ml-4">{comment}</div>
+              return (
+                <div key={index} className="flex items-start gap-2 mt-1 text-white">
+                  <div>
+                    <div className="text-gray-400 text-sm">{getUsernameFromEmail(parsedComment.commenterEmail)}</div>
+                    <div className="mt-1 ml-4">{parsedComment.text}</div>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="text-gray-400">No comments yet</div>
           )}
@@ -42,7 +48,7 @@ const CommentSection = ({ postId, comments = [], handleAddComment, showComments 
       )}
 
       {/* Comment input section */}
-      <div className="mt-2 flex items-start rounded-2xl lg:w-1/2 w-full justify-center bg-slate-900">
+      <div className="mt-2 flex items-start rounded-2xl lg:w-1/2 w-full justify-center bg-slate-950">
         <textarea
           className="p-2 text-gray-400 bg-transparent focus:outline-none rounded resize-none overflow-hidden w-full"
           rows={1}

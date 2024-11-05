@@ -7,11 +7,3 @@ export const useUser = create((set) => ({
   user: "",
   setUser: (value) => set(() => ({ user: value })),
 }));
-export const useUserName = create((set) => ({
-  userName: "",
-  setUserName: (value) => set(() => ({ userName: value })),
-}));
-export const useUserAvatarUrl = create((set) => ({
-  userAvatar: "",
-  setUserAvatar: (value) => set(() => ({ userAvatar: value })),
-}));
