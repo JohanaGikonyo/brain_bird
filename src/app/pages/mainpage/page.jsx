@@ -52,7 +52,7 @@ function Mainpage() {
         </div>
 
         {/* Main content section */}
-        <div className="flex-1 lg:ml-64 lg:mr-64 xl:ml-72 p-4 lg:p-8 overflow-y-auto">
+        <div className="flex-1 lg:ml-64 lg:mr-64 xl:ml-72 p-0 lg:p-8 overflow-y-auto">
           <Main />
         </div>
 
