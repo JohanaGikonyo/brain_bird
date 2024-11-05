@@ -14,17 +14,20 @@ function Profile() {
   const [profilePic, setProfilePic] = useState(null);
   const [backgroundImg, setBackgroundImg] = useState(null);
   const [fullImage, setFullImage] = useState(null);
+  const [numberFollowers, setNumberFollowers]=useState(0)
 
   const fetchProfileData = async (email) => {
     const { data, error } = await supabase
       .from("users")
-      .select("profile")
+      .select("profile, connections")
       .eq("email", email)
       .single();
     if (error) {
       console.error("Error fetching user profile:", error);
       return null;
     }
+    setNumberFollowers(data.connections.length)
+
     return data.profile;
   };
 
@@ -128,7 +131,7 @@ function Profile() {
             />
           ) : (
             <div className="w-24 h-24 rounded-full bg-gray-400 flex items-center justify-center">
-              <span className="text-gray-500">Avatar</span>
+              <span className="text-gray-500">Profile</span>
             </div>
           )}
           <input
@@ -142,6 +145,8 @@ function Profile() {
       </div>
 
       {/* Form Fields */}
+      <div className="mb-4 text-blue-400"><h3 className="font-semibold text-base">Followers:  {"  "+numberFollowers}</h3></div>
+
       <div className="mb-4">
         <input
           type="text"

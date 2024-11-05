@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-const Follow = ({ email, currentUserEmail, setFollowersNumber, postedDate }) => {
+const Follow = ({ email, currentUserEmail,  postedDate }) => {
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
@@ -24,23 +24,21 @@ const Follow = ({ email, currentUserEmail, setFollowersNumber, postedDate }) => 
         }
 
         // Retrieve follower count only for the specified email
-        const { data: followerData, error: followerError } = await supabase.from("users").select("connections");
+        const {  error: followerError } = await supabase.from("users").select("connections");
 
         if (followerError) {
           console.error("Error fetching followers:", followerError);
           return;
         }
 
-        // Filter only users who have this email in their connections array
-        const followerCount = followerData.filter((user) => user.connections?.includes(email)).length;
-        setFollowersNumber(followerCount);
+        
       } catch (error) {
         console.error("An error occurred:", error);
       }
     };
 
     checkIfFollowing();
-  }, [email, currentUserEmail, setFollowersNumber]);
+  }, [email, currentUserEmail, ]);
 
   const handleFollow = async () => {
     try {
@@ -78,16 +76,13 @@ const Follow = ({ email, currentUserEmail, setFollowersNumber, postedDate }) => 
         return;
       }
 
-      // Recalculate the follower count specifically for the specified email
-      const { data: followerData, error: followerError } = await supabase.from("users").select("connections");
-
+    
       if (followerError) {
         console.error("Error fetching followers after update:", followerError);
         return;
       }
 
-      const followerCount = followerData.filter((user) => user.connections?.includes(email)).length;
-      setFollowersNumber(followerCount);
+      
     } catch (error) {
       console.error("An error occurred during follow/unfollow:", error);
     }

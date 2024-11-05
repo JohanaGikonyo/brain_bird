@@ -3,7 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import { useUser } from "../store/useStore";
 import { supabase } from "../lib/supabaseClient";
-// Function to get the initials from the email
 const getInitials = (email) => {
   if (!email) return "G"; // Default to "G" if no email is provided
   return email[0].toUpperCase(); // Get the first letter of the email

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
-import UserAvatar from "../components/UserAvatar";
 import CommentSection from "./commentsSection";
 import MessageIcon from "@mui/icons-material/Message";
 import RepeatIcon from "@mui/icons-material/Repeat";
@@ -16,7 +15,7 @@ import { useUser } from "../store/useStore";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
-
+import CustomProfile from './CustomProfile'
 function Main() {
   const { selectedItem } = useSelected();
   const { user } = useUser();
@@ -25,8 +24,7 @@ function Main() {
   const [commentsVisible, setCommentsVisible] = useState(null);
   const [viewingPost, setViewingPost] = useState(null);
   const [following, setFollowing] = useState({});
-  const [followersNumber, setFollowersNumber] = useState(0);
-
+const [postEmail, setPostEmail]=useState("")
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase
@@ -99,13 +97,23 @@ function Main() {
   };
 
   const handleView = async (selectedPost) => {
+    // Function to update state and return a promise
+    const updateEmailState = (email) => {
+      return new Promise((resolve) => {
+        setPostEmail(email);
+        resolve(email);
+      });
+    };
+  
+    await updateEmailState(selectedPost.email);
+  
     setViewingPost(selectedPost);
-
+  
     const { error } = await supabase
       .from("posts")
       .update({ views: selectedPost.views + 1 })
       .eq("id", selectedPost.id);
-
+  
     if (error) {
       console.error("Error updating views:", error);
     } else {
@@ -114,7 +122,7 @@ function Main() {
       );
     }
   };
-
+  
   const toggleCommentsVisibility = (postId) => {
     setCommentsVisible((prev) => (prev === postId ? null : postId));
   };
@@ -168,6 +176,7 @@ function Main() {
                 key={index}
                 className="border-b border-slate-900 w-full py-4 px-4 sm:px-5 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
               >
+
                 <div className="flex items-start gap-3 sm:gap-4 ml-2 sm:ml-3">
                   <div className="flex-1">
                     <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -180,7 +189,6 @@ function Main() {
                         <Follow
                           email={post.email}
                           currentUserEmail={user.email}
-                          setFollowersNumber={setFollowersNumber}
                           postedDate={` ${formatTimeAgo(post.created_at)}`}
                         />
                       )}
@@ -226,22 +234,62 @@ function Main() {
           )}
         </div>
       )}
-      {viewingPost && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-700 p-6 rounded-lg w-96 text-black">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <UserAvatar email={viewingPost.email} />
-              </div>
-              <button onClick={closeModal} className="text-red-500 text-lg">
-                &times;
-              </button>
+   {viewingPost && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md md:max-w-lg mx-4 md:mx-0 p-6 overflow-hidden">
+      {/* Modal Header */}
+      <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-600 pb-4 mb-4">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">User Profile</h2>
+        <button
+          onClick={closeModal}
+          className="text-gray-500 hover:text-red-500 transition duration-200 text-2xl"
+        >
+          &times;
+        </button>
+      </div>
+
+      {/* Scrollable Profile Content */}
+      <div className="max-h-[60vh] overflow-y-auto pr-2">
+        <div className="flex flex-col items-center space-y-6">
+          {/* Profile Picture and Info */}
+          <div className="flex flex-col items-center space-y-3">
+            <CustomProfile email={postEmail} />
+            <p className="text-lg font-medium text-gray-800 dark:text-gray-300">{postEmail}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-center px-4">
+              Detailed information about the user can be viewed here.
+            </p>
+          </div>
+
+          {/* Additional User Details */}
+          <div className="w-full space-y-4 text-gray-700 dark:text-gray-300">
+            <div>
+              <h3 className="font-semibold text-base">Location:</h3>
+              <p className="text-sm">City, Country</p>
             </div>
-            <div className="mt-4 text-slate-100">{viewingPost.post}</div>
-            <div className="mt-4 text-slate-100">{followersNumber} Followers</div>
+            <div>
+              <h3 className="font-semibold text-base">About:</h3>
+              <p className="text-sm">
+                Brief description or bio of the user is here, providing insight into their profile.
+              </p>
+            </div>
+            {/* Add more sections as needed */}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Footer with Action Button */}
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={closeModal}
+          className="px-5 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {selectedItem === "Stocks" && <h1>Stocks Selected</h1>}
       {selectedItem === "profile" && <Profile />}
       {selectedItem === "Weather" && <h1>Weather Selected</h1>}
