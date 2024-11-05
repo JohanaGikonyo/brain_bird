@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import { useUser } from "../store/useStore";
-
+import { supabase } from "../lib/supabaseClient";
 // Function to get the initials from the email
 const getInitials = (email) => {
   if (!email) return "G"; // Default to "G" if no email is provided
@@ -46,10 +46,36 @@ const getColorForInitial = (initial) => {
 
 const UserAvatar = () => {
   const { user } = useUser();
+  const [profileData, setProfileData] = useState(null);
 
   // Get the full name and avatar URL
-  const fullName = user.user_metadata?.full_name || "User"; // Use full name or default to "User"
+  const fullName = profileData?.username || user.user_metadata?.full_name || "User";
   const avatarUrl = user.avatar_url;
+
+  const fetchProfileData = async (email) => {
+    console.log(email);
+    const { data, error } = await supabase
+      .from("users")
+      .select("profile") // Fetch the profile column
+      .eq("email", email) // Match the email
+      .single(); // Get a single record
+
+    if (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+
+    return data.profile;
+  };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const data = await fetchProfileData(user.email);
+      setProfileData(data);
+    };
+
+    fetchProfile();
+  }, [user.email]);
 
   // Determine initials and background color if avatar does not exist
   const initials = !avatarUrl ? getInitials(user.email) : "";
@@ -59,7 +85,7 @@ const UserAvatar = () => {
     <div style={{ display: "flex", alignItems: "center" }}>
       <Avatar
         alt="User Avatar"
-        src={avatarUrl}
+        src={avatarUrl || profileData?.profile_pic}
         sx={{
           bgcolor: backgroundColor,
           color: "white",
@@ -69,7 +95,7 @@ const UserAvatar = () => {
       >
         {!avatarUrl && initials}
       </Avatar>
-      <Typography variant="body1" style={{ color: "" }} className="lg:text-slate-50 text-slate-800">
+      <Typography variant="body1" style={{ color: "" }} className="lg:text-slate-50 text-slate-400">
         @{fullName}
       </Typography>
     </div>

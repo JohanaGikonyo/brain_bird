@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
+import { supabase } from "../lib/supabaseClient";
 
 // Function to get the initials from the email
 const getInitials = (email) => {
@@ -7,6 +8,30 @@ const getInitials = (email) => {
   const username = email.split("@")[0];
   const initials = username[0].toUpperCase(); // Get the first letter of the username
   return initials;
+};
+const getUsernameFromEmail = (email) => {
+  if (!email) {
+    return "@user";
+  }
+  const username = email.split("@")[0];
+  const cleanedUsername = username.replace(/\d+/g, "");
+  return "@" + cleanedUsername;
+};
+
+const fetchProfileData = async (email) => {
+  console.log(email);
+  const { data, error } = await supabase
+    .from("users")
+    .select("profile") // Fetch the profile column
+    .eq("email", email) // Match the email
+    .single(); // Get a single record
+
+  if (error) {
+    console.error("Error fetching user profile:", error);
+    return null;
+  }
+
+  return data.profile;
 };
 
 // Function to map initials to specific colors
@@ -44,23 +69,34 @@ const getColorForInitial = (initial) => {
 };
 
 const CustomAvatar = ({ email, avatarUrl }) => {
-  const initials = !avatarUrl ? getInitials(email) : "";
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const data = await fetchProfileData(email);
+      setProfileData(data);
+    };
+
+    fetchProfile();
+  }, [email]);
+
+  const initials = !profileData?.profile_pic ? getInitials(email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
 
   return (
-    <div className="flex ">
+    <div className="flex items-center">
       <Avatar
         alt="User Avatar"
-        src={avatarUrl}
+        src={profileData?.profile_pic || avatarUrl}
         sx={{
           bgcolor: backgroundColor,
           color: "white",
           fontSize: "1.5rem",
         }}
       >
-        {!avatarUrl && initials}
+        {!profileData?.profile_pic && initials}
       </Avatar>
-      {/* <span className="ml-2 font-bold">{`@${getInitials(email)}`}</span> */}
+      <span className="ml-2 font-bold">{profileData?.username || getUsernameFromEmail(email)}</span>
     </div>
   );
 };

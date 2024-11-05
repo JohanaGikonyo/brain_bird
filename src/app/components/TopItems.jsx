@@ -22,7 +22,7 @@ function TopItems() {
       {/* Main Content Wrapper */}
       {/* <div className="flex flex-col lg:flex-row gap-4 mx-auto items-center w-full justify-between lg:justify-between"> */}
       {/* Buttons Group */}
-      <div className="flex gap-2 flex-wrap justify-between items-center">
+      <div className="flex gap-4 flex-wrap justify-between items-center">
         <div className="lg:hidden">
           <Drawer />
         </div>

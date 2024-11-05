@@ -65,15 +65,6 @@ function Main() {
     fetchFollowingStatus();
   }, [user.email]);
 
-  const getUsernameFromEmail = (email) => {
-    if (!email) {
-      return "@user";
-    }
-    const username = email.split("@")[0];
-    const cleanedUsername = username.replace(/\d+/g, "");
-    return "@" + cleanedUsername;
-  };
-
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("comments").eq("id", postId).single();
 
@@ -182,7 +173,6 @@ function Main() {
                     <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
                       <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
                         <CustomeAvatar email={post.email} avatarUrl={post.avatar_url} />
-                        <span className="truncate">{getUsernameFromEmail(post.email)}</span>
                       </span>
                       {following[post.email] ? (
                         <span className="text-green-500 mt-2 sm:mt-0">You are following</span>
