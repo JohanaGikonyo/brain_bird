@@ -19,7 +19,6 @@ const getUsernameFromEmail = (email) => {
 };
 
 const fetchProfileData = async (email) => {
-  console.log(email);
   const { data, error } = await supabase
     .from("users")
     .select("profile") // Fetch the profile column

@@ -159,9 +159,9 @@ const [postEmail, setPostEmail]=useState("")
   };
 
   return (
-    <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg p-4">
+    <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
       {selectedItem === "" && (
-        <div className="flex flex-col gap-4 lg:mt-4 mt-16 w-full">
+        <div className="flex flex-col gap-4 lg:mt-4 mt-24 w-full">
           <UserPost />
           {posts.length === 0 ? (
             <div className="text-2xl font-extrabold flex items-center justify-center mt-10">

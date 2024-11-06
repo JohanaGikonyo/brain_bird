@@ -95,10 +95,10 @@ function Profile() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className=" mx-auto mt-24 p-4 bg-slate-900 rounded-xl w-full">
       {/* Background Section */}
       <div
-        className="relative h-48 mb-4 bg-gray-300 cursor-pointer"
+        className="relative h-48 mb-4 bg-gray-500 cursor-pointer rounded-xl"
         style={{ backgroundImage: backgroundImg ? `url(${backgroundImg})` : "" }}
         onClick={(e) => {
           e.stopPropagation();
@@ -146,14 +146,14 @@ function Profile() {
 
       {/* Form Fields */}
       <div className="mb-4 text-blue-400"><h3 className="font-semibold text-base">Followers:  {"  "+numberFollowers}</h3></div>
-
+<div className="flex flex-col gap-4 items-start justify-start">
       <div className="mb-4">
         <input
           type="text"
           placeholder="Enter your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="bg-gray-200 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -162,7 +162,7 @@ function Profile() {
           placeholder="About you"
           value={about}
           onChange={(e) => setAbout(e.target.value)}
-          className="bg-gray-200 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         ></textarea>
       </div>
 
@@ -172,7 +172,7 @@ function Profile() {
           placeholder="Country"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className="bg-gray-200 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -182,7 +182,7 @@ function Profile() {
           placeholder="City"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="bg-gray-200 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -192,7 +192,7 @@ function Profile() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-gray-200 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -202,7 +202,7 @@ function Profile() {
           placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="bg-gray-200 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -212,7 +212,7 @@ function Profile() {
       >
         Save Profile
       </button>
-
+      </div>
       {/* Full Image Modal */}
       {fullImage && (
         <div

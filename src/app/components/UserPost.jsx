@@ -11,8 +11,10 @@ import GifIcon from "@mui/icons-material/Gif";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import PollIcon from "@mui/icons-material/Poll";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { useSelected } from "../store/useSection";
 
 function UserPost() {
+  const { setSelectedItem } = useSelected();
   const { postContent, setPostContent } = usePost();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
@@ -121,7 +123,8 @@ function UserPost() {
 
   return (
     <div className="max-w-2xl mx-auto p-4 border-b border-b-slate-800 w-full shadow-md">
-      <UserAvatar />
+      <div onClick={() => setSelectedItem("profile")} className="cursor-pointer"
+      ><UserAvatar /></div>
       <div className="flex items-center mb-4">
         <div className="flex-grow ml-4">
           <textarea
