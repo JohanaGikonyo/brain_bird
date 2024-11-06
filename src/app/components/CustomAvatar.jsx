@@ -24,14 +24,14 @@ const fetchProfileData = async (email) => {
   try {
     const { data, error } = await supabase
       .from("users")
-      .select("profile:username, profile_pic")
+      .select("profile")
       .eq("email", email)
       .single();
     if (error) {
       console.error("Error fetching user profile:", error);
       return null;
     }
-    return data;
+    return data.profile;
   } catch (error) {
     console.error("Unexpected error fetching user profile:", error);
     return null;
