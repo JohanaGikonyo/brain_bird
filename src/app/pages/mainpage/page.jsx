@@ -24,14 +24,7 @@ function Mainpage() {
         router.push("/auth/login");
       }
 
-      // Insert or update user in 'users' table
-      const { error: dbError } = await supabase.from("users").upsert({
-        email: session.user.email,
-      });
-
-      if (dbError) {
-        console.error("Error inserting/updating user profile:", dbError.message);
-      }
+      
     };
 
     updateUser();

@@ -147,12 +147,12 @@ const { ref, inView } = useInView({ threshold: 0.1, });
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
       {selectedItem === "" && (
-        <div className="flex flex-col gap-4 lg:mt-4 mt-24 w-full">
+        <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
           <UserPost />
           {posts.length === 0 ? (
             <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
               <Box sx={{ display: "flex" }} className="flex gap-5">
-                <CircularProgress />
+                <CircularProgress size={24} />
                 <p>Please wait ...</p>
               </Box>
             </div>
@@ -160,10 +160,10 @@ const { ref, inView } = useInView({ threshold: 0.1, });
             posts.map((post, index) => (
               <div
                 key={index}
-                className="border-b border-slate-900 w-full py-4 px-4 sm:px-5 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
+                className="border-b border-slate-900 w-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
               >
 
-                <div className="flex items-start gap-3 sm:gap-4 ml-2 sm:ml-3">
+                <div className="flex items-start gap-3 sm:gap-4 ">
                   <div className="flex-1">
                     <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
                       <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
