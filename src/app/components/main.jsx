@@ -7,7 +7,7 @@ import CommentSection from "./commentsSection";
 import MessageIcon from "@mui/icons-material/Message";
 import RepeatIcon from "@mui/icons-material/Repeat";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import CustomeAvatar from "./CustomAvatar";
+import CustomAvatar from "./CustomAvatar";
 import LikeButton from "./LikeButton";
 import Profile from "./Profile";
 import Follow from "./Follow"; // Updated for user follow
@@ -181,7 +181,7 @@ const [postEmail, setPostEmail]=useState("")
                   <div className="flex-1">
                     <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
                       <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
-                        <CustomeAvatar email={post.email} avatarUrl={post.avatar_url} />
+                        <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
                       </span>
                       {following[post.email] ? (
                         <span className="text-green-500 mt-2 sm:mt-0">You are following</span>
