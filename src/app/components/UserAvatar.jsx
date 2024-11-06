@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 import { useUser } from "../store/useStore";
 import { supabase } from "../lib/supabaseClient";
+
 const getInitials = (email) => {
   if (!email) return "G"; // Default to "G" if no email is provided
   return email[0].toUpperCase(); // Get the first letter of the email
@@ -11,53 +13,32 @@ const getInitials = (email) => {
 // Function to map initials to specific colors
 const getColorForInitial = (initial) => {
   const colorMap = {
-    A: "#1E90FF", // Blue
-    B: "#FFD700", // Gold
-    C: "#FF4500", // OrangeRed
-    D: "#8A2BE2", // BlueViolet
-    E: "#32CD32", // LimeGreen
-    F: "#FF6347", // Tomato
-    G: "#FF69B4", // HotPink
-    H: "#FF8C00", // DarkOrange
-    I: "#00CED1", // DarkTurquoise
-    J: "#9400D3", // DarkViolet
-    K: "#4B0082", // Indigo
-    L: "#00FF7F", // SpringGreen
-    M: "#4682B4", // SteelBlue
-    N: "#FF00FF", // Magenta
-    O: "#DA70D6", // Orchid
-    P: "#40E0D0", // Turquoise
-    Q: "#B0E0E6", // PowderBlue
-    R: "#7FFF00", // Chartreuse
-    S: "#FFA500", // Orange
-    T: "#FF1493", // DeepPink
-    U: "#DC143C", // Crimson
-    V: "#00FA9A", // MediumSpringGreen
-    W: "#F08080", // LightCoral
-    X: "#9932CC", // DarkOrchid
-    Y: "#87CEEB", // SkyBlue
-    Z: "#4169E1", // RoyalBlue
-    default: "#808080", // Default to Gray if no match
+    A: "#1E90FF", B: "#FFD700", C: "#FF4500", D: "#8A2BE2",
+    E: "#32CD32", F: "#FF6347", G: "#FF69B4", H: "#FF8C00",
+    I: "#00CED1", J: "#9400D3", K: "#4B0082", L: "#00FF7F",
+    M: "#4682B4", N: "#FF00FF", O: "#DA70D6", P: "#40E0D0",
+    Q: "#B0E0E6", R: "#7FFF00", S: "#FFA500", T: "#FF1493",
+    U: "#DC143C", V: "#00FA9A", W: "#F08080", X: "#9932CC",
+    Y: "#87CEEB", Z: "#4169E1", default: "#808080",
   };
-
   return colorMap[initial] || colorMap.default;
 };
 
 const UserAvatar = () => {
   const { user } = useUser();
   const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Get the full name and avatar URL
   const fullName = profileData?.username || user.user_metadata?.full_name || "User";
   const avatarUrl = user.avatar_url;
 
   const fetchProfileData = async (email) => {
-    console.log(email);
     const { data, error } = await supabase
       .from("users")
       .select("profile") // Fetch the profile column
-      .eq("email", email) // Match the email
-      .single(); // Get a single record
+      .eq("email", email)
+      .single();
 
     if (error) {
       console.error("Error fetching user profile:", error);
@@ -69,8 +50,10 @@ const UserAvatar = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       const data = await fetchProfileData(user.email);
       setProfileData(data);
+      setLoading(false);
     };
 
     fetchProfile();
@@ -79,6 +62,17 @@ const UserAvatar = () => {
   // Determine initials and background color if avatar does not exist
   const initials = !avatarUrl ? getInitials(user.email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <CircularProgress size={24} style={{ marginRight: "8px" }} />
+        <Typography variant="body1" style={{ color: "" }} className="lg:text-slate-50 text-slate-400">
+          Loading...
+        </Typography>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
@@ -89,7 +83,7 @@ const UserAvatar = () => {
           bgcolor: backgroundColor,
           color: "white",
           fontSize: "1.5rem",
-          marginRight: "8px", // Space between avatar and name
+          marginRight: "8px",
         }}
       >
         {!avatarUrl && initials}

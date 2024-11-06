@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import { supabase } from "../lib/supabaseClient";
-
+import CircularProgress from "@mui/material/CircularProgress";
 // Function to get the initials from the email
 const getInitials = (email) => {
   if (!email) return "U"; // Default to "U" if no email is provided
@@ -70,16 +70,23 @@ const getColorForInitial = (initial) => {
 
 const CustomAvatar = ({ email, avatarUrl }) => {
   const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
+
       const data = await fetchProfileData(email);
       setProfileData(data);
+      setLoading(false);
+
     };
 
     fetchProfile();
   }, [email]);
-
+  if (loading) {
+    return <CircularProgress size={24} />;
+  }
   const initials = !profileData?.profile_pic ? getInitials(email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
 
