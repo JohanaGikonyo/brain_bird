@@ -135,7 +135,7 @@ const [postEmail, setPostEmail]=useState("")
     return (
       <div className="text-2xl font-extrabold flex items-center justify-center mt-60">
         <Box sx={{ display: "flex" }} className="flex gap-5">
-          <CircularProgress />
+          <CircularProgress size={24} />
           <p>Please wait ...</p>
         </Box>
       </div>
