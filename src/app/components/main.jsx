@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-// import { formatDistanceToNow } from "date-fns";
+import React, { useState, useEffect} from "react";
+import { useInView } from "react-intersection-observer";
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
@@ -17,51 +17,37 @@ import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
 import CustomProfile from './CustomProfile'
 function Main() {
+
   const { selectedItem } = useSelected();
   const { user } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentsVisible, setCommentsVisible] = useState(null);
   const [viewingPost, setViewingPost] = useState(null);
-  const [following, setFollowing] = useState({});
 const [postEmail, setPostEmail]=useState("")
+const [page, setPage] = useState(0); 
+const [hasMore, setHasMore] = useState(true); 
+const { ref, inView } = useInView({ threshold: 0.1, });
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
         .select("id, post, created_at, email, comments, reposts, views, follower_count, media")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(page * 10, (page + 1) * 10 - 1);
+        if (error) { console.error("Error fetching posts:", error); 
+          setLoading(false); return; 
+        } 
+          if (data.length === 0) { setHasMore(false); }
+           else { setPosts((prevPosts) => [...prevPosts, ...data]); 
 
-      if (error) {
-        console.error("Error fetching posts:", error);
-      } else {
-        setPosts(data);
-      }
-      setLoading(false);
-    };
+           } 
+           setLoading(false); };
+           fetchPosts(page);
+  }, [page]);
 
-    const interval = setInterval(fetchPosts, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const fetchFollowingStatus = async () => {
-      if (!user.email) return;
-      const { data, error } = await supabase.from("follow").select("followed_email").eq("follower_email", user.email);
-
-      if (error) {
-        console.error("Error fetching following status:", error);
-      } else {
-        const followingMap = {};
-        data.forEach((follow) => {
-          followingMap[follow.followed_email] = true;
-        });
-        setFollowing(followingMap);
-      }
-    };
-
-    fetchFollowingStatus();
-  }, [user.email]);
+  useEffect(() => { if (inView && hasMore) { setPage((prevPage) => prevPage + 1); } }, [inView, hasMore]);
+  
 
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("comments").eq("id", postId).single();
@@ -183,15 +169,12 @@ const [postEmail, setPostEmail]=useState("")
                       <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
                         <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
                       </span>
-                      {following[post.email] ? (
-                        <span className="text-green-500 mt-2 sm:mt-0">You are following</span>
-                      ) : (
+                     
                         <Follow
                           email={post.email}
                           currentUserEmail={user.email}
                           postedDate={` ${formatTimeAgo(post.created_at)}`}
                         />
-                      )}
                     </div>
                     <div className="text-lg text-white mt-2 break-words">
                       {typeof post.post === "string" ? post.post : JSON.stringify(post.post)}
@@ -231,9 +214,15 @@ const [postEmail, setPostEmail]=useState("")
                 </div>
               </div>
             ))
-          )}
+
+          )
+          }
+                <div ref={ref} className="observer" />
+
+          
         </div>
       )}
+    
    {viewingPost && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md md:max-w-lg mx-4 md:mx-0 p-6 overflow-hidden">
