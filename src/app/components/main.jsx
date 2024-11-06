@@ -239,7 +239,7 @@ const [postEmail, setPostEmail]=useState("")
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md md:max-w-lg mx-4 md:mx-0 p-6 overflow-hidden">
       {/* Modal Header */}
       <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-600 pb-4 mb-4">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">User Profile</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Profile</h2>
         <button
           onClick={closeModal}
           className="text-gray-500 hover:text-red-500 transition duration-200 text-2xl"

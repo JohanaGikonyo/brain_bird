@@ -2,9 +2,18 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import { useUser } from "../store/useStore";
+import { Divider } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useSelected } from "../store/useSection";
+import { CircularProgress, Snackbar, Alert } from "@mui/material";
 
 function Profile() {
   const { user } = useUser();
+  const { setSelectedItem } = useSelected();
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const [username, setUsername] = useState("");
   const [about, setAbout] = useState("");
   const [country, setCountry] = useState("");
@@ -15,7 +24,11 @@ function Profile() {
   const [backgroundImg, setBackgroundImg] = useState(null);
   const [fullImage, setFullImage] = useState(null);
   const [numberFollowers, setNumberFollowers]=useState(0)
+const [loading, setLoading]=useState(false)
 
+const handleCloseSnackbar = () => {
+  setOpenSnackbar(false);
+};
   const fetchProfileData = async (email) => {
     const { data, error } = await supabase
       .from("users")
@@ -73,6 +86,7 @@ function Profile() {
   };
 
   const handleSubmit = async () => {
+    setLoading(true)
     const updatedProfileData = {
       username,
       about,
@@ -83,19 +97,28 @@ function Profile() {
       profile_pic: profilePic,
       background_img: backgroundImg,
     };
-    const { data, error } = await supabase
+    const {  error } = await supabase
       .from("users")
       .update({ profile: updatedProfileData })
       .eq("email", email);
     if (error) {
       console.error("Error updating profile data:", error);
+      setOpenSnackbar(true);
+
+      setSnackbarMessage("Error Occured");
+      setSnackbarSeverity("An error ocurred, Try Again later!");
     } else {
-      console.log("Profile data updated successfully:", data);
-    }
+      setLoading(false)
+      setOpenSnackbar(true);
+
+      setSnackbarMessage("You have successsfully Updated your profile!");
+      setSnackbarSeverity("success");    }
   };
 
   return (
     <div className=" mx-auto mt-24 p-4 bg-slate-900 rounded-xl w-full">
+      <div className="flex gap-4 items-center text-xl"><span onClick={() => setSelectedItem("")}><ArrowBackIcon/></span><h3>Update Your Profile</h3></div>
+      <div className="my-2"><Divider/></div>
       {/* Background Section */}
       <div
         className="relative h-48 mb-4 bg-gray-500 cursor-pointer rounded-xl"
@@ -205,13 +228,18 @@ function Profile() {
           className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
-
+      <Snackbar open={openSnackbar} autoHideDuration={8000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <button
         onClick={handleSubmit}
         className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
       >
-        Save Profile
+       {loading? <CircularProgress size={24} style={{ marginRight: "8px" }} color="inherit"/>:""} Save Profile
       </button>
+     
       </div>
       {/* Full Image Modal */}
       {fullImage && (
@@ -222,6 +250,7 @@ function Profile() {
           <Image src={fullImage} alt="Full Profile" layout="fill" objectFit="contain" />
         </div>
       )}
+      
     </div>
   );
 }
