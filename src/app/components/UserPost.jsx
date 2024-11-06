@@ -5,7 +5,6 @@ import { Snackbar, CircularProgress, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserAvatar from "./UserAvatar";
 import Image from "next/image";
-// import ImageIcon from "@mui/icons-material/Image";
 import AddIcon from "@mui/icons-material/Add"; // For adding more photos
 import GifIcon from "@mui/icons-material/Gif";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";

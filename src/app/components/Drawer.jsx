@@ -14,7 +14,7 @@ export default function TemporaryDrawer() {
   };
 
   const DrawerList = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} >
       <List>
         <Menu open={open} />
       </List>
@@ -28,7 +28,7 @@ export default function TemporaryDrawer() {
           <MenuIcon />
         </div>
       </Button>
-      <Drawer open={open} onClose={toggleDrawer(false)}>
+      <Drawer open={open} onClose={toggleDrawer(false)} PaperProps={{ sx: { backgroundColor: "rgb(15 23 42)",  borderRadius: '8px',  margin: '20px',  padding: '10px', }, }} >
         {DrawerList}
       </Drawer>
     </div>

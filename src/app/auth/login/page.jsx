@@ -54,7 +54,7 @@ export default function LogIn() {
         throw new Error(error.message);
       }
 
-      setSnackbarMessage("Redirecting to Google...");
+      setSnackbarMessage("Please Wait...");
       setSnackbarSeverity("success");
     } catch (error) {
       setSnackbarMessage(error.message);

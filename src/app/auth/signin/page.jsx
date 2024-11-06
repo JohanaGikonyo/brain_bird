@@ -95,7 +95,7 @@ export default function SignUp() {
       }
 
       // If everything is successful, redirect to the main page
-      setSnackbarMessage("Redirecting to Google...");
+      setSnackbarMessage("please wait...");
       setSnackbarSeverity("success");
       router.push("/pages/mainpage"); // Redirect after successful sign-in
     } catch (error) {

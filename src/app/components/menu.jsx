@@ -1,5 +1,5 @@
 // components/Menu.js
-import React from "react";
+import React,{useState} from "react";
 import { useSelected } from "../store/useSection";
 import HomeIcon from "@mui/icons-material/Home";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -10,17 +10,25 @@ import Divider from "@mui/material/Divider";
 import UserAvatar from "./UserAvatar";
 import { supabase } from "../lib/supabaseClient";
 import logo from "../../../public/brain_bird_logo.png";
+import ClearIcon from '@mui/icons-material/Clear';
+import {  CircularProgress,  } from "@mui/material";
+
 import Image from "next/image";
 function Menu({ open }) {
   const { setSelectedItem } = useSelected();
+  const [loading, setLoading] = useState(false);
 
   // Handle the logout process
   const handleLogout = async () => {
+    setLoading(true);
+
     const { error } = await supabase.auth.signOut(); // Supabase sign out method
     if (error) {
       console.error("Error logging out:", error.message);
     } else {
       console.log("Successfully logged out");
+      setLoading(false);
+
       window.location.href = "/auth/login"; // Redirect to login page
     }
   };
@@ -29,12 +37,12 @@ function Menu({ open }) {
     <div
       className={
         open
-          ? `text-slate-900`
+          ? `text-slate-200 m-2 mt-1 mb-10  shadow-lg p-6 rounded-lg flex flex-col items-center justify-center space-y-4`
           : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4`
       }
     >
-      <div className="mb-4 ml-4 rounded-full"><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div>
-      <Divider />
+      <div className="flex justify-between items-center text-slate-50 gap-10"><div className="mb-4 ml-4 rounded-full"><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div><ClearIcon /></div>
+      <div ><Divider className="text-slate-50 bg-slate-50 w-full"/></div>
       <button
         onClick={() => setSelectedItem("")}
         className="text-xl hover:text-slate-800 hover:bg-gray-300 font-bold p-2 w-full rounded-lg flex items-center gap-3 hover:cursor-pointer transition"
@@ -93,9 +101,11 @@ function Menu({ open }) {
       <Divider />
       <div className="py-3 my-3  flex justify-center items-center">
         <button
-          className="text-blue-500 border border-blue-500 rounded-xl px-3 py-1"
-          onClick={handleLogout} // Add logout functionality here
+          className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
+          onClick={handleLogout} 
         >
+            {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
+
           Log Out
         </button>
       </div>

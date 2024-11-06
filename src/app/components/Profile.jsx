@@ -116,7 +116,7 @@ const handleCloseSnackbar = () => {
   };
 
   return (
-    <div className=" mx-auto mt-24 p-4 bg-slate-900 rounded-xl w-full">
+    <div className=" mx-auto mt-28 p-4 bg-slate-900 rounded-xl w-full">
       <div className="flex gap-4 items-center text-xl"><span onClick={() => setSelectedItem("")}><ArrowBackIcon/></span><h3>Update Your Profile</h3></div>
       <div className="my-2"><Divider/></div>
       {/* Background Section */}
