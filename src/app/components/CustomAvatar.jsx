@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
-import { supabase } from "../lib/supabaseClient";
 import CircularProgress from "@mui/material/CircularProgress";
+import { supabase } from "../lib/supabaseClient";
+
 // Function to get the initials from the email
 const getInitials = (email) => {
   if (!email) return "U"; // Default to "U" if no email is provided
@@ -9,28 +10,32 @@ const getInitials = (email) => {
   const initials = username[0].toUpperCase(); // Get the first letter of the username
   return initials;
 };
+
+// Function to get username from email
 const getUsernameFromEmail = (email) => {
-  if (!email) {
-    return "@user";
-  }
+  if (!email) return "@user";
   const username = email.split("@")[0];
   const cleanedUsername = username.replace(/\d+/g, "");
   return "@" + cleanedUsername;
 };
 
+// Function to fetch profile data
 const fetchProfileData = async (email) => {
-  const { data, error } = await supabase
-    .from("users")
-    .select("profile") // Fetch the profile column
-    .eq("email", email) // Match the email
-    .single(); // Get a single record
-
-  if (error) {
-    console.error("Error fetching user profile:", error);
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("profile:username, profile_pic")
+      .eq("email", email)
+      .single();
+    if (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.error("Unexpected error fetching user profile:", error);
     return null;
   }
-
-  return data.profile;
 };
 
 // Function to map initials to specific colors
@@ -74,18 +79,20 @@ const CustomAvatar = ({ email, avatarUrl }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
-
       const data = await fetchProfileData(email);
       setProfileData(data);
       setLoading(false);
-
     };
 
-    fetchProfile();
+    if (email) {
+      fetchProfile();
+    }
   }, [email]);
+
   if (loading) {
     return <CircularProgress size={24} />;
   }
+
   const initials = !profileData?.profile_pic ? getInitials(email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
 
@@ -102,7 +109,9 @@ const CustomAvatar = ({ email, avatarUrl }) => {
       >
         {!profileData?.profile_pic && initials}
       </Avatar>
-      <span className="ml-2 font-bold">{profileData?.username || getUsernameFromEmail(email)}</span>
+      <span className="ml-2 font-bold">
+        {profileData?.username || getUsernameFromEmail(email)}
+      </span>
     </div>
   );
 };
