@@ -28,7 +28,7 @@ export default function TemporaryDrawer() {
           <MenuIcon />
         </div>
       </Button>
-      <Drawer open={open} onClose={toggleDrawer(false)} PaperProps={{ sx: { backgroundColor: "rgb(15 23 42)",  borderRadius: '8px',  margin: '20px',  padding: '10px', }, }} >
+      <Drawer open={open} onClose={toggleDrawer(false)} PaperProps={{ sx: { backgroundColor: "rgb(15 23 42)",  borderRadius: '8px',  marginTop: '20px',  padding: '10px', }, }} >
         {DrawerList}
       </Drawer>
     </div>
