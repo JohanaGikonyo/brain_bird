@@ -11,8 +11,8 @@ function PostContent({ content }) {
     const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
     const hashtagRegex = /#(\w+)/g;
     return content
-      .replace(urlRegex, (url) => `<a href="${url}" class="text-blue-500" target="_blank">${url}</a>`)
-      .replace(hashtagRegex, (hashtag) => `<span class="text-blue-500">${hashtag}</span>`);
+      .replace(urlRegex, (url) => `<a href="${url}" class="text-blue-400" target="_blank">${url}</a>`)
+      .replace(hashtagRegex, (hashtag) => `<span class="text-blue-400">${hashtag}</span>`);
   };
 
   const processedContent = processContent(content);
@@ -20,7 +20,7 @@ function PostContent({ content }) {
   return (
     <div className="mt-2">
       <div
-        className={`text-white break-words ${showMore ? `line-clamp-none` : 'line-clamp-1'}`}
+        className={`text-sm break-words ${showMore ? `line-clamp-none` : 'line-clamp-1'}`}
         dangerouslySetInnerHTML={{ __html: processedContent }}
         onClick={toggleShowMore}
 
