@@ -17,6 +17,7 @@ import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
 import CustomProfile from "./CustomProfile";
 import PostContent from './PostContent'
+import SkeletonChildren from './Skeleton'
 function Main() {
   const { selectedItem } = useSelected();
   const { user } = useUser();
@@ -150,11 +151,8 @@ function Main() {
 
   if (loading) {
     return (
-      <div className="text-2xl font-extrabold flex items-center justify-center mt-60">
-        <Box sx={{ display: "flex" }} className="flex gap-5">
-          <CircularProgress size={24} />
-          <p>Please wait ...</p>
-        </Box>
+      <div>
+          <SkeletonChildren/>
       </div>
     );
   }
