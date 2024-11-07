@@ -121,7 +121,7 @@ const handleCloseSnackbar = () => {
       <div className="my-2"><Divider/></div>
       {/* Background Section */}
       <div
-        className="relative h-48 mb-4 bg-gray-500 cursor-pointer rounded-xl"
+        className="relative h-48 mb-8 bg-gray-500 cursor-pointer rounded-xl"
         style={{ backgroundImage: backgroundImg ? `url(${backgroundImg})` : "" }}
         onClick={(e) => {
           e.stopPropagation();
@@ -138,7 +138,7 @@ const handleCloseSnackbar = () => {
 
         {/* Profile Avatar */}
         <div
-          className="absolute bottom-0 left-0 cursor-pointer"
+          className="absolute -bottom-8 left-2 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             document.getElementById("profile-upload").click();

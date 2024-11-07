@@ -32,10 +32,10 @@ function CustomProfile({ email }) {
     <div className=" w-full">
       {/* Background Section */}
       <div
-        className="relative h-48 mb-4 bg-gray-300 w-full rounded-xl"
+        className="relative h-48 mb-8 bg-gray-300 w-full rounded-xl"
         style={{ backgroundImage: profileData?.background_img ? `url(${profileData.background_img})` : "" }}      >
         {/* Profile Avatar */}
-        <div className="absolute bottom-0 left-0">
+        <div className="absolute -bottom-8 left-2">
           {profileData?.profile_pic ? (
             <Image src={profileData?.profile_pic} width={96} height={96} alt="Profile" className="rounded-full w-24 h-24" />
           ) : (
