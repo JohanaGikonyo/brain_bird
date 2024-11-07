@@ -5,12 +5,14 @@ import TopItems from "../../components/TopItems";
 import Main from "../../components/main";
 import Menu from "../../components/menu";
 import Messages from "../../components/messages";
+import MessageResponsive from "@apply/app/components/MessageResponsive";
 import { useUser } from "@apply/app/store/useStore";
 import { useRouter } from "next/navigation";
-
+import { useSelected } from "@apply/app/store/useSection";
 function Mainpage() {
   const router = useRouter();
   const { setUser } = useUser();
+  const {selectedItem}=useSelected()
 
   useEffect(() => {
     const updateUser = async () => {
@@ -40,19 +42,20 @@ function Mainpage() {
       {/* Three-part content layout */}
       <div className="flex flex-1 flex-row bg-slate-950">
         {/* Left Sidebar (Menu) */}
-        <div className="hidden lg:block lg:w-64 xl:w-72 h-full overflow-y-auto fixed left-0">
+        <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto fixed left-0">
           <Menu />
         </div>
 
         {/* Main content section */}
-        <div className="flex-1 lg:ml-64 lg:mr-64 xl:ml-72 p-0 lg:p-8 overflow-y-auto sm:m-0">
+        <div className="flex-1 lg:ml-64 lg:mr-3 xl:ml-80 p-0 lg:p-8 overflow-y-auto sm:m-0">
           <Main />
         </div>
 
         {/* Right Sidebar (Messages) */}
-        <div className="hidden lg:block lg:w-64 xl:w-72 h-full overflow-y-auto fixed right-0">
-          <Messages />
+        <div>
+        {selectedItem==="Messages" && <><Messages />  <MessageResponsive/></>}
         </div>
+        
       </div>
     </div>
   );

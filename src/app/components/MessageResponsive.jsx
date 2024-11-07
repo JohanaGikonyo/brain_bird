@@ -1,26 +1,21 @@
-import React, { useState } from "react";
-import ChatIcon from "@mui/icons-material/Chat";
+import React from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useSelected } from "../store/useSection";
 function MessageResponsive() {
-  const [view, setView] = useState(false);
+  const {selectedItem, setSelectedItem}=useSelected()
 
   const toggleView = () => {
-    setView((prev) => !prev);
+    setSelectedItem("")
   };
 
   return (
     <div>
-      {/* Chat Icon */}
-      {!view && (
-        <div className="text-slate-50 hover:cursor-pointer flex flex-end justify-end" onClick={toggleView}>
-          <ChatIcon />
-        </div>
-      )}
+    
 
       {/* Message Overlay */}
-      {view && (
-        <div className="fixed inset-0 bg-gray-950  flex flex-col p-4 z-50 mt-0">
+      {(selectedItem==="Messages" ) && (
+        <div className="fixed inset-0 bg-gray-950  flex flex-col p-4 z-50 mt-0 lg:hidden ">
           <div className="flex items-center mb-4 justify-between">
             {/* Back Icon */}
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />

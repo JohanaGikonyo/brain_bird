@@ -11,11 +11,13 @@ import UserAvatar from "./UserAvatar";
 import { supabase } from "../lib/supabaseClient";
 import logo from "../../../public/brain_bird_logo.png";
 import ClearIcon from '@mui/icons-material/Clear';
+import ChatIcon from "@mui/icons-material/Chat";
+
 import {  CircularProgress,  } from "@mui/material";
 
 import Image from "next/image";
 function Menu({ open }) {
-  const { setSelectedItem } = useSelected();
+  const { setSelectedItem, selectedItem } = useSelected();
   const [loading, setLoading] = useState(false);
 
   // Handle the logout process
@@ -32,6 +34,14 @@ function Menu({ open }) {
       window.location.href = "/auth/login"; // Redirect to login page
     }
   };
+  const handleMessagesSet=()=>{
+    if(selectedItem==="!Messages"){
+      setSelectedItem("")
+    }
+    else{
+      setSelectedItem("Messages")
+    }
+  }
 
   return (
     <div
@@ -64,6 +74,14 @@ function Menu({ open }) {
         <CloudIcon className="w-6 h-6" />
         <span>Weather</span>
       </button>
+      <button
+        onClick={() => handleMessagesSet()}
+        className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
+      >
+        <ChatIcon className="w-6 h-6" />
+        <span>Messages</span>
+      </button>
+      
       <button
         onClick={() => setSelectedItem("Sports")}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
