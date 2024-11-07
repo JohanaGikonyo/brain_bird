@@ -14,7 +14,7 @@
     "@mui/icons-material": "^6.0.2",
     "@mui/material": "^6.0.2",
     "@mui/styled-engine-sc": "^6.0.2",
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "^2.46.1",
     "date-fns": "^3.6.0",
     "next": "^14.2.9",
     "react": "^18",
