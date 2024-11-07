@@ -57,23 +57,28 @@ function Main() {
 
   // Realtime updates
   useEffect(() => {
-  const channel = supabase
-    .channel("posts-changes")
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "posts" }, (payload) => {
-      setPosts((prevPosts) => [payload.new, ...prevPosts]);
-  })
-    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "posts" }, (payload) => {
-      setPosts((prevPosts) => prevPosts.map((post) => (post.id === payload.new.id ? payload.new : post)));
-    })
-    .on("postgres_changes", { event: "DELETE", schema: "public", table: "posts" }, (payload) => {
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== payload.old.id));
-    })
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, []);
+    const channel = supabase
+      .channel("posts-changes")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "posts" }, (payload) => {
+        setPosts((prevPosts) => [payload.new, ...prevPosts]);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "posts" }, (payload) => {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === payload.new.id ? { ...post, ...payload.new } : post
+          )
+        );
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "posts" }, (payload) => {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== payload.old.id));
+      })
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+  
 
 
   const handleAddComment = async (postId, comment) => {
@@ -103,9 +108,9 @@ function Main() {
     if (error) {
       console.error("Error updating reposts:", error);
     } else {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => (post.id === postId ? { ...post, reposts: currentReposts + 1 } : post))
-    );
+        setPosts((prevPosts) =>
+            prevPosts.map((post) => (post.id === postId ? { ...post, reposts: currentReposts + 1 } : post))
+        );
     }
   };
 
