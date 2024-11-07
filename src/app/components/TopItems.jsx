@@ -3,8 +3,7 @@ import { useSelected } from "../store/useSection";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Drawer from "./Drawer";
-import MessageResponsive from "./MessageResponsive";
-import ChatIcon from "@mui/icons-material/Chat";
+
 
 function TopItems() {
   const { setSelectedItem } = useSelected();
