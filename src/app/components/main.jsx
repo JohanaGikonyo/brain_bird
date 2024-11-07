@@ -64,22 +64,30 @@ function Main() {
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "posts" }, (payload) => {
         setPosts((prevPosts) =>
-          prevPosts.map((post) =>
-            post.id === payload.new.id ? { ...post, ...payload.new } : post
-          )
+          prevPosts.map((post) => (post.id === payload.new.id ? { ...post, ...payload.new } : post))
         );
       })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "posts" }, (payload) => {
         setPosts((prevPosts) => prevPosts.filter((post) => post.id !== payload.old.id));
       })
       .subscribe();
-  
+
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-  
 
+  const processContent = (content) => {
+    const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    const hashtagRegex = /#(\w+)/g;
+    return content
+      .replace(urlRegex, (url) => `<a href="${url}" class="text-blue-500" target="_blank">${url}</a>`)
+      .replace(hashtagRegex, (hashtag) => `<span class="text-blue-500">${hashtag}</span>`);
+  };
+  const PostContent = ({ content }) => {
+    const processedContent = processContent(content);
+    return <div dangerouslySetInnerHTML={{ __html: processedContent }} className="break-words text-white mt-2" />;
+  };
 
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("*").eq("id", postId).single();
@@ -108,9 +116,9 @@ function Main() {
     if (error) {
       console.error("Error updating reposts:", error);
     } else {
-        setPosts((prevPosts) =>
-            prevPosts.map((post) => (post.id === postId ? { ...post, reposts: currentReposts + 1 } : post))
-        );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post.id === postId ? { ...post, reposts: currentReposts + 1 } : post))
+      );
     }
   };
 
@@ -136,12 +144,8 @@ function Main() {
       console.error("Error updating views:", error);
     } else {
       setPosts((prevPosts) =>
-        prevPosts.map((post) => 
-            post.id === selectedPost.id 
-                ? { ...post, views: selectedPost.views + 1 } 
-                : post
-        )
-    );
+        prevPosts.map((post) => (post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post))
+      );
     }
   };
 
@@ -212,7 +216,7 @@ function Main() {
                       />
                     </div>
                     <div className="text-lg text-white mt-2 break-words">
-                      {typeof post.post === "string" ? post.post : JSON.stringify(post.post)}
+                      <PostContent content={post.post} />
                       {post.media && (
                         <div className="w-full max-w-full mt-2 overflow-hidden rounded-lg">
                           <PostMedia mediaUrls={post.media} />
