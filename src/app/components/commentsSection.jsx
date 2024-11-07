@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
+import CommentContent from "./CommentContent";
 const CommentSection = ({ postId, comments = [], handleAddComment, showComments }) => {
   const [newComment, setNewComment] = useState("");
   const { user } = useUser();
@@ -32,7 +33,7 @@ const CommentSection = ({ postId, comments = [], handleAddComment, showComments 
                 <div key={index} className="flex items-start gap-2 mt-1 text-white">
                   <div>
                     <div className="text-gray-400 text-sm">{<CustomAvatar email={parsedComment.commenterEmail} size = {"0.5rem"}/>}</div>
-                    <div className="mt-1 ml-4">{parsedComment.text}</div>
+                    <div className="mt-1 ml-4 text-slate-200 text-sm"><CommentContent comment={parsedComment.text}/></div>
                   </div>
                 </div>
               );

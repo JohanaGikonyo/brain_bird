@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
-import  Skeleton  from "@mui/material/Skeleton";
+import Skeleton from "@mui/material/Skeleton";
 import { supabase } from "../lib/supabaseClient";
 
 // Function to get the initials from the email
@@ -72,7 +72,8 @@ const getColorForInitial = (initial) => {
   return colorMap[initial] || colorMap.default;
 };
 
-const CustomAvatar = ({ email, avatarUrl , size }) => {
+// eslint-disable-next-line react/display-name
+const CustomAvatar = React.memo(({ email, avatarUrl, size }) => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -90,10 +91,16 @@ const CustomAvatar = ({ email, avatarUrl , size }) => {
   }, [email]);
 
   if (loading) {
-    return  <Skeleton variant="circular" width={size} height={size} sx={{
-      bgcolor: "linear-gradient(45deg, #FF4081, #FF80AB)", 
-    }}/>;
-
+    return (
+      <Skeleton
+        variant="circular"
+        width={size}
+        height={size}
+        sx={{
+          bgcolor: "linear-gradient(45deg, #FF4081, #FF80AB)",
+        }}
+      />
+    );
   }
 
   const initials = !profileData?.profile_pic ? getInitials(email) : "";
@@ -107,10 +114,9 @@ const CustomAvatar = ({ email, avatarUrl , size }) => {
         sx={{
           bgcolor: backgroundColor,
           color: "white",
-          fontSize:size || "1.5rem",
-          width: size === "0.5rem" ? "20px" : "40px", 
-          height: size === "0.5rem" ? "20px" : "40px", 
-        
+          fontSize: size || "1.5rem",
+          width: size === "0.5rem" ? "20px" : "40px",
+          height: size === "0.5rem" ? "20px" : "40px",
         }}
       >
         {!profileData?.profile_pic && initials}
@@ -120,6 +126,6 @@ const CustomAvatar = ({ email, avatarUrl , size }) => {
       </span>
     </div>
   );
-};
+});
 
 export default CustomAvatar;

@@ -28,24 +28,30 @@ const UserAvatar = () => {
   const { user } = useUser();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Get the full name and avatar URL
   const fullName = profileData?.username || user.user_metadata?.full_name || "User";
-  const avatarUrl = user.avatar_url;
+  const avatarUrl = profileData?.profile_pic || user.avatar_url;
 
   const fetchProfileData = async (email) => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("profile") // Fetch the profile column
-      .eq("email", email)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("profile")
+        .eq("email", email)
+        .single();
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      return data.profile;
+    } catch (error) {
+      setError(error.message);
       console.error("Error fetching user profile:", error);
       return null;
     }
-
-    return data.profile;
   };
 
   useEffect(() => {
@@ -56,7 +62,9 @@ const UserAvatar = () => {
       setLoading(false);
     };
 
-    fetchProfile();
+    if (user.email) {
+      fetchProfile();
+    }
   }, [user.email]);
 
   // Determine initials and background color if avatar does not exist
@@ -74,11 +82,21 @@ const UserAvatar = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Typography variant="body1" style={{ color: "red" }} className="lg:text-slate-50 text-slate-400">
+          Error: {error}
+        </Typography>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <Avatar
         alt="User Avatar"
-        src={avatarUrl || profileData?.profile_pic}
+        src={avatarUrl}
         sx={{
           bgcolor: backgroundColor,
           color: "white",
