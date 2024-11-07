@@ -16,6 +16,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
 import CustomProfile from "./CustomProfile";
+import PostContent from './PostContent'
 function Main() {
   const { selectedItem } = useSelected();
   const { user } = useUser();
@@ -77,17 +78,7 @@ function Main() {
     };
   }, []);
 
-  const processContent = (content) => {
-    const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-    const hashtagRegex = /#(\w+)/g;
-    return content
-      .replace(urlRegex, (url) => `<a href="${url}" class="text-blue-500" target="_blank">${url}</a>`)
-      .replace(hashtagRegex, (hashtag) => `<span class="text-blue-500">${hashtag}</span>`);
-  };
-  const PostContent = ({ content }) => {
-    const processedContent = processContent(content);
-    return <div dangerouslySetInnerHTML={{ __html: processedContent }} className="break-words text-white mt-2" />;
-  };
+  
 
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("*").eq("id", postId).single();
