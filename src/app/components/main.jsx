@@ -19,7 +19,7 @@ import CustomProfile from "./CustomProfile";
 import PostContent from './PostContent'
 import SkeletonChildren from './Skeleton'
 function Main() {
-  const { selectedItem } = useSelected();
+  const { selectedItem, setSelectedItem } = useSelected();
   const { user } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +30,7 @@ function Main() {
   const [hasMore, setHasMore] = useState(true);
   const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
+    setSelectedItem('Messages')
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
@@ -49,7 +50,7 @@ function Main() {
       setLoading(false);
     };
     fetchPosts(page);
-  }, [page]);
+  }, [page, setSelectedItem]);
 
   useEffect(() => {
     if (inView && hasMore) {

@@ -10,10 +10,10 @@ function SkeletonChildrenDemo({ loading = false }) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '100vw', 
+      width: 300, 
       margin:4,
       marginTop: 20,
-      padding: 2,
+      padding: 4,
       borderRadius: '10px',
       backgroundColor: 'gray',
       boxShadow: 3,
@@ -31,7 +31,7 @@ function SkeletonChildrenDemo({ loading = false }) {
         </Box>
         <Box sx={{ flexGrow: 1 }}>
           {loading ? (
-            <Skeleton width="80%">
+            <Skeleton width="100%">
               <Typography>.</Typography>
             </Skeleton>
           ) : (
@@ -43,7 +43,7 @@ function SkeletonChildrenDemo({ loading = false }) {
         {loading ? (
           <Skeleton variant="rectangular" width="100%" height={100} />
         ) : (
-          <Box sx={{ width: '100%', height: 100, borderRadius: '10px', backgroundColor: 'gray' }} />
+          <Box sx={{ width: '100%', height: 100, borderRadius: '10px', backgroundColor: 'slate' }} />
         )}
       </Box>
     </Box>

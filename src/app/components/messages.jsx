@@ -6,7 +6,7 @@ function Messages() {
   const {selectedItem, setSelectedItem}=useSelected()
 
   const toggleView = () => {
-    setSelectedItem("")
+    setSelectedItem("!Messages")
   };
 
   return (
@@ -14,7 +14,7 @@ function Messages() {
     
 
       {/* Message Overlay */}
-      {(selectedItem==="Messages" ) && (
+      {(selectedItem==="Messages"   ) && (
         <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto fixed right-0 top-20 rounded-lg p-4 bg-slate-950 z-50">
           <div className="flex items-center mb-4 justify-between">
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />

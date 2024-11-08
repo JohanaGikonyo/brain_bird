@@ -29,7 +29,7 @@ export default function LogIn() {
       setSnackbarMessage("Check your email for the login link!");
       setSnackbarSeverity("success");
     } catch (error) {
-      setSnackbarMessage(error.message);
+      setSnackbarMessage(error.message,'Try with google');
       setSnackbarSeverity("error");
     } finally {
       setLoading(false);
@@ -72,7 +72,7 @@ export default function LogIn() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Log In</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">SignIn</h1>
         <form onSubmit={handleSignIn} className="space-y-4">
           <div>
             <input
@@ -81,7 +81,7 @@ export default function LogIn() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 text-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
@@ -89,7 +89,7 @@ export default function LogIn() {
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Log In"}
+            {loading ? <CircularProgress size={24} color="inherit" /> : "SignIn"}
           </button>
         </form>
         <div className="mt-6">

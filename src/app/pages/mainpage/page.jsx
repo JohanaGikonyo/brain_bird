@@ -47,13 +47,13 @@ function Mainpage() {
         </div>
 
         {/* Main content section */}
-        <div className="flex-1 lg:ml-64 lg:mr-3 xl:ml-80 p-0 lg:p-8 overflow-y-auto sm:m-0">
+        <div className={`${selectedItem==="Messages"?`lg:mr-72 xl:mr-80`:'' }flex-1 lg:ml-64   xl:ml-80 p-0 lg:p-8 overflow-y-auto sm:m-0`}>
           <Main />
         </div>
-
+<div><Messages /></div>
         {/* Right Sidebar (Messages) */}
         <div>
-        {selectedItem==="Messages" && <><Messages />  <MessageResponsive/></>}
+        {selectedItem==="Messages" && <>  <MessageResponsive/></>}
         </div>
         
       </div>
