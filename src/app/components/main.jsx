@@ -30,7 +30,6 @@ function Main() {
   const [hasMore, setHasMore] = useState(true);
   const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
-    setSelectedItem('Messages')
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
