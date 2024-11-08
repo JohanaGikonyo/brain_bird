@@ -175,7 +175,7 @@ function Main() {
 
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
-      {(selectedItem === "" || selectedItem === "Messages")  && (
+      {(selectedItem === "" || selectedItem === "Messages"|| selectedItem === "!Messages")  && (
         <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
           <UserPost />
           {posts.length === 0 ? (
