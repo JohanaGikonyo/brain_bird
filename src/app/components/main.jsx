@@ -178,6 +178,7 @@ function Main() {
       {(selectedItem === "" || selectedItem === "Messages"|| selectedItem === "!Messages")  && (
         <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
           <UserPost />
+          
           {posts.length === 0 ? (
             <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
               <Box sx={{ display: "flex" }} className="flex gap-5">

@@ -20,7 +20,7 @@ function PostContent({ content }) {
   return (
     <div className="mt-2">
       <div
-        className={`text-sm break-words ${showMore ? `line-clamp-none` : 'line-clamp-1'}`}
+        className={`text-sm break-words whitespace-pre-wrap ${showMore ? `line-clamp-none` : 'line-clamp-2'}`}
         dangerouslySetInnerHTML={{ __html: processedContent }}
         onClick={toggleShowMore}
 

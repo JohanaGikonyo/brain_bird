@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import TopItems from "../../components/TopItems";
@@ -6,31 +7,43 @@ import Main from "../../components/main";
 import Menu from "../../components/menu";
 import Messages from "../../components/messages";
 import MessageResponsive from "@apply/app/components/MessageResponsive";
-import { useUser } from "@apply/app/store/useStore";
+import { useUser } from "@apply/app/store/useStore"; 
 import { useRouter } from "next/navigation";
 import { useSelected } from "@apply/app/store/useSection";
+
 function Mainpage() {
   const router = useRouter();
-  const { setUser } = useUser();
-  const {selectedItem}=useSelected()
+  const { user, setUser } = useUser();
+  const { selectedItem } = useSelected();
 
   useEffect(() => {
-    const updateUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    const initializeSession = async () => {
+      // Check for user in localStorage
+      const storedUser = JSON.parse(localStorage.getItem('user'));
 
-      if (session) {
-        await setUser(session.user);
+      if (storedUser) {
+        setUser(storedUser);
       } else {
-        router.push("/auth/login");
-      }
+        // Fetch session from Supabase if not found in localStorage
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      
+        if (session) {
+          setUser(session.user);
+          localStorage.setItem('user', JSON.stringify(session.user));
+        } else {
+          router.push("/auth/login");
+        }
+      }
     };
 
-    updateUser();
+    initializeSession();
   }, [router, setUser]);
+
+  if (!user) {
+    return null; // Avoid rendering while loading user data
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-white">
@@ -47,15 +60,15 @@ function Mainpage() {
         </div>
 
         {/* Main content section */}
-        <div className={`${selectedItem==="Messages"?`lg:mr-72 xl:mr-80`:'' }flex-1 lg:ml-64 xl:mr-80   xl:ml-80 p-0 lg:p-8 overflow-y-auto sm:m-0`}>
+        <div
+          className={`${selectedItem === "Messages" ? `lg:mr-72 xl:mr-80` : ''} flex-1 lg:ml-64 xl:mr-80 xl:ml-80 p-0 lg:p-8 overflow-y-auto sm:m-0`}
+        >
           <Main />
         </div>
-<div><Messages /></div>
+
         {/* Right Sidebar (Messages) */}
-        <div>
-        {selectedItem==="Messages" && <>  <MessageResponsive/></>}
-        </div>
-        
+        <div><Messages /></div> 
+         <div> {selectedItem==="Messages" && <> <MessageResponsive/></>}</div>
       </div>
     </div>
   );

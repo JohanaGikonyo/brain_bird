@@ -11,19 +11,22 @@ export default function Home() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session }, } = await supabase.auth.getSession();
+      const { data: { session }} = await supabase.auth.getSession();
       
       if (session) {
         // Set the user in the Zustand store
-        await setUser(session.user);
+        setUser(session.user);
+        
+        // Store the user in localStorage
+        localStorage.setItem('user', JSON.stringify(session.user));
         
         // Insert the user email into the users table
         const { error: insertError } = await supabase
           .from("users")
-          .insert([{ email: session.user.email }])
+          .upsert([{ email: session.user.email }], { onConflict: ['email'] });
         
         if (insertError) {
-          console.error("Error inserting user email into users table:", insertError);
+          console.error("Error upserting user email into users table:", insertError);
         }
 
         // Redirect to the main page
