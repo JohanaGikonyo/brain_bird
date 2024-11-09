@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import { useRouter } from "next/navigation";
-
 function CustomProfile({ email }) {
     const router=useRouter();
-  
   const [profileData, setProfileData] = useState(null);
   const [numberFollowers, setNumberFollowers] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -33,7 +31,7 @@ function CustomProfile({ email }) {
     return <div>Loading...</div>;
   }
 
-  const handleDisplayFollowers=(email)=>{router.push(`/pages/followers?email=${encodeURIComponent(email)}`)}
+  const handleDisplayFollowers=(email)=>{router.push(`/pages/CustomFollowers?email=${encodeURIComponent(email)}`)}
 
 
   return (
