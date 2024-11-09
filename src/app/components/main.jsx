@@ -147,7 +147,7 @@ function Main() {
 
   const closeModal = () => {
     setViewingPost(null);
-  };
+  };         
 
   if (loading) {
     return (

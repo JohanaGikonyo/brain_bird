@@ -6,9 +6,10 @@ import { Divider } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSelected } from "../store/useSection";
 import { CircularProgress, Snackbar, Alert } from "@mui/material";
-
+import { useRouter } from "next/navigation";
 function Profile() {
   const { user } = useUser();
+  const router=useRouter();
   const { setSelectedItem } = useSelected();
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -110,11 +111,11 @@ const handleCloseSnackbar = () => {
     } else {
       setLoading(false)
       setOpenSnackbar(true);
-
       setSnackbarMessage("You have successsfully Updated your profile!");
       setSnackbarSeverity("success");    }
   };
-
+ 
+  const handleDisplayFollowers=(email)=>{router.push(`/pages/followers?email=${encodeURIComponent(email)}`)}
   return (
     <div className=" mx-auto mt-28 p-4 bg-slate-900 rounded-xl w-full">
       <div className="flex gap-4 items-center text-xl"><span onClick={() => setSelectedItem("")}><ArrowBackIcon/></span><h3>Update Your Profile</h3></div>
@@ -168,7 +169,7 @@ const handleCloseSnackbar = () => {
       </div>
 
       {/* Form Fields */}
-      <div className="mb-4 text-blue-400"><h3 className="font-semibold text-base">Followers:  {"  "+numberFollowers}</h3></div>
+      <div className="mb-4 text-blue-400 active:bg-slate-400 rounded-lg px-3 py-2 hover:cursor-pointer hover:bg-slate-300" onClick={() => handleDisplayFollowers(email)} ><h3 className="font-semibold text-base">Followers:  {"  "+numberFollowers}</h3></div>
 <div className="flex flex-col gap-4 items-start justify-start">
       <div className="mb-4">
         <input

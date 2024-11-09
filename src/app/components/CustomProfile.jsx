@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
+import { useRouter } from "next/navigation";
+
 function CustomProfile({ email }) {
+    const router=useRouter();
+  
   const [profileData, setProfileData] = useState(null);
   const [numberFollowers, setNumberFollowers] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -28,6 +32,10 @@ function CustomProfile({ email }) {
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  const handleDisplayFollowers=(email)=>{router.push(`/pages/followers?email=${encodeURIComponent(email)}`)}
+
+
   return (
     <div className=" w-full">
       {/* Background Section */}
@@ -48,7 +56,7 @@ function CustomProfile({ email }) {
 
       {/* Form Fields */}
       <div className="mb-4 text-blue-400">
-        <h3 className="font-semibold text-base">Followers: {"  " + numberFollowers}</h3>
+        <h3 className="font-semibold text-base hover:cursor-pointer" onClick={() => handleDisplayFollowers(email)}>Followers: {"  " + numberFollowers}</h3>
       </div>
       <div className="mb-4">
         <label>
