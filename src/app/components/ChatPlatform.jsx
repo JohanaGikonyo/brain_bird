@@ -79,7 +79,7 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-y-auto">
+    <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-y-auto pb-14 lg:pb-16">
      
       <div className="flex-grow p-4 ">
         {loading ? (

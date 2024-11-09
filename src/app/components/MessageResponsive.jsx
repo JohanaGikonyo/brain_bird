@@ -5,25 +5,22 @@ import { useSelected } from "../store/useSection";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import { supabase } from "../lib/supabaseClient";
-import ChatPlatform from './ChatPlatform';
-
+import ChatPlatform from "./ChatPlatform";
 function MessageResponsive() {
-  const { selectedItem, setSelectedItem, setEmail, email } = useSelected();
+  const { setSelectedItem,selectedItem, setEmail, email } = useSelected();
   const { user } = useUser();
   const [chatUsers, setChatUsers] = useState([]);
   const [hasChatHistory, setHasChatHistory] = useState(false);
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
-
+  const [unreadCounts, setUnreadCounts] = useState({});
   const toggleView = () => {
-    if (email === null) {
-      setSelectedItem("");
-    } else {
+    if (email !== null) {
       setEmail(null);
+    } else {
+      setSelectedItem("");
     }
-  };
-
-  // Fetch chat history and users
+  }; // Fetch users and chat history
   useEffect(() => {
     const displayAllUsers = async () => {
       try {
@@ -34,51 +31,45 @@ function MessageResponsive() {
         console.error(error);
       }
     };
-
     const fetchChatHistory = async () => {
       try {
         const { data, error } = await supabase
           .from("messages")
-          .select("sender, recipient, content, timestamp")
+          .select("sender, recipient, content, timestamp, is_read")
           .or(`sender.eq.${user.email},recipient.eq.${user.email}`)
           .order("timestamp", { ascending: false });
-
         if (error) throw error;
-
         const usersMap = {};
+        const unreadMap = {};
         data.forEach((msg) => {
           const otherUser = msg.sender === user.email ? msg.recipient : msg.sender;
           if (!usersMap[otherUser]) {
             usersMap[otherUser] = { email: otherUser, lastMessage: msg.content };
           }
+          if (!msg.is_read && msg.recipient === user.email) {
+            if (!unreadMap[otherUser]) {
+              unreadMap[otherUser] = 0;
+            }
+            unreadMap[otherUser] += 1;
+          }
         });
-
         setChatUsers(Object.values(usersMap));
         setHasChatHistory(Object.keys(usersMap).length > 0);
+        setUnreadCounts(unreadMap);
       } catch (error) {
         console.error("Error fetching chat history:", error);
       }
     };
-
     displayAllUsers();
     fetchChatHistory();
   }, [user.email]);
-
-  // Handle search input change
+  // Filtering the chat users based on search input 
+  const filteredChatUsers = chatUsers.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()) ); 
+  // Filtering the all users based on search input
+   const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()) );
   const handleSearch = (value) => {
     setSearch(value);
-  };
-
-  // Filtered chat users based on search input
-  const filteredChatUsers = chatUsers.filter((chatUser) =>
-    chatUser.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Filtered all users based on search input
-  const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(search.toLowerCase())
-  );
-
+  }; 
   return (
     <div>
       {/* Message Overlay */}
@@ -104,6 +95,7 @@ function MessageResponsive() {
 
               {/* Display list of users with chat history */}
               {hasChatHistory ? (
+              filteredChatUsers.length > 0 ? (
                 filteredChatUsers.map((chatUser, index) => (
                   <div
                     key={index}
@@ -111,15 +103,28 @@ function MessageResponsive() {
                     onClick={() => setEmail(chatUser.email)}
                   >
                     <CustomAvatar email={chatUser.email} />
-                    <div className="ml-8">
-                      <div className="text-slate-400 text-sm truncate">{chatUser.lastMessage}</div>
+                    <div className="ml-8 flex justify-between w-full pr-4">
+                      <div
+                        className={`text-slate-400 text-sm truncate ${unreadCounts[chatUser.email] ? "font-bold" : ""}`}
+                      >
+                        {chatUser.lastMessage}
+                      </div>
+                      {unreadCounts[chatUser.email] && (
+                        <div className="bg-blue-500 text-white rounded-full px-2 text-xs">
+                          {unreadCounts[chatUser.email]}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="flex flex-col space-x-2 gap-4">
-                  {/* Display stacked avatars if no chat history */}
-                  {filteredUsers.map((user, idx) => (
+                <div className="text-slate-400">No matching users found</div>
+              )
+            ) : (
+              <div className="flex flex-col space-x-2 gap-4">
+                {/* Display stacked avatars if no chat history */}
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user, idx) => (
                     <div
                       key={idx}
                       className="hover:bg-slate-600 cursor-pointer p-3 rounded-lg"
@@ -127,11 +132,14 @@ function MessageResponsive() {
                     >
                       <CustomAvatar email={user.email} />
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                  ))
+                ) : (
+                  <div className="text-slate-400">No matching users found</div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         </div>
       )}
     </div>
