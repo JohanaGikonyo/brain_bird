@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useSelected } from "../store/useSection";
 
-const Follow = ({ email, currentUserEmail,  postedDate }) => {
+const Follow = ({ email, currentUserEmail, postedDate }) => {
   const [isFollowing, setIsFollowing] = useState(false);
+  const { setSelectedItem, setEmail } = useSelected();
 
   useEffect(() => {
     const checkIfFollowing = async () => {
       try {
-        // Check if the current user is already following the given email
         const { data: currentUserData, error: currentUserError } = await supabase
           .from("users")
           .select("connections")
@@ -22,23 +23,13 @@ const Follow = ({ email, currentUserEmail,  postedDate }) => {
         if (currentUserData && currentUserData.connections?.includes(email)) {
           setIsFollowing(true);
         }
-
-        // Retrieve follower count only for the specified email
-        const {  error: followerError } = await supabase.from("users").select("connections");
-
-        if (followerError) {
-          console.error("Error fetching followers:", followerError);
-          return;
-        }
-
-        
       } catch (error) {
         console.error("An error occurred:", error);
       }
     };
 
     checkIfFollowing();
-  }, [email, currentUserEmail, ]);
+  }, [email, currentUserEmail]);
 
   const handleFollow = async () => {
     try {
@@ -56,16 +47,13 @@ const Follow = ({ email, currentUserEmail,  postedDate }) => {
       let updatedConnections;
 
       if (isFollowing) {
-        // Unfollow: Remove the followed user from the current user's connections
         updatedConnections = currentUserData.connections.filter((conn) => conn !== email);
         setIsFollowing(false);
       } else {
-        // Follow: Add the followed user to the current user's connections
         updatedConnections = [...(currentUserData.connections || []), email];
         setIsFollowing(true);
       }
 
-      // Update the current user's connections in Supabase
       const { error: updateError } = await supabase
         .from("users")
         .update({ connections: updatedConnections })
@@ -73,30 +61,36 @@ const Follow = ({ email, currentUserEmail,  postedDate }) => {
 
       if (updateError) {
         console.error("Error updating connections:", updateError);
-        return;
       }
-
-    
-      if (followerError) {
-        console.error("Error fetching followers after update:", followerError);
-        return;
-      }
-
-      
     } catch (error) {
       console.error("An error occurred during follow/unfollow:", error);
     }
   };
 
+  const handleMessage = () => {
+    setEmail(email); // Set the email to be passed
+    setSelectedItem("Messages"); // Switch to Messages view
+  };
+
   return (
     <div className="flex gap-3">
       <div className="text-gray-400 text-sm mt-2">{postedDate}</div>
-      <button
-        onClick={handleFollow}
-        className="text-blue-500 hover:bg-slate-500 rounded-2xl px-4 py-2 active:bg-slate-50"
-      >
-        {isFollowing ? "Following" : "Follow"}
-      </button>
+
+      {isFollowing ? (
+        <button
+          onClick={handleMessage}
+          className="text-blue-500 hover:bg-slate-500 rounded-2xl px-4 py-2 active:bg-slate-50"
+        >
+          Message
+        </button>
+      ) : (
+        <button
+          onClick={handleFollow}
+          className="text-blue-500 hover:bg-slate-500 rounded-2xl px-4 py-2 active:bg-slate-50"
+        >
+          Follow
+        </button>
+      )}
     </div>
   );
 };
