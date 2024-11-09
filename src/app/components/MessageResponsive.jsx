@@ -84,7 +84,7 @@ function MessageResponsive() {
       {/* Message Overlay */}
       {selectedItem === "Messages" && (
         <div className="lg:hidden lg:w-72 xl:w-80 h-full w-full overflow-y-auto fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50">
-          <div className="flex items-center mb-4 justify-start gap-2">
+          <div className={email?`fixed top-20 overflow-y-auto z-20   p-2 bg-gray-800 flex items-center  justify-start gap-2`:"flex items-center mb-4 justify-start gap-2"} >
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
             <h2 className="text-xl text-slate-200 font-bold ml-2">{email ? <CustomAvatar email={email} /> : "Chat With"}</h2>
             <MoreVertIcon className="text-slate-400" />

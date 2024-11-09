@@ -34,19 +34,23 @@ function ChatPlatform({ userEmail }) {
     fetchMessages();
 
     const channel = supabase
-      .channel('public:messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-        if (payload.new.sender === email || payload.new.recipient === email) {
-          setMessages(prevMessages => [...prevMessages, payload.new]);
-          scrollToBottom();
-        }
-      })
-      .subscribe();
+    .channel('public:messages')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+      const newMsg = payload.new;
+      if (
+        (newMsg.sender === userEmail && newMsg.recipient === email) ||
+        (newMsg.sender === email && newMsg.recipient === userEmail)
+      ) {
+        setMessages((prevMessages) => [...prevMessages, newMsg]);
+        scrollToBottom();
+      }
+    })
+    .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userEmail, email]);
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [userEmail, email]);
 
   const sendMessage = async () => {
     if (newMessage.trim() === '') return;
@@ -75,7 +79,7 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-gray-800 text-white overflow-y-auto">
+    <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-y-auto">
      
       <div className="flex-grow p-4 ">
         {loading ? (
