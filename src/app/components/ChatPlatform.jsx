@@ -16,7 +16,7 @@ function ChatPlatform({ userEmail }) {
         setLoading(true);
         const { data, error } = await supabase
           .from('messages')
-          .select('sender, recipient, content, timestamp, is_read') // Include is_read if needed
+          .select('sender, recipient, content, timestamp, is_read')
           .or(`sender.eq.${email},recipient.eq.${email}`)
           .or(`sender.eq.${userEmail},recipient.eq.${userEmail}`)
           .order('timestamp', { ascending: true });
@@ -37,7 +37,7 @@ function ChatPlatform({ userEmail }) {
         const { error } = await supabase
           .from('messages')
           .update({ is_read: true })
-          .or(`recipient.eq.${email},sender.eq.${userEmail}`); // Mark all relevant messages as read
+          .or(`recipient.eq.${email},sender.eq.${userEmail}`);
 
         if (error) throw error;
       } catch (error) {
@@ -45,7 +45,7 @@ function ChatPlatform({ userEmail }) {
       }
     };
 
-    fetchMessages().then(markAsRead); // Fetch messages and then mark them as read
+    fetchMessages().then(markAsRead);
 
     const channel = supabase
       .channel('public:messages')
@@ -64,7 +64,7 @@ function ChatPlatform({ userEmail }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userEmail, email]); // Dependencies for useEffect
+  }, [userEmail, email]);
 
   const sendMessage = async () => {
     if (newMessage.trim() === '') return;
@@ -87,13 +87,19 @@ function ChatPlatform({ userEmail }) {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      sendMessage(); 
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-y-auto pb-14 lg:pb-16">
-      <div className="flex-grow p-4 ">
+    <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-hidden py-10 lg:pb-24">
+      <div className="flex-grow p-4 h-80 lg:h-auto overflow-y-auto scrollbar-hide">
         {loading ? (
           <p className="text-center">Loading messages...</p>
         ) : (
@@ -117,14 +123,14 @@ function ChatPlatform({ userEmail }) {
           </div>
         )}
       </div>
-      <div className="flex-none p-4 bg-gray-900">
-        <div className="flex items-center space-x-2 bottom-1 fixed lg:mr-4 lg:ml-1 lg:right-1 ">
+        <div className="flex items-center space-x-2 fixed my-4 lg:bottom-4 bottom-1">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 "
+            className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2"
           />
           <button
             onClick={sendMessage}
@@ -132,7 +138,6 @@ function ChatPlatform({ userEmail }) {
           >
             <SendIcon />
           </button>
-        </div>
       </div>
     </div>
   );

@@ -47,8 +47,8 @@ function Menu({ open }) {
     <div
       className={
         open
-          ? `text-slate-200 m-2 mt-1 mb-10  shadow-lg p-6 rounded-lg flex flex-col items-center justify-center space-y-4`
-          : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col items-center space-y-4`
+          ? `text-slate-200 m-2 mt-1 mb-10  shadow-lg p-6 rounded-lg flex flex-col items-center scrollbar-hide justify-center space-y-4`
+          : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col scrollbar-hide items-center space-y-4`
       }
     >
       <div className="flex justify-between items-center text-slate-50 gap-10"><div className="mb-4 ml-4 rounded-full"><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div><ClearIcon /></div>

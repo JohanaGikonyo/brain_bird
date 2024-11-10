@@ -55,13 +55,13 @@ function Mainpage() {
       {/* Three-part content layout */}
       <div className="flex flex-1 flex-row bg-slate-950">
         {/* Left Sidebar (Menu) */}
-        <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto fixed left-0">
+        <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto scrollbar-hide fixed left-0">
           <Menu />
         </div>
 
         {/* Main content section */}
         <div
-          className={`${selectedItem === "Messages" ? `lg:mr-72 xl:mr-80` : ''} flex-1 lg:ml-64 xl:mr-80 xl:ml-80 p-0 lg:p-8 overflow-y-auto sm:m-0`}
+          className={`${selectedItem === "Messages" ? `lg:mr-72 xl:mr-80` : ''} flex-1 lg:ml-64 xl:mr-80 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}
         >
           <Main />
         </div>

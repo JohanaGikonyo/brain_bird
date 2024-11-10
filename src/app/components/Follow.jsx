@@ -4,10 +4,12 @@ import { useSelected } from "../store/useSection";
 
 const Follow = ({ email, currentUserEmail, postedDate }) => {
   const [isFollowing, setIsFollowing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { setSelectedItem, setEmail } = useSelected();
 
   useEffect(() => {
     const checkIfFollowing = async () => {
+      setLoading(true);
       try {
         const { data: currentUserData, error: currentUserError } = await supabase
           .from("users")
@@ -23,8 +25,10 @@ const Follow = ({ email, currentUserEmail, postedDate }) => {
         if (currentUserData && currentUserData.connections?.includes(email)) {
           setIsFollowing(true);
         }
+        setLoading(false);
       } catch (error) {
         console.error("An error occurred:", error);
+        setLoading(false);
       }
     };
 
@@ -75,8 +79,11 @@ const Follow = ({ email, currentUserEmail, postedDate }) => {
   return (
     <div className="flex gap-3">
       <div className="text-gray-400 text-sm mt-2">{postedDate}</div>
-
-      {isFollowing ? (
+      {loading ? (
+        <button className="text-gray-500 hover:bg-slate-500 rounded-2xl px-4 py-2 active:bg-slate-50" disabled>
+          Loading...
+        </button>
+      ) : isFollowing ? (
         <button
           onClick={handleMessage}
           className="text-blue-500 hover:bg-slate-500 rounded-2xl px-4 py-2 active:bg-slate-50"

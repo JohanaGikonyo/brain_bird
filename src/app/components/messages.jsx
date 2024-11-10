@@ -38,11 +38,12 @@ function Messages() {
           .select("sender, recipient, content, timestamp, is_read")
           .or(`sender.eq.${user.email},recipient.eq.${user.email}`)
           .order("timestamp", { ascending: false });
-  
+    
         if (error) throw error;
-  
+    
         const usersMap = {};
         const unreadMap = {};
+    
         data.forEach((msg) => {
           const otherUser = msg.sender === user.email ? msg.recipient : msg.sender;
           if (!usersMap[otherUser]) {
@@ -56,6 +57,7 @@ function Messages() {
             unreadMap[otherUser] += 1;
           }
         });
+    
         setChatUsers(Object.values(usersMap));
         setHasChatHistory(Object.keys(usersMap).length > 0);
         setUnreadCounts(unreadMap);
@@ -76,34 +78,36 @@ function Messages() {
 
   return (
     <div>
-      {/* Message Overlay */}
-      <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50">
-        <div
-          className={
-            email
-              ? `fixed top-20 overflow-y-auto z-20   p-2 bg-gray-800 flex items-center  justify-start gap-2`
-              : "flex items-center mb-4 justify-start gap-2"
-          }
-        >
-          <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
-          <h2 className="text-xl text-slate-200 font-bold ml-2">
-            {email ? <CustomAvatar email={email} /> : "Chat With"}
-          </h2>
-          <MoreVertIcon className="text-slate-400" />
-        </div>
-        {email ? (
-          <ChatPlatform userEmail={user.email} />
-        ) : (
-          <div>
-            {/* Search Bar */}
-            <input
-              type="text"
-              placeholder="Search messages..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="mb-4 p-2 rounded-lg bg-slate-300 text-slate-950 focus:outline-0"
-            />
-
+    {/* Message Overlay */}
+    <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto scrollbar-hide fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50">
+      <div
+        className={
+          email
+            ? `fixed top-20 overflow-y-auto scrollbar-hide z-20 p-2 bg-gray-800 flex items-center  justify-between gap-2`
+            : "flex items-center mb-4 justify-between gap-2"
+        }
+      >
+        <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
+        <h2 className="text-xl text-slate-200 font-bold ml-2">
+          {email ? <CustomAvatar email={email} /> : "Chat With"}
+        </h2>
+        <MoreVertIcon className="text-slate-400" />
+      </div>
+      {email ? (
+        <ChatPlatform userEmail={user.email} />
+      ) : (
+        <div>
+          {/* Search Bar */}
+          <input
+            type="text"
+            placeholder="Search messages..."
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="mb-4 p-2 rounded-lg bg-slate-300 text-slate-950 focus:outline-0"
+          />
+  
+          {/* Scrollable container for chat users */}
+          <div className="h-80 overflow-y-auto scrollbar-hide">
             {/* Display list of users with chat history or all users */}
             {hasChatHistory ? (
               filteredChatUsers.length > 0 ? (
@@ -116,9 +120,10 @@ function Messages() {
                       // Reset unread count for this user
                       setUnreadCounts((prevCounts) => ({
                         ...prevCounts,
-                        [chatUser.email]: '',
+                        [chatUser.email]: "",
                       }));
-                    }}                    >
+                    }}
+                  >
                     <CustomAvatar email={chatUser.email} />
                     <div className="ml-8 flex justify-between w-full pr-4">
                       <div
@@ -128,7 +133,7 @@ function Messages() {
                       </div>
                       {unreadCounts[chatUser.email] && (
                         <div className="bg-blue-500 text-white rounded-full px-2 mr-6 text-xs">
-                          {unreadCounts[chatUser.email]===0?"":unreadCounts[chatUser.email]}
+                          {unreadCounts[chatUser.email]===""?"":unreadCounts[chatUser.email]}
                         </div>
                       )}
                     </div>
@@ -156,9 +161,11 @@ function Messages() {
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
+  </div>
+  
   );
 }
 
