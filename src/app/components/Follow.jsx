@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useSelected } from "../store/useSection";
-
+import { useRouter } from "next/navigation";
 const Follow = ({ email, currentUserEmail, postedDate }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
   const { setSelectedItem, setEmail } = useSelected();
-
+const router=useRouter();
   useEffect(() => {
     const checkIfFollowing = async () => {
       setLoading(true);
@@ -72,6 +72,7 @@ const Follow = ({ email, currentUserEmail, postedDate }) => {
   };
 
   const handleMessage = () => {
+    router.push('/pages/mainpage')
     setEmail(email); // Set the email to be passed
     setSelectedItem("Messages"); // Switch to Messages view
   };

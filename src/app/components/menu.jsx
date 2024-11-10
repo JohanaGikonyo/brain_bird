@@ -100,7 +100,7 @@ function Menu({ open }) {
         onClick={() => setSelectedItem("Account")}
         className="my-4 text-xl text-white bg-blue-500 px-4 py-3 w-full rounded-3xl hover:text-slate-200 hover:bg-blue-700 flex items-center justify-center gap-3 transition"
       >
-        Your Posts
+        My Posts
       </button>
 
       <Divider className="w-full bg-slate-400 my-2" />
