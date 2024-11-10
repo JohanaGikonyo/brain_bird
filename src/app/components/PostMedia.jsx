@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Image from "next/image";
@@ -8,6 +8,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carous
 const PostMedia = ({ mediaUrls }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const videoRefs = useRef([]); // Reference to track all videos
 
   const handleOpen = (mediaUrl) => {
     setSelectedMedia(mediaUrl);
@@ -18,6 +19,38 @@ const PostMedia = ({ mediaUrls }) => {
     setSelectedMedia(null);
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    const options = {
+      root: null, // Use the viewport as the root
+      threshold: 0.7, // Video should be 70% visible to trigger play
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const videoElement = entry.target;
+
+        if (entry.isIntersecting) {
+          videoElement.play(); // Play video when in view
+        } else {
+          videoElement.pause(); // Pause video when out of view
+        }
+      });
+    }, options);
+
+    // Observe each video
+    videoRefs.current.forEach((video) => {
+      if (video) observer.observe(video);
+    });
+
+    return () => {
+      // Unobserve videos on cleanup
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      videoRefs.current.forEach((video) => {
+        if (video) observer.unobserve(video);
+      });
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-2 mt-2">
@@ -35,9 +68,9 @@ const PostMedia = ({ mediaUrls }) => {
             />
           ) : (
             <video
+              ref={(el) => (videoRefs.current[0] = el)} // Reference to the video element
               controls
               className="w-full h-full max-w-full object-cover cursor-pointer rounded-lg"
-              onClick={() => handleOpen(mediaUrls[0])}
             >
               <source src={mediaUrls[0]} type="video/mp4" />
             </video>
@@ -57,9 +90,9 @@ const PostMedia = ({ mediaUrls }) => {
                   />
                 ) : (
                   <video
+                    ref={(el) => (videoRefs.current[i] = el)} // Reference to the video element
                     controls
                     className="w-full h-full object-cover cursor-pointer rounded-lg"
-                    onClick={() => handleOpen(mediaUrl)}
                   >
                     <source src={mediaUrl} type="video/mp4" />
                   </video>
