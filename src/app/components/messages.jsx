@@ -38,7 +38,9 @@ function Messages() {
           .select("sender, recipient, content, timestamp, is_read")
           .or(`sender.eq.${user.email},recipient.eq.${user.email}`)
           .order("timestamp", { ascending: false });
+  
         if (error) throw error;
+  
         const usersMap = {};
         const unreadMap = {};
         data.forEach((msg) => {
@@ -46,6 +48,7 @@ function Messages() {
           if (!usersMap[otherUser]) {
             usersMap[otherUser] = { email: otherUser, lastMessage: msg.content };
           }
+          // Count unread messages
           if (!msg.is_read && msg.recipient === user.email) {
             if (!unreadMap[otherUser]) {
               unreadMap[otherUser] = 0;
@@ -108,8 +111,14 @@ function Messages() {
                   <div
                     key={index}
                     className="flex flex-col items-start mb-2 bg-slate-800 rounded-lg p-2 hover:bg-slate-700 hover:cursor-pointer"
-                    onClick={() => setEmail(chatUser.email)}
-                  >
+                    onClick={() => {
+                      setEmail(chatUser.email);
+                      // Reset unread count for this user
+                      setUnreadCounts((prevCounts) => ({
+                        ...prevCounts,
+                        [chatUser.email]: '',
+                      }));
+                    }}                    >
                     <CustomAvatar email={chatUser.email} />
                     <div className="ml-8 flex justify-between w-full pr-4">
                       <div
@@ -118,8 +127,8 @@ function Messages() {
                         {chatUser.lastMessage}
                       </div>
                       {unreadCounts[chatUser.email] && (
-                        <div className="bg-blue-500 text-white rounded-full px-2 text-xs">
-                          {unreadCounts[chatUser.email]}
+                        <div className="bg-blue-500 text-white rounded-full px-2 mr-6 text-xs">
+                          {unreadCounts[chatUser.email]===0?"":unreadCounts[chatUser.email]}
                         </div>
                       )}
                     </div>

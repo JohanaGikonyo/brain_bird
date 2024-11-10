@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useSelected } from '../store/useSection';
 import SendIcon from '@mui/icons-material/Send';
+
 function ChatPlatform({ userEmail }) {
   const { email } = useSelected();
   const [messages, setMessages] = useState([]);
@@ -15,7 +16,7 @@ function ChatPlatform({ userEmail }) {
         setLoading(true);
         const { data, error } = await supabase
           .from('messages')
-          .select('sender, recipient, content, timestamp')
+          .select('sender, recipient, content, timestamp, is_read') // Include is_read if needed
           .or(`sender.eq.${email},recipient.eq.${email}`)
           .or(`sender.eq.${userEmail},recipient.eq.${userEmail}`)
           .order('timestamp', { ascending: true });
@@ -23,40 +24,52 @@ function ChatPlatform({ userEmail }) {
         if (error) throw error;
 
         setMessages(data);
-        setLoading(false);
         scrollToBottom();
       } catch (error) {
         console.error('Error fetching messages:', error);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchMessages();
+    const markAsRead = async () => {
+      try {
+        const { error } = await supabase
+          .from('messages')
+          .update({ is_read: true })
+          .or(`recipient.eq.${email},sender.eq.${userEmail}`); // Mark all relevant messages as read
+
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    };
+
+    fetchMessages().then(markAsRead); // Fetch messages and then mark them as read
 
     const channel = supabase
-    .channel('public:messages')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-      const newMsg = payload.new;
-      if (
-        (newMsg.sender === userEmail && newMsg.recipient === email) ||
-        (newMsg.sender === email && newMsg.recipient === userEmail)
-      ) {
-        setMessages((prevMessages) => [...prevMessages, newMsg]);
-        scrollToBottom();
-      }
-    })
-    .subscribe();
+      .channel('public:messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        const newMsg = payload.new;
+        if (
+          (newMsg.sender === userEmail && newMsg.recipient === email) ||
+          (newMsg.sender === email && newMsg.recipient === userEmail)
+        ) {
+          setMessages((prevMessages) => [...prevMessages, newMsg]);
+          scrollToBottom();
+        }
+      })
+      .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [userEmail, email]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userEmail, email]); // Dependencies for useEffect
 
   const sendMessage = async () => {
     if (newMessage.trim() === '') return;
 
     try {
-        
       const { error } = await supabase.from('messages').insert([
         {
           sender: userEmail,
@@ -80,7 +93,6 @@ function ChatPlatform({ userEmail }) {
 
   return (
     <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-y-auto pb-14 lg:pb-16">
-     
       <div className="flex-grow p-4 ">
         {loading ? (
           <p className="text-center">Loading messages...</p>
@@ -116,9 +128,9 @@ function ChatPlatform({ userEmail }) {
           />
           <button
             onClick={sendMessage}
-            className="px-4 py-2 text-blue-500  rounded-lg hover:bg-gray-600 focus:outline-none  "
+            className="px-4 py-2 text-blue-500 rounded-lg hover:bg-gray-600 focus:outline-none"
           >
-            <SendIcon/>
+            <SendIcon />
           </button>
         </div>
       </div>
