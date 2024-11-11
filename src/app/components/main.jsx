@@ -231,7 +231,7 @@ function Main() {
                       </span>
 
                       <Follow
-                        email={post.email}
+                        email={post.original_post_id ?post.reposter_email:post.email}
                         currentUserEmail={user.email}
                         postedDate={` ${formatTimeAgo(post.created_at)}`}
                       />
