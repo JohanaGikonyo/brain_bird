@@ -9,18 +9,16 @@ import RepeatIcon from "@mui/icons-material/Repeat";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import CustomAvatar from "./CustomAvatar";
 import LikeButton from "./LikeButton";
-import Profile from "./Profile";
 import Follow from "./Follow"; // Updated for user follow
 import { useUser } from "../store/useStore";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
 import CustomProfile from "./CustomProfile";
-import PostContent from './PostContent'
-import SkeletonChildren from './Skeleton'
-import MyPosts from './MyPosts'
-function Main() {
-  const { selectedItem, setSelectedItem } = useSelected();
+import PostContent from "./PostContent";
+import SkeletonChildren from "./Skeleton";
+function MyPosts() {
+  const { setSelectedItem } = useSelected();
   const { user } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +27,8 @@ function Main() {
   const [postEmail, setPostEmail] = useState("");
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [editingPost, setEditingPost] = useState(null);
+  const [postContentToUpdate, setPostContentToUpdate] = useState('');
   const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
     const fetchPosts = async () => {
@@ -79,8 +79,6 @@ function Main() {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  
 
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("*").eq("id", postId).single();
@@ -148,12 +146,12 @@ function Main() {
 
   const closeModal = () => {
     setViewingPost(null);
-  };         
+  };
 
   if (loading) {
     return (
       <div>
-          <SkeletonChildren/>
+        <SkeletonChildren />
       </div>
     );
   }
@@ -173,81 +171,134 @@ function Main() {
     if (minutes > 0) return `${minutes}m`;
     return `${seconds}s`;
   };
+  const userPosts = posts.filter((post) => post.email === user.email);
+  const handleEdit = (post) => {
+    setEditingPost(post.id);
+    setPostContentToUpdate(post.post);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
+  const handleSavePost = async () => {
+    if (editingPost) {
+        setLoading(true); 
+
+        const { error } = await supabase
+            .from('posts')
+            .update({ post: postContentToUpdate }) // Update the content with the new content
+            .eq('id', editingPost); // Match the post by ID
+
+        setLoading(false); // Optionally, set loading to false when done
+
+        if (error) {
+            console.error(error);
+            
+        } else {
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === editingPost
+                        ? { ...post, content: postContentToUpdate } // Update the post in the UI
+                        : post
+                )
+            );
+            setEditingPost(null); // Clear the editing state after saving
+            console.log('updated successfully')
+        }
+    }
+};
+
+  const handleDelete=async (postToDelete)=>{
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', postToDelete.id);
+
+    if (error) console.error(error);
+    else {
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete.id));
+    }
+  }
   return (
-    <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
-      {(selectedItem === "" || selectedItem === "Messages"|| selectedItem === "!Messages")  && (
-        <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
-          <UserPost />
-          
-          {posts.length === 0 ? (
-            <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
-              <Box sx={{ display: "flex" }} className="flex gap-5">
-                <CircularProgress size={24} />
-                <p>Please wait ...</p>
-              </Box>
-            </div>
-          ) : (
-            posts.map((post, index) => (
-              <div
-                key={index}
-                className="border-b border-slate-900 w-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
-              >
-                <div className="flex items-start gap-3 sm:gap-4 ">
-                  <div className="flex-1">
-                    <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                      <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
-                        <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
-                      </span>
+    <div className="flex flex-col items-center flex-1  text-slate-100 shadow-lg lg:p-4 p-1">
+      <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
+        <UserPost 
+        postContentToUpdate={postContentToUpdate}
+        setPostContentToUpdate={setPostContentToUpdate}
+        handleSavePost={handleSavePost}
+        editingPost={editingPost}
+        />
 
-                      <Follow
-                        email={post.email}
-                        currentUserEmail={user.email}
-                        postedDate={` ${formatTimeAgo(post.created_at)}`}
-                      />
-                    </div>
-                    <div className="text-lg text-white mt-2 break-words">
-                      <PostContent content={post.post} />
-                      {post.media && (
-                        <div className="w-full max-w-full mt-2 overflow-hidden rounded-lg">
-                          <PostMedia mediaUrls={post.media} />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-around text-gray-400 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <button onClick={() => toggleCommentsVisibility(post.id)}>
-                          <MessageIcon titleAccess="message" />
-                        </button>
-                        <span>{Array.isArray(post.comments) ? post.comments.length : 0}</span>
-                      </div>
-                      <button
-                        className="flex items-center space-x-1"
-                        onClick={() => handleRepost(post.id, post.reposts)}
-                      >
-                        <RepeatIcon titleAccess="repost" />
-                        <span>{post.reposts}</span>
-                      </button>
-                      <LikeButton post={post} posts={posts} setPosts={setPosts} />
-                      <button className="flex items-center space-x-1" onClick={() => handleView(post)}>
-                        <VisibilityIcon titleAccess="view" />
-                        <span>{post.views}</span>
-                      </button>
-                    </div>
-                    <CommentSection
-                      postId={post.id}
-                      comments={Array.isArray(post.comments) ? post.comments : []}
-                      showComments={commentsVisible === post.id}
-                      handleAddComment={handleAddComment}
+        {posts.length === 0 ? (
+          <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
+            <Box sx={{ display: "flex" }} className="flex gap-5">
+              <CircularProgress size={24} />
+              <p>Please wait ...</p>
+            </Box>
+          </div>
+        ) : (
+          userPosts.map((post, index) => (
+            <div
+              key={index}
+              className="border-b border-slate-900 w-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
+            >
+              <div className="flex items-start gap-3 sm:gap-4 ">
+                <div className="flex-1">
+                  <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
+                      <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
+                    </span>
+
+                    <Follow
+                      email={post.email}
+                      currentUserEmail={user.email}
+                      postedDate={` ${formatTimeAgo(post.created_at)}`}
                     />
+                  </div>
+                  <div className="text-lg text-white mt-2 break-words">
+                    <PostContent content={post.post} />
+                    {post.media && (
+                      <div className="w-full max-w-full mt-2 overflow-hidden rounded-lg">
+                        <PostMedia mediaUrls={post.media} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-around text-gray-400 mt-2">
+                    <div className="flex items-center space-x-1">
+                      <button onClick={() => toggleCommentsVisibility(post.id)}>
+                        <MessageIcon titleAccess="message" />
+                      </button>
+                      <span>{Array.isArray(post.comments) ? post.comments.length : 0}</span>
+                    </div>
+                    <button className="flex items-center space-x-1" onClick={() => handleRepost(post.id, post.reposts)}>
+                      <RepeatIcon titleAccess="repost" />
+                      <span>{post.reposts}</span>
+                    </button>
+                    <LikeButton post={post} posts={posts} setPosts={setPosts} />
+                    <button className="flex items-center space-x-1" onClick={() => handleView(post)}>
+                      <VisibilityIcon titleAccess="view" />
+                      <span>{post.views}</span>
+                    </button>
+                  </div>
+                  <CommentSection
+                    postId={post.id}
+                    comments={Array.isArray(post.comments) ? post.comments : []}
+                    showComments={commentsVisible === post.id}
+                    handleAddComment={handleAddComment}
+                  />
+                  <div className="flex gap-3">
+                    <button className="border px-1 border-blue-500 text-slate-200 rounded-lg hover:bg-blue-500 hover:border-white hover:text-slate-50 active:bg-red-500" onClick={()=>handleEdit(post)} >
+                      Edit
+                    </button>
+                    <button className="border px-1 border-red-500 text-slate-200 rounded-lg hover:bg-red-500 hover:border-white hover:text-slate-50 active:bg-red-500" onClick={()=>handleDelete(post)}>
+                      drop
+                    </button>
                   </div>
                 </div>
               </div>
-            ))
-          )}
-          <div ref={ref} className="observer" />
-        </div>
-      )}
+            </div>
+          ))
+        )}
+        <div ref={ref} className="observer" />
+      </div>
 
       {viewingPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -304,15 +355,8 @@ function Main() {
           </div>
         </div>
       )}
-
-      {selectedItem === "Stocks" && <h1>Stocks Selected</h1>}
-      {selectedItem === "profile" && <Profile />}
-      {selectedItem === "Weather" && <h1>Weather Selected</h1>}
-      {selectedItem === "Groups" && <h1>Groups Selected</h1>}
-      {selectedItem === "Sports" && <h1>Sports Selected</h1>}
-      {selectedItem === "my posts" && <MyPosts/>}
     </div>
   );
 }
 
-export default Main;
+export default MyPosts;

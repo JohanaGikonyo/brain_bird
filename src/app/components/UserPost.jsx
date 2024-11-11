@@ -1,18 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePost, useUser } from "../store/useStore";
 import { supabase } from "../lib/supabaseClient";
 import { Snackbar, CircularProgress, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserAvatar from "./UserAvatar";
 import Image from "next/image";
-import AddIcon from "@mui/icons-material/Add"; // For adding more photos
+import AddIcon from "@mui/icons-material/Add";
 import GifIcon from "@mui/icons-material/Gif";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import PollIcon from "@mui/icons-material/Poll";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useSelected } from "../store/useSection";
 
-function UserPost() {
+function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost, editingPost }) {
   const { setSelectedItem } = useSelected();
   const { postContent, setPostContent } = usePost();
   const { user } = useUser();
@@ -21,8 +21,18 @@ function UserPost() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]); // Array for storing multiple images/videos
 
+  // Update postContent when editingPost changes
+  useEffect(() => {
+    if (editingPost) {
+      setPostContent(postContentToUpdate); // Update content for the post when editing
+    }
+  }, [editingPost, postContentToUpdate, setPostContent]);
+
   const handlePostChange = (e) => {
-    setPostContent(e.target.value);
+    if(editingPost){
+      setPostContentToUpdate(e.target.value)
+    }
+    else{setPostContent(e.target.value);}
   };
 
   const handleMediaUpload = async (files) => {
@@ -68,27 +78,49 @@ function UserPost() {
       base64MediaPaths = await handleMediaUpload(mediaFiles);
     }
 
-    const { data, error } = await supabase.from("posts").insert([
-      {
+    if (editingPost) {
+      // If we're editing, update the post
+      const { data, error } = await supabase.from("posts").update({
         post: postContent,
-        email: user.email,
-        username: user.user_metadata?.full_name,
         media: base64MediaPaths,
-      },
-    ]);
+      }).match({ id: editingPost }); // Match the post by its ID
 
-    setLoading(false);
+      setLoading(false);
 
-    if (error) {
-      console.error("Error inserting post:", error);
-      setSnackbarMessage("There was an error posting your content.");
-      setOpenSnackbar(true);
+      if (error) {
+        console.error("Error updating post:", error);
+        setSnackbarMessage("There was an error updating your post.");
+        setOpenSnackbar(true);
+      } else {
+        console.log("Post updated successfully:", data);
+        setSnackbarMessage("Post Updated Successfully");
+        setOpenSnackbar(true);
+        handleSavePost(); // Call the passed-in save function to reset the editing state
+      }
     } else {
-      console.log("Post submitted successfully:", data);
-      setSnackbarMessage("Post Submitted Successfully");
-      setOpenSnackbar(true);
-      setPostContent("");
-      setMediaFiles([]);
+      // If creating a new post
+      const { data, error } = await supabase.from("posts").insert([
+        {
+          post: postContent,
+          email: user.email,
+          username: user.user_metadata?.full_name,
+          media: base64MediaPaths,
+        },
+      ]);
+
+      setLoading(false);
+
+      if (error) {
+        console.error("Error inserting post:", error);
+        setSnackbarMessage("There was an error posting your content.");
+        setOpenSnackbar(true);
+      } else {
+        console.log("Post submitted successfully:", data);
+        setSnackbarMessage("Post Submitted Successfully");
+        setOpenSnackbar(true);
+        setPostContent("");
+        setMediaFiles([]);
+      }
     }
   };
 
@@ -122,17 +154,14 @@ function UserPost() {
 
   return (
     <div className="max-w-2xl mx-auto p-4 border-b border-b-slate-800 w-full shadow-md">
-      <div onClick={() => setSelectedItem("profile")} className="cursor-pointer"
-      ><UserAvatar /></div>
+      <div onClick={() => setSelectedItem("profile")} className="cursor-pointer">
+        <UserAvatar />
+      </div>
       <div className="flex items-center mb-4">
         <div className="flex-grow ml-4">
           <textarea
-            value={postContent}
-            onChange={(e) => {
-              handlePostChange(e);
-              e.target.style.height = "auto"; // Reset height
-              e.target.style.height = `${e.target.scrollHeight}px`; // Set new height based on scroll height
-            }}
+            value={postContentToUpdate?postContentToUpdate:postContent} 
+            onChange={handlePostChange}
             placeholder="What's happening?"
             rows="1"
             className="w-full p-2 rounded-lg focus:outline-none focus:ring-0 bg-transparent text-white placeholder-gray-400 text-lg resize-none overflow-hidden"
@@ -188,30 +217,42 @@ function UserPost() {
           <IconButton color="primary">
             <PollIcon fontSize="small" />
           </IconButton>
-
           <IconButton color="primary">
             <LocationOnIcon fontSize="small" />
           </IconButton>
         </div>
 
         {/* Post button */}
-        <button
-          onClick={handlePostSubmit}
-          disabled={(!postContent.trim() && mediaFiles.length === 0) || loading}
-          className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
-        >
-          {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
-          Post
-        </button>
+        {editingPost ? (
+          <button
+            onClick={handleSavePost}
+            disabled={(!postContentToUpdate || !postContentToUpdate.trim() && mediaFiles.length === 0) || loading}
+            className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
+          >
+            {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
+            Save
+          </button>
+        ) : (
+          <button
+            onClick={handlePostSubmit}
+            disabled={(!postContent || !postContent.trim() && mediaFiles.length === 0) || loading}
+            className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
+          >
+            {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
+            Post
+          </button>
+        )}
       </div>
+
+      {/* Snackbar for status updates */}
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
         action={
           <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
-            <CloseIcon />
+            <CloseIcon fontSize="small" />
           </IconButton>
         }
       />

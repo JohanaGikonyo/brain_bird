@@ -107,7 +107,7 @@ const UserAvatar = () => {
         {!avatarUrl && initials}
       </Avatar>
       <Typography variant="body1" style={{ color: "" }} className="lg:text-slate-50 text-slate-400">
-        @{fullName}
+        {fullName}
       </Typography>
     </div>
   );

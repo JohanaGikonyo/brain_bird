@@ -97,7 +97,7 @@ function Menu({ open }) {
         <span>Groups</span>
       </button>
       <button
-        onClick={() => setSelectedItem("Account")}
+        onClick={() => setSelectedItem("my posts")}
         className="my-4 text-xl text-white bg-blue-500 px-4 py-3 w-full rounded-3xl hover:text-slate-200 hover:bg-blue-700 flex items-center justify-center gap-3 transition"
       >
         My Posts
