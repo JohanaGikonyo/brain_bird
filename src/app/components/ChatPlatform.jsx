@@ -72,8 +72,8 @@ function ChatPlatform({ userEmail }) {
     try {
       const { error } = await supabase.from('messages').insert([
         {
-          sender: userEmail,
-          recipient: email,
+          sender: email,
+          recipient: userEmail,
           content: newMessage,
           timestamp: new Date().toISOString(),
         },
@@ -98,8 +98,8 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-800 text-white py-10 lg:pb-24">
-      <div className="flex-grow p-4 overflow-y-auto scrollbar-hide">
+    <div className="flex flex-col h-screen bg-gray-800 text-white overflow-hidden">
+      <div className="flex-grow p-4 overflow-y-auto">
         {loading ? (
           <p className="text-center">Loading messages...</p>
         ) : (
@@ -123,21 +123,23 @@ function ChatPlatform({ userEmail }) {
           </div>
         )}
       </div>
-      <div className="flex items-center space-x-2 px-4 py-2">
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message..."
-          className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2"
-        />
-        <button
-          onClick={sendMessage}
-          className="px-4 py-2 text-blue-500 rounded-lg hover:bg-gray-600 focus:outline-none"
-        >
-          <SendIcon />
-        </button>
+      <div className="flex-none p-4 bg-gray-900 fixed bottom-0 w-full">
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={sendMessage}
+            className="px-4 py-2 text-blue-500 rounded-lg hover:bg-gray-600 focus:outline-none"
+          >
+            <SendIcon />
+          </button>
+        </div>
       </div>
     </div>
   );
