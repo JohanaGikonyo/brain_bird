@@ -98,8 +98,8 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-800 text-white">
-      <div className="flex-grow p-4 overflow-y-auto scrollbar-hide" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+    <div className="flex flex-col h-full bg-gray-800 text-white py-10">
+      <div className="flex-grow p-4 overflow-y-auto scrollbar-hide  py-10" style={{ maxHeight: 'calc(100vh - 120px)' }}>
         {loading ? (
           <p className="text-center">Loading messages...</p>
         ) : (
