@@ -88,7 +88,7 @@ function MessageResponsive() {
   return (
     <div>
       {selectedItem === "Messages" && (
-        <div className="lg:hidden lg:w-72 xl:w-80 w-full fixed right-0 top-20 rounded-lg p-4 pb-10 bg-gray-800 z-50">
+        <div className="lg:hidden lg:w-72 xl:w-80 w-full h-screen fixed right-0 top-20 rounded-lg p-4 pb-10 bg-gray-800 z-50">
           <div className={email ? "fixed top-20 p-2 bg-gray-800 flex items-center justify-start gap-2" : "flex items-center mb-4 justify-between gap-2"}>
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
             <h2 className="text-xl text-slate-200 font-bold ml-2">{email ? <CustomAvatar email={email} /> : "Chat With"}</h2>

@@ -98,7 +98,7 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-full mt-10 w-full bg-gray-800 text-white overflow-hidden py-10 lg:pb-24">
+    <div className="flex flex-col h-screen mt-10 w-full bg-gray-800 text-white overflow-hidden py-10 lg:pb-24">
       <div className="flex-grow p-4 h-80 lg:h-auto overflow-y-auto scrollbar-hide">
         {loading ? (
           <p className="text-center">Loading messages...</p>
