@@ -11,22 +11,26 @@ import CustomAvatar from "./CustomAvatar";
 import LikeButton from "./LikeButton";
 import Profile from "./Profile";
 import Follow from "./Follow"; // Updated for user follow
-import { useUser } from "../store/useStore";
+import { useUser, useSearch } from "../store/useStore";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
 import CustomProfile from "./CustomProfile";
-import PostContent from './PostContent'
-import SkeletonChildren from './Skeleton'
-import MyPosts from './MyPosts'
+import PostContent from "./PostContent";
+import SkeletonChildren from "./Skeleton";
+import MyPosts from "./MyPosts";
+import RepostButton from "./RepostButton";
+import Groups from './Groups'
 function Main() {
   const { selectedItem, setSelectedItem } = useSelected();
   const { user } = useUser();
+  const { search } = useSearch();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentsVisible, setCommentsVisible] = useState(null);
   const [viewingPost, setViewingPost] = useState(null);
   const [postEmail, setPostEmail] = useState("");
+  const [selectedPost, setSelectedPost] = useState(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const { ref, inView } = useInView({ threshold: 0.1 });
@@ -34,7 +38,7 @@ function Main() {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
-        .select("id, post, created_at, email, comments, reposts, views, follower_count, media")
+        .select("id, post, created_at, email, comments, reposts, views,  media, original_post_id, reposter_email")
         .order("created_at", { ascending: false })
         .range(page * 10, (page + 1) * 10 - 1);
       if (error) {
@@ -80,8 +84,6 @@ function Main() {
     };
   }, []);
 
-  
-
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("*").eq("id", postId).single();
 
@@ -100,12 +102,13 @@ function Main() {
     }
   };
 
-  const handleRepost = async (postId, currentReposts) => {
+  const handleRepost = async (postId, currentReposts, postEmail) => {
+    setSelectedPost({ id: postId, email: postEmail });
+    console.log("reposting");
     const { error } = await supabase
       .from("posts")
       .update({ reposts: currentReposts + 1 })
       .eq("id", postId);
-
     if (error) {
       console.error("Error updating reposts:", error);
     } else {
@@ -114,33 +117,43 @@ function Main() {
       );
     }
   };
+  const handleRepostSuccess = () => {
+    setSelectedPost(null);
+    // Optionally refetch posts or update the post list
+  };
 
   const handleView = async (selectedPost) => {
-    // Function to update state and return a promise
-    const updateEmailState = (email) => {
-      return new Promise((resolve) => {
-        setPostEmail(email);
-        resolve(email);
-      });
-    };
+  const emailToView = selectedPost.original_post_id ? selectedPost.reposter_email : selectedPost.email;
 
-    await updateEmailState(selectedPost.email);
-
-    setViewingPost(selectedPost);
-
-    const { error } = await supabase
-      .from("posts")
-      .update({ views: selectedPost.views + 1 })
-      .eq("id", selectedPost.id);
-
-    if (error) {
-      console.error("Error updating views:", error);
-    } else {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => (post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post))
-      );
-    }
+  // Update the email state for the post viewer
+  const updateEmailState = (email) => {
+    return new Promise((resolve) => {
+      setPostEmail(email);
+      resolve(email);
+    });
   };
+
+  await updateEmailState(emailToView);
+
+  setViewingPost(selectedPost);
+
+  // Update views count for the specific post (original or repost)
+  const { error } = await supabase
+    .from("posts")
+    .update({ views: selectedPost.views + 1 })
+    .eq("id", selectedPost.id);
+
+  if (error) {
+    console.error("Error updating views:", error);
+  } else {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post
+      )
+    );
+  }
+};
+
 
   const toggleCommentsVisibility = (postId) => {
     setCommentsVisible((prev) => (prev === postId ? null : postId));
@@ -148,12 +161,12 @@ function Main() {
 
   const closeModal = () => {
     setViewingPost(null);
-  };         
+  };
 
   if (loading) {
     return (
       <div>
-          <SkeletonChildren/>
+        <SkeletonChildren />
       </div>
     );
   }
@@ -174,13 +187,17 @@ function Main() {
     return `${seconds}s`;
   };
 
+  const filteredSearch = posts.filter(
+    (post) =>
+      post.email.toLowerCase().includes(search.toLowerCase()) || post.post.toLowerCase().includes(search.toLowerCase())
+  );
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
-      {(selectedItem === "" || selectedItem === "Messages"|| selectedItem === "!Messages")  && (
+      {(selectedItem === ""|| selectedItem === "!Groups"  || selectedItem === "Messages" || selectedItem === "!Messages") && (
         <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
           <UserPost />
-          
-          {posts.length === 0 ? (
+
+          {filteredSearch.length === 0 ? (
             <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
               <Box sx={{ display: "flex" }} className="flex gap-5">
                 <CircularProgress size={24} />
@@ -188,7 +205,7 @@ function Main() {
               </Box>
             </div>
           ) : (
-            posts.map((post, index) => (
+            filteredSearch.map((post, index) => (
               <div
                 key={index}
                 className="border-b border-slate-900 w-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
@@ -197,7 +214,20 @@ function Main() {
                   <div className="flex-1">
                     <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
                       <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
-                        <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
+                        {post.original_post_id ? (
+                          <div className="flex flex-col items-start space-y-2">
+                            {/* Reposted By Section */}
+                            <div className="repost-info flex items-center gap-2">
+                              <CustomAvatar email={post.reposter_email} />
+                              <p className="text-sm text-gray-500">Reposted :</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            {/* Regular Post */}
+                            <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
+                          </div>
+                        )}
                       </span>
 
                       <Follow
@@ -223,7 +253,7 @@ function Main() {
                       </div>
                       <button
                         className="flex items-center space-x-1"
-                        onClick={() => handleRepost(post.id, post.reposts)}
+                        onClick={() => handleRepost(post.id, post.reposts, post.email)}
                       >
                         <RepeatIcon titleAccess="repost" />
                         <span>{post.reposts}</span>
@@ -248,7 +278,6 @@ function Main() {
           <div ref={ref} className="observer" />
         </div>
       )}
-
       {viewingPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md md:max-w-lg mx-4 md:mx-0 p-6 overflow-hidden">
@@ -304,13 +333,18 @@ function Main() {
           </div>
         </div>
       )}
-
-      {selectedItem === "Stocks" && <h1>Stocks Selected</h1>}
+      {/* {selectedItem === "Stocks" && <h1>Stocks Selected</h1>} */}
       {selectedItem === "profile" && <Profile />}
-      {selectedItem === "Weather" && <h1>Weather Selected</h1>}
-      {selectedItem === "Groups" && <h1>Groups Selected</h1>}
-      {selectedItem === "Sports" && <h1>Sports Selected</h1>}
-      {selectedItem === "my posts" && <MyPosts/>}
+      {/* {selectedItem === "Weather" && <h1>Weather Selected</h1>} */}
+      {selectedItem === "Groups" && <Groups/>}
+      {/* {selectedItem === "Sports" && <h1>Sports Selected</h1>} */}
+      {selectedItem === "my posts" && <MyPosts />}
+      {/* RepostButton Modal */}{" "}
+      {selectedPost && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <RepostButton postId={selectedPost.id} postEmail={selectedPost.email} onSuccess={handleRepostSuccess} />
+        </div>
+      )}
     </div>
   );
 }

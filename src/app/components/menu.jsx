@@ -12,14 +12,14 @@ import { supabase } from "../lib/supabaseClient";
 import logo from "../../../public/brain_bird_logo.png";
 import ClearIcon from '@mui/icons-material/Clear';
 import ChatIcon from "@mui/icons-material/Chat";
-
+import { useSearch } from "../store/useStore";
 import {  CircularProgress,  } from "@mui/material";
 
 import Image from "next/image";
 function Menu({ open }) {
   const { setSelectedItem, selectedItem } = useSelected();
   const [loading, setLoading] = useState(false);
-
+const {setSearch}=useSearch();
   // Handle the logout process
   const handleLogout = async () => {
     setLoading(true);
@@ -51,7 +51,7 @@ function Menu({ open }) {
           : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col scrollbar-hide items-center space-y-4`
       }
     >
-      <div className="flex justify-between items-center text-slate-50 gap-10"><div className="mb-4 ml-4 rounded-full"><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div><ClearIcon /></div>
+      <div className="flex lg:justify-center justify-between items-center text-slate-50 gap-10"><div className="mb-4 ml-4 rounded-full hover:cursor-pointer" onClick={()=>setSelectedItem('')}><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div><div className="lg:hidden"><ClearIcon /></div></div>
       <div ><Divider className="text-slate-50 bg-slate-50 w-full"/></div>
       <button
         onClick={() => setSelectedItem("")}
@@ -61,14 +61,14 @@ function Menu({ open }) {
         <span>Home</span>
       </button>
       <button
-        onClick={() => setSelectedItem("Stocks")}
+        onClick={() =>{setSearch("stock");setSelectedItem("")}}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
       >
         <InventoryIcon className="w-6 h-6" />
         <span>Stocks</span>
       </button>
       <button
-        onClick={() => setSelectedItem("Weather")}
+        onClick={() =>{setSearch("Weather");setSelectedItem("")}}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
       >
         <CloudIcon className="w-6 h-6" />
@@ -83,7 +83,7 @@ function Menu({ open }) {
       </button>
       
       <button
-        onClick={() => setSelectedItem("Sports")}
+        onClick={() => {setSearch("sports"); setSelectedItem("")}}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
       >
         <SportsHandballIcon className="w-6 h-6" />

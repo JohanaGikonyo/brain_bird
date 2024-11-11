@@ -5,20 +5,20 @@ import { Box, Typography, Avatar, Grid, Skeleton } from '@mui/material';
 function SkeletonChildrenDemo({ loading = false }) {
   return (
     <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: 300, 
-      margin:4,
-      marginTop: 20,
-      padding: 4,
-      borderRadius: '10px',
-      backgroundColor: 'gray',
-      boxShadow: 3,
-    }}
-  >
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 300,
+        margin: 2,
+        padding: 4,
+        borderRadius: '10px',
+        backgroundColor: '#1e293b', // slate-800
+        boxShadow: 3,
+        marginTop:8,
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 2 }}>
         <Box>
           {loading ? (
@@ -43,7 +43,14 @@ function SkeletonChildrenDemo({ loading = false }) {
         {loading ? (
           <Skeleton variant="rectangular" width="100%" height={100} />
         ) : (
-          <Box sx={{ width: '100%', height: 100, borderRadius: '10px', backgroundColor: 'slate' }} />
+          <Box
+            sx={{
+              width: '100%',
+              height: 100,
+              borderRadius: '10px',
+              backgroundColor: '#334155', // slate-700
+            }}
+          />
         )}
       </Box>
     </Box>
@@ -56,7 +63,10 @@ SkeletonChildrenDemo.propTypes = {
 
 export default function SkeletonChildren() {
   return (
-    <Grid container spacing={2} justifyContent="center">
+    <Grid container spacing={2} justifyContent="center" sx={{ flexWrap: 'wrap' }}>
+      <Grid item>
+        <SkeletonChildrenDemo loading />
+      </Grid>
       <Grid item>
         <SkeletonChildrenDemo loading />
       </Grid>

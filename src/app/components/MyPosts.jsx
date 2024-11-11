@@ -34,7 +34,7 @@ function MyPosts() {
     const fetchPosts = async () => {
       const { data, error } = await supabase
         .from("posts")
-        .select("id, post, created_at, email, comments, reposts, views, follower_count, media")
+        .select("id, post, created_at, email, comments, reposts, views,  media")
         .order("created_at", { ascending: false })
         .range(page * 10, (page + 1) * 10 - 1);
       if (error) {
@@ -202,6 +202,7 @@ function MyPosts() {
             );
             setEditingPost(null); // Clear the editing state after saving
             console.log('updated successfully')
+            setPostContentToUpdate("")
         }
     }
 };

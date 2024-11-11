@@ -7,3 +7,7 @@ export const useUser = create((set) => ({
   user: "",
   setUser: (value) => set(() => ({ user: value })),
 }));
+export const useSearch = create((set) => ({
+  search: "",
+  setSearch: (value) => set(() => ({ search: value })),
+}));

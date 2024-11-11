@@ -1,20 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { useSelected } from "../store/useSection";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Drawer from "./Drawer";
-
+import {useSearch} from '../store/useStore'
 
 function TopItems() {
   const { setSelectedItem } = useSelected();
-  const [searchItem, setSearchItem] = useState("");
-
+const {setSearch, search}=useSearch()
   const handleSearchChange = (e) => {
-    setSearchItem(e.target.value);
+
+    setSearch(e.target.value)
   };
 
   const handleCancel = () => {
-    setSearchItem(""); // Clear the input
+    setSearch(""); // Clear the input
   };
 
   return (
@@ -47,11 +47,11 @@ function TopItems() {
         <input
           type="text"
           placeholder="Search..."
-          value={searchItem}
+          value={search}
           onChange={handleSearchChange}
           className="pl-10 pr-4 py-2 rounded-full border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-slate-500 transition duration-300 w-full"
         />
-        {searchItem && (
+        {search && (
           <span className="absolute right-3 text-red-500 cursor-pointer" onClick={handleCancel}>
             <CancelIcon fontSize="small" />
           </span>
