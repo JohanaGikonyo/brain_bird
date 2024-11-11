@@ -6,7 +6,6 @@ import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import { supabase } from "../lib/supabaseClient";
 import ChatPlatform from "./ChatPlatform";
-
 function MessageResponsive() {
   const { setSelectedItem, selectedItem, setEmail, email } = useSelected();
   const { user } = useUser();
@@ -15,16 +14,13 @@ function MessageResponsive() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [unreadCounts, setUnreadCounts] = useState({});
-
   const toggleView = () => {
     if (email !== null) {
       setEmail(null);
     } else {
       setSelectedItem("");
     }
-  };
-
-  // Fetch users and chat history
+  }; // Fetch users and chat history
   useEffect(() => {
     const displayAllUsers = async () => {
       try {
@@ -42,12 +38,9 @@ function MessageResponsive() {
           .select("sender, recipient, content, timestamp, is_read")
           .or(`sender.eq.${user.email},recipient.eq.${user.email}`)
           .order("timestamp", { ascending: false });
-    
         if (error) throw error;
-    
         const usersMap = {};
         const unreadMap = {};
-    
         data.forEach((msg) => {
           const otherUser = msg.sender === user.email ? msg.recipient : msg.sender;
           if (!usersMap[otherUser]) {
@@ -60,7 +53,6 @@ function MessageResponsive() {
             unreadMap[otherUser] += 1;
           }
         });
-    
         setChatUsers(Object.values(usersMap));
         setHasChatHistory(Object.keys(usersMap).length > 0);
         setUnreadCounts(unreadMap);
@@ -68,30 +60,41 @@ function MessageResponsive() {
         console.error("Error fetching chat history:", error);
       }
     };
-
     displayAllUsers();
     fetchChatHistory();
+    const channel = supabase
+      .channel("public:messages")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+        const newMsg = payload.new;
+        if (newMsg.sender === user.email || newMsg.recipient === user.email) {
+          fetchChatHistory();
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user.email]);
-
-  const filteredChatUsers = chatUsers.filter((user) =>
-    user.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(search.toLowerCase())
-  );
-
+  const filteredChatUsers = chatUsers.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
+  const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
   const handleSearch = (value) => {
     setSearch(value);
   };
-
   return (
     <div>
       {selectedItem === "Messages" && (
         <div className="lg:hidden lg:w-72 xl:w-80 w-full h-screen fixed right-0 top-20 rounded-lg p-4 pb-10 bg-gray-800 z-50">
-          <div className={email ? "fixed top-20 p-2 bg-gray-800 flex items-center justify-start gap-2" : "flex items-center mb-4 justify-between gap-2"}>
+          <div
+            className={
+              email
+                ? "fixed top-20 p-2 bg-gray-800 flex items-center justify-start gap-2"
+                : "flex items-center mb-4 justify-between gap-2"
+            }
+          >
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
-            <h2 className="text-xl text-slate-200 font-bold ml-2">{email ? <CustomAvatar email={email} /> : "Chat With"}</h2>
+            <h2 className="text-xl text-slate-200 font-bold ml-2">
+              {email ? <CustomAvatar email={email} /> : "Chat With"}
+            </h2>
             <MoreVertIcon className="text-slate-400" />
           </div>
           {email ? (
@@ -123,7 +126,11 @@ function MessageResponsive() {
                       >
                         <CustomAvatar email={chatUser.email} />
                         <div className="ml-8 flex justify-between w-full pr-4">
-                          <div className={`text-slate-400 text-sm truncate ${unreadCounts[chatUser.email] ? "font-bold" : ""}`}>
+                          <div
+                            className={`text-slate-400 text-sm truncate ${
+                              unreadCounts[chatUser.email] ? "font-bold" : ""
+                            }`}
+                          >
                             {chatUser.lastMessage}
                           </div>
                           {unreadCounts[chatUser.email] && (
