@@ -98,8 +98,8 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-screen mt-10 w-full bg-gray-800 text-white overflow-hidden pb-44 lg:pb-40">
-      <div className="flex-grow p-4 h-80 lg:h-auto overflow-y-auto scrollbar-hide">
+    <div className="flex flex-col h-full bg-gray-800 text-white py-10 lg:pb-24">
+      <div className="flex-grow p-4 overflow-y-auto scrollbar-hide">
         {loading ? (
           <p className="text-center">Loading messages...</p>
         ) : (
@@ -123,21 +123,21 @@ function ChatPlatform({ userEmail }) {
           </div>
         )}
       </div>
-        <div className="flex items-center space-x-2 fixed my-4 lg:bottom-4 bottom-1">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2"
-          />
-          <button
-            onClick={sendMessage}
-            className="px-4 py-2 text-blue-500 rounded-lg hover:bg-gray-600 focus:outline-none"
-          >
-            <SendIcon />
-          </button>
+      <div className="flex items-center space-x-2 px-4 py-2">
+        <input
+          type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type a message..."
+          className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2"
+        />
+        <button
+          onClick={sendMessage}
+          className="px-4 py-2 text-blue-500 rounded-lg hover:bg-gray-600 focus:outline-none"
+        >
+          <SendIcon />
+        </button>
       </div>
     </div>
   );
