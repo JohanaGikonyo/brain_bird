@@ -87,7 +87,7 @@ function Messages() {
       <div
         className={
           email
-            ? `fixed top-20 overflow-y-auto scrollbar-hide z-20 p-2 bg-gray-800 flex items-center  justify-between gap-2`
+            ? `fixed top-20 overflow-y-auto scrollbar-hide z-20 p-2 bg-gray-800 flex items-center  justify-center  gap-2`
             : "flex items-center mb-4 justify-between gap-2"
         }
       >

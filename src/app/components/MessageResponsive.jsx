@@ -87,7 +87,7 @@ function MessageResponsive() {
           <div
             className={
               email
-                ? "fixed top-20 p-2 bg-gray-800 flex items-center justify-start gap-2"
+                ? "fixed top-20 p-2 bg-gray-800 flex items-center w-full justify-around gap-2"
                 : "flex items-center mb-4 justify-between gap-2"
             }
           >
