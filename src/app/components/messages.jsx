@@ -7,7 +7,7 @@ import CustomAvatar from "./CustomAvatar";
 import { supabase } from "../lib/supabaseClient";
 import ChatPlatform from "./ChatPlatform";
 function Messages() {
-  const { setSelectedItem, setEmail, email } = useSelected();
+  const { setSelectedItem,  setEmail, email } = useSelected();
   const { user } = useUser();
   const [chatUsers, setChatUsers] = useState([]);
   const [hasChatHistory, setHasChatHistory] = useState(false);
@@ -38,18 +38,14 @@ function Messages() {
           .select("sender, recipient, content, timestamp, is_read")
           .or(`sender.eq.${user.email},recipient.eq.${user.email}`)
           .order("timestamp", { ascending: false });
-    
         if (error) throw error;
-    
         const usersMap = {};
         const unreadMap = {};
-    
         data.forEach((msg) => {
           const otherUser = msg.sender === user.email ? msg.recipient : msg.sender;
           if (!usersMap[otherUser]) {
             usersMap[otherUser] = { email: otherUser, lastMessage: msg.content };
           }
-          // Count unread messages
           if (!msg.is_read && msg.recipient === user.email) {
             if (!unreadMap[otherUser]) {
               unreadMap[otherUser] = 0;
@@ -57,7 +53,6 @@ function Messages() {
             unreadMap[otherUser] += 1;
           }
         });
-    
         setChatUsers(Object.values(usersMap));
         setHasChatHistory(Object.keys(usersMap).length > 0);
         setUnreadCounts(unreadMap);
@@ -67,15 +62,24 @@ function Messages() {
     };
     displayAllUsers();
     fetchChatHistory();
+    const channel = supabase
+      .channel("public:messages")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+        const newMsg = payload.new;
+        if (newMsg.sender === user.email || newMsg.recipient === user.email) {
+          fetchChatHistory();
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user.email]);
-  // Filtering the chat users based on search input 
-  const filteredChatUsers = chatUsers.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()) ); 
-  // Filtering the all users based on search input
-   const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()) );
+  const filteredChatUsers = chatUsers.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
+  const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
   const handleSearch = (value) => {
     setSearch(value);
-  }; 
-
+  };
   return (
     <div>
     {/* Message Overlay */}
