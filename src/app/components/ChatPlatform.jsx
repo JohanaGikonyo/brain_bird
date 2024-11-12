@@ -98,7 +98,7 @@ function ChatPlatform({ userEmail }) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-800 text-white py-10">
+    <div className="flex flex-col lg:flex-grow lg:h-full  bg-gray-800 text-white py-10">
       <div className="flex-grow p-4 overflow-y-auto scrollbar-hide  py-10" style={{ maxHeight: 'calc(100vh - 120px)' }}>
         {loading ? (
           <p className="text-center">Loading messages...</p>
@@ -123,7 +123,7 @@ function ChatPlatform({ userEmail }) {
           </div>
         )}
       </div>
-      <div className="flex-none p-4 bg-gray-900 w-full sticky bottom-0 lg:bottom-4 lg:mb-14">
+      <div className="flex-none lg:p-1 bg-gray-600 rounded-lg w-full sticky bottom-0 lg:bottom-4 lg:mb-14">
         <div className="flex items-center space-x-2">
           <input
             type="text"
@@ -131,7 +131,7 @@ function ChatPlatform({ userEmail }) {
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-grow p-2 rounded-lg bg-gray-600 outline-0 text-white placeholder-gray-400 focus:outline-none "
           />
           <button
             onClick={sendMessage}

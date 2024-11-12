@@ -2,7 +2,7 @@ import React from 'react'
 
 function Groups() {
   return (
-    <div className='mt-24'>No Groups created yet</div>
+    <div className='lg:mt-24 mt-28'>No Groups created yet</div>
   )
 }
 

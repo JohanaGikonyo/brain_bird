@@ -54,7 +54,7 @@ const {setSearch}=useSearch();
       <div className="flex lg:justify-center justify-between items-center text-slate-50 gap-10"><div className="mb-4 ml-4 rounded-full hover:cursor-pointer" onClick={()=>setSelectedItem('')}><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div><div className="lg:hidden"><ClearIcon /></div></div>
       <div ><Divider className="text-slate-50 bg-slate-50 w-full"/></div>
       <button
-        onClick={() => setSelectedItem("")}
+        onClick={() => {setSelectedItem(""); setSearch("")}}
         className="text-xl hover:text-slate-800 hover:bg-gray-300 font-bold p-2 w-full rounded-lg flex items-center gap-3 hover:cursor-pointer transition"
       >
         <HomeIcon className="w-6 h-6" />

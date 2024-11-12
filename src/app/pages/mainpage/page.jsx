@@ -10,7 +10,7 @@ import MessageResponsive from "@apply/app/components/MessageResponsive";
 import { useUser } from "@apply/app/store/useStore"; 
 import { useRouter } from "next/navigation";
 import { useSelected } from "@apply/app/store/useSection";
-
+import BottomTabs from '../../components/BottomTabs'
 function Mainpage() {
   const router = useRouter();
   const { user, setUser } = useUser();
@@ -48,7 +48,7 @@ function Mainpage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-white">
       {/* TopItems component for all screen sizes */}
-      <div className="sticky top-0 lg:mb-0 mb-10 bg-slate-950 z-50">
+      <div className="sticky top-0 lg:mb-0 mb-10 bg-slate-950 z-50 hidden lg:block">
         <TopItems />
       </div>
 
@@ -70,6 +70,7 @@ function Mainpage() {
         <div><Messages /></div> 
          <div> {selectedItem==="Messages" && <> <MessageResponsive/></>}</div>
       </div>
+      <BottomTabs/>
     </div>
   );
 }
