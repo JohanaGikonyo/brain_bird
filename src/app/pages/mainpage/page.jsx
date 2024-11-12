@@ -72,7 +72,7 @@ function Mainpage() {
 
         {/* Main content section */}
         <div
-          className={`${selectedItem === "Messages" ? `lg:mr-72 xl:mr-80` : ''} flex-1 lg:ml-64 xl:mr-80 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}
+          className={`${selectedItem === "!Messages" ? `lg:mr-0` : ' lg:mr-72 xl:mr-80'} flex-1 lg:ml-64 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}
         >
           <Main />
         </div>

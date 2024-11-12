@@ -7,7 +7,7 @@ import CustomAvatar from "./CustomAvatar";
 import { supabase } from "../lib/supabaseClient";
 import ChatPlatform from "./ChatPlatform";
 function Messages() {
-  const { setSelectedItem,  setEmail, email } = useSelected();
+  const { setSelectedItem,  setEmail, email, selectedItem } = useSelected();
   const { user } = useUser();
   const [chatUsers, setChatUsers] = useState([]);
   const [hasChatHistory, setHasChatHistory] = useState(false);
@@ -18,7 +18,7 @@ function Messages() {
     if (email !== null) {
       setEmail(null);
     } else {
-      setSelectedItem("");
+      setSelectedItem("!Messages");
     }
   }; // Fetch users and chat history
   useEffect(() => {
@@ -83,7 +83,7 @@ function Messages() {
   return (
     <div>
     {/* Message Overlay */}
-    <div className="hidden lg:block lg:w-72 xl:w-80 h-full overflow-y-auto scrollbar-hide fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50">
+    <div className={`hidden lg:block ${selectedItem==='!Messages'?'lg:hidden':' lg:w-72 xl:w-80'} h-full overflow-y-auto scrollbar-hide fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50`}>
       <div
         className={
           email

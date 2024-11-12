@@ -17,7 +17,7 @@ import { CircularProgress } from "@mui/material";
 
 import Image from "next/image";
 function Menu({ open }) {
-  const { setSelectedItem, selectedItem } = useSelected();
+  const { setSelectedItem} = useSelected();
   const [loading, setLoading] = useState(false);
   const { setSearch } = useSearch();
   // Handle the logout process
@@ -35,11 +35,8 @@ function Menu({ open }) {
     }
   };
   const handleMessagesSet = () => {
-    if (selectedItem === "!Messages") {
-      setSelectedItem("");
-    } else {
       setSelectedItem("Messages");
-    }
+   
   };
 
   return (

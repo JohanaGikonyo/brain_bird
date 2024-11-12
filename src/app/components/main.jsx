@@ -225,9 +225,9 @@ function Main() {
         selectedItem === "!Groups" ||
         selectedItem === "Messages" ||
         selectedItem === "!Messages") && (
-        <div className={`flex flex-col gap-4 lg:mt-6 ${showTop ? `mt-0` : `mt-28`} w-full`}>
+        <div className={`flex flex-col  ${showTop ? `mt-0` : `mt-28`} lg:mt-6 w-full`}>
           <UserPost />
-
+<div className={`${selectedItem==='!Messages'?`grid lg:grid-cols-1 xl:grid-cols-2 gap-4 mt-2 `:`flex flex-col gap-4 `}`}>
           {filteredSearch.length === 0 ? (
             <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
               <Box sx={{ display: "flex" }} className="flex gap-5">
@@ -238,7 +238,7 @@ function Main() {
             filteredSearch.map((post, index) => (
               <div
                 key={index}
-                className="border-b border-slate-900 w-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden"
+                className={` border-b border-slate-900 w-full flex-grow h-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden`}
               >
                 <div className="flex items-start gap-3 sm:gap-4 ">
                   <div className="flex-1">
@@ -306,7 +306,7 @@ function Main() {
             ))
           )}
           <div ref={ref} className="observer" />
-        </div>
+          </div></div>
       )}
       {viewingPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -361,6 +361,7 @@ function Main() {
               </button>
             </div>
           </div>
+          
         </div>
       )}
       {/* {selectedItem === "Stocks" && <h1>Stocks Selected</h1>} */}
@@ -375,6 +376,7 @@ function Main() {
           <RepostButton postId={selectedPost.id} postEmail={selectedPost.email} onSuccess={handleRepostSuccess} />
         </div>
       )}
+      
     </div>
   );
 }
