@@ -1,5 +1,5 @@
 // components/Menu.js
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { useSelected } from "../store/useSection";
 import HomeIcon from "@mui/icons-material/Home";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -10,16 +10,16 @@ import Divider from "@mui/material/Divider";
 import UserAvatar from "./UserAvatar";
 import { supabase } from "../lib/supabaseClient";
 import logo from "../../../public/brain_bird_logo.png";
-import ClearIcon from '@mui/icons-material/Clear';
+import ClearIcon from "@mui/icons-material/Clear";
 import ChatIcon from "@mui/icons-material/Chat";
 import { useSearch } from "../store/useStore";
-import {  CircularProgress,  } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 import Image from "next/image";
 function Menu({ open }) {
   const { setSelectedItem, selectedItem } = useSelected();
   const [loading, setLoading] = useState(false);
-const {setSearch}=useSearch();
+  const { setSearch } = useSearch();
   // Handle the logout process
   const handleLogout = async () => {
     setLoading(true);
@@ -34,41 +34,58 @@ const {setSearch}=useSearch();
       window.location.href = "/auth/login"; // Redirect to login page
     }
   };
-  const handleMessagesSet=()=>{
-    if(selectedItem==="!Messages"){
-      setSelectedItem("")
+  const handleMessagesSet = () => {
+    if (selectedItem === "!Messages") {
+      setSelectedItem("");
+    } else {
+      setSelectedItem("Messages");
     }
-    else{
-      setSelectedItem("Messages")
-    }
-  }
+  };
 
   return (
     <div
       className={
         open
-          ? `text-slate-200 m-2 mt-1 mb-10  shadow-lg p-6 rounded-lg flex flex-col items-center scrollbar-hide justify-center space-y-4`
-          : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col scrollbar-hide items-center space-y-4`
+          ? `text-slate-200 m-2 mt-1 mb-10  shadow-lg p-6 rounded-lg flex flex-col items-center scrollbar-hide justify-start space-y-4`
+          : `m-2 mt-14 mb-10 text-slate-100 shadow-lg p-6 rounded-lg flex flex-col scrollbar-hide items-center justify-start space-y-4`
       }
     >
-      <div className="flex lg:justify-center justify-between items-center text-slate-50 gap-10"><div className="mb-4 ml-4 rounded-full hover:cursor-pointer" onClick={()=>setSelectedItem('')}><Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" /></div><div className="lg:hidden"><ClearIcon /></div></div>
-      <div ><Divider className="text-slate-50 bg-slate-50 w-full"/></div>
+      <div className="flex lg:justify-center justify-between items-center text-slate-50 gap-10">
+        <div className="mb-4 ml-4 rounded-full hover:cursor-pointer" onClick={() => setSelectedItem("")}>
+          <Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" />
+        </div>
+        <div className="lg:hidden">
+          <ClearIcon />
+        </div>
+      </div>
+      <div>
+        <Divider className="text-slate-50 bg-slate-50 w-full" />
+      </div>
       <button
-        onClick={() => {setSelectedItem(""); setSearch("")}}
+        onClick={() => {
+          setSelectedItem("");
+          setSearch("");
+        }}
         className="text-xl hover:text-slate-800 hover:bg-gray-300 font-bold p-2 w-full rounded-lg flex items-center gap-3 hover:cursor-pointer transition"
       >
         <HomeIcon className="w-6 h-6" />
         <span>Home</span>
       </button>
       <button
-        onClick={() =>{setSearch("stock");setSelectedItem("")}}
+        onClick={() => {
+          setSearch("stock");
+          setSelectedItem("");
+        }}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
       >
         <InventoryIcon className="w-6 h-6" />
         <span>Stocks</span>
       </button>
       <button
-        onClick={() =>{setSearch("Weather");setSelectedItem("")}}
+        onClick={() => {
+          setSearch("Weather");
+          setSelectedItem("");
+        }}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
       >
         <CloudIcon className="w-6 h-6" />
@@ -81,9 +98,12 @@ const {setSearch}=useSearch();
         <ChatIcon className="w-6 h-6" />
         <span>Messages</span>
       </button>
-      
+
       <button
-        onClick={() => {setSearch("sports"); setSelectedItem("")}}
+        onClick={() => {
+          setSearch("sports");
+          setSelectedItem("");
+        }}
         className="text-2xl p-2 w-full rounded-lg hover:text-slate-800 hover:bg-gray-300 flex items-center gap-3 transition"
       >
         <SportsHandballIcon className="w-6 h-6" />
@@ -117,16 +137,13 @@ const {setSearch}=useSearch();
         <UserAvatar />
       </div>
       <Divider />
-      <div className="py-3 my-3  flex justify-center items-center">
-        <button
-          className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
-          onClick={handleLogout} 
-        >
-            {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
-
-          Log Out
-        </button>
-      </div>
+      <button
+        className="px-4 py-2 my-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
+        onClick={handleLogout}
+      >
+        {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
+        Log Out
+      </button>
     </div>
   );
 }
