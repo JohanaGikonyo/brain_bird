@@ -20,10 +20,13 @@ import PostContent from "./PostContent";
 import SkeletonChildren from "./Skeleton";
 import MyPosts from "./MyPosts";
 import RepostButton from "./RepostButton";
-import Groups from './Groups'
+import Groups from "./Groups";
+import { useShowTop, useShowFollowersPosts } from "../store/useStore";
 function Main() {
   const { selectedItem, setSelectedItem } = useSelected();
   const { user } = useUser();
+  const { showTop } = useShowTop();
+  const { showFollowersPosts } = useShowFollowersPosts();
   const { search } = useSearch();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +36,7 @@ function Main() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [isFollowing, setIsFollowing] = useState([]);
   const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
     const fetchPosts = async () => {
@@ -53,8 +57,27 @@ function Main() {
       }
       setLoading(false);
     };
+    const checkIfFollowing = async () => {
+      try {
+        const { data: currentUserData, error: currentUserError } = await supabase
+          .from("users")
+          .select("connections")
+          .eq("email", user.email)
+          .single();
+        if (currentUserError) {
+          console.error("Error fetching current user connections:", currentUserError);
+          return;
+        }
+        if (currentUserData && currentUserData.connections) {
+          setIsFollowing(currentUserData.connections);
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    };
+    checkIfFollowing();
     fetchPosts(page);
-  }, [page, setSelectedItem]);
+  }, [page, setSelectedItem, user.email]);
 
   useEffect(() => {
     if (inView && hasMore) {
@@ -123,37 +146,34 @@ function Main() {
   };
 
   const handleView = async (selectedPost) => {
-  const emailToView = selectedPost.original_post_id ? selectedPost.reposter_email : selectedPost.email;
+    const emailToView = selectedPost.original_post_id ? selectedPost.reposter_email : selectedPost.email;
 
-  // Update the email state for the post viewer
-  const updateEmailState = (email) => {
-    return new Promise((resolve) => {
-      setPostEmail(email);
-      resolve(email);
-    });
+    // Update the email state for the post viewer
+    const updateEmailState = (email) => {
+      return new Promise((resolve) => {
+        setPostEmail(email);
+        resolve(email);
+      });
+    };
+
+    await updateEmailState(emailToView);
+
+    setViewingPost(selectedPost);
+
+    // Update views count for the specific post (original or repost)
+    const { error } = await supabase
+      .from("posts")
+      .update({ views: selectedPost.views + 1 })
+      .eq("id", selectedPost.id);
+
+    if (error) {
+      console.error("Error updating views:", error);
+    } else {
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post))
+      );
+    }
   };
-
-  await updateEmailState(emailToView);
-
-  setViewingPost(selectedPost);
-
-  // Update views count for the specific post (original or repost)
-  const { error } = await supabase
-    .from("posts")
-    .update({ views: selectedPost.views + 1 })
-    .eq("id", selectedPost.id);
-
-  if (error) {
-    console.error("Error updating views:", error);
-  } else {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post
-      )
-    );
-  }
-};
-
 
   const toggleCommentsVisibility = (postId) => {
     setCommentsVisible((prev) => (prev === postId ? null : postId));
@@ -186,22 +206,32 @@ function Main() {
     if (minutes > 0) return `${minutes}m`;
     return `${seconds}s`;
   };
-
-  const filteredSearch = posts.filter(
-    (post) =>
-      post.email.toLowerCase().includes(search.toLowerCase()) || post.post.toLowerCase().includes(search.toLowerCase())
-  );
+  
+ 
+  const filteredSearch = posts.filter((post) => {
+    const matchesSearch =
+      post.email.toLowerCase().includes(search.toLowerCase()) || post.post.toLowerCase().includes(search.toLowerCase());
+    const isFollowed = isFollowing.includes(post.email);
+    if(showFollowersPosts){
+       return matchesSearch &&  isFollowed ;
+    }
+    else{  
+        return matchesSearch 
+    }
+  });
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
-      {(selectedItem === ""|| selectedItem === "!Groups"  || selectedItem === "Messages" || selectedItem === "!Messages") && (
-        <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
+      {(selectedItem === "" ||
+        selectedItem === "!Groups" ||
+        selectedItem === "Messages" ||
+        selectedItem === "!Messages") && (
+        <div className={`flex flex-col gap-4 lg:mt-6 ${showTop ? `mt-0` : `mt-28`} w-full`}>
           <UserPost />
 
           {filteredSearch.length === 0 ? (
             <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
               <Box sx={{ display: "flex" }} className="flex gap-5">
                 <CircularProgress size={24} />
-                <p>Please wait ...</p>
               </Box>
             </div>
           ) : (
@@ -231,7 +261,7 @@ function Main() {
                       </span>
 
                       <Follow
-                        email={post.original_post_id ?post.reposter_email:post.email}
+                        email={post.original_post_id ? post.reposter_email : post.email}
                         currentUserEmail={user.email}
                         postedDate={` ${formatTimeAgo(post.created_at)}`}
                       />
@@ -336,7 +366,7 @@ function Main() {
       {/* {selectedItem === "Stocks" && <h1>Stocks Selected</h1>} */}
       {selectedItem === "profile" && <Profile />}
       {/* {selectedItem === "Weather" && <h1>Weather Selected</h1>} */}
-      {selectedItem === "Groups" && <Groups/>}
+      {selectedItem === "Groups" && <Groups />}
       {/* {selectedItem === "Sports" && <h1>Sports Selected</h1>} */}
       {selectedItem === "my posts" && <MyPosts />}
       {/* RepostButton Modal */}{" "}

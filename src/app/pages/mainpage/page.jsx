@@ -11,10 +11,13 @@ import { useUser } from "@apply/app/store/useStore";
 import { useRouter } from "next/navigation";
 import { useSelected } from "@apply/app/store/useSection";
 import BottomTabs from '../../components/BottomTabs'
+import TopResponsive from '../../components/TopResponsive'
+import { useShowTop } from "@apply/app/store/useStore";
 function Mainpage() {
   const router = useRouter();
   const { user, setUser } = useUser();
   const { selectedItem } = useSelected();
+  const {showTop}=useShowTop();
 
   useEffect(() => {
     const initializeSession = async () => {
@@ -48,6 +51,14 @@ function Mainpage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-white">
       {/* TopItems component for all screen sizes */}
+      {showTop?
+      <div className="sticky py-5 top-0  mb-10 bg-slate-950 z-50  lg:hidden">
+      <TopResponsive/>
+      </div>:
+      <div className="sticky top-0  mb-10 bg-slate-950 z-50 lg:hidden">
+        <TopItems />
+      </div>}
+
       <div className="sticky top-0 lg:mb-0 mb-10 bg-slate-950 z-50 hidden lg:block">
         <TopItems />
       </div>

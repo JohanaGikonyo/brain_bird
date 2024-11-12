@@ -11,3 +11,11 @@ export const useSearch = create((set) => ({
   search: "",
   setSearch: (value) => set(() => ({ search: value })),
 }));
+export const useShowTop = create((set) => ({
+  showTop: true,
+  setShowTop: (value) => set(() => ({ showTop: value })),
+}));
+export const useShowFollowersPosts = create((set) => ({
+  showFollowersPosts: false,
+  setShowFollowersPosts: (value) => set(() => ({ showFollowersPosts: value })),
+}));

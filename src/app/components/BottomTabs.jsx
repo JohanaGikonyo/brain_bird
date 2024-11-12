@@ -2,16 +2,16 @@
 import React from "react";
 import { useSelected } from "../store/useSection";
 import HomeIcon from "@mui/icons-material/Home";
-import SearchIcon from '@mui/icons-material/Search';import CloudIcon from "@mui/icons-material/Cloud";
+import SearchIcon from '@mui/icons-material/Search';
 import SportsHandballIcon from "@mui/icons-material/SportsHandball";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ChatIcon from "@mui/icons-material/Chat";
-import { useSearch } from "../store/useStore";
-
+import { useSearch, useShowTop } from "../store/useStore";
+import Drawer from './Drawer'
 function BottomTabs() {
   const { setSelectedItem, selectedItem } = useSelected();
 const {setSearch}=useSearch();
-
+const {setShowTop, showTop}=useShowTop();
   const handleMessagesSet=()=>{
     if(selectedItem==="!Messages"){
       setSelectedItem("")
@@ -25,7 +25,7 @@ const {setSearch}=useSearch();
     <div
       className={
         
-           `lg:hidden text-slate-400 sticky bottom-0 bg-slate-900  z-20   shadow-lg p-1  flex flex-row items-center  justify-around space-x-4`
+           `lg:hidden text-slate-400 sticky bottom-0 bg-slate-900  z-20   shadow-lg  flex flex-row items-center  justify-around space-x-4`
       }
     >
       
@@ -36,17 +36,18 @@ const {setSearch}=useSearch();
         <HomeIcon className="w-6 h-6" />
       </button>
       <button
-        onClick={() =>{setSearch("stock");setSelectedItem("")}}
+        onClick={() =>{setSearch("Weather");setSelectedItem("")}}
+        className="text-2xl p-1 w-full rounded-lg hover:text-slate-800 hover:bg-gray-400 flex items-center gap-3 transition"
+      >
+        <Drawer/>
+      </button>
+      <button
+        onClick={() =>{setSearch("");setSelectedItem(""); setShowTop(!showTop); console.log("updated everything")}}
         className="text-2xl p-1 w-full rounded-lg hover:text-slate-800 hover:bg-gray-400 flex items-center gap-3 transition"
       >
         <SearchIcon className="w-6 h-6" />
       </button>
-      <button
-        onClick={() =>{setSearch("Weather");setSelectedItem("")}}
-        className="text-2xl p-1 w-full rounded-lg hover:text-slate-800 hover:bg-gray-400 flex items-center gap-3 transition"
-      >
-        <CloudIcon className="w-6 h-6" />
-      </button>
+     
       <button
         onClick={() => handleMessagesSet()}
         className="text-2xl p-1 w-full rounded-lg hover:text-slate-800 hover:bg-gray-400 flex items-center gap-3 transition"

@@ -2,7 +2,6 @@ import React from "react";
 import { useSelected } from "../store/useSection";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
-import Drawer from "./Drawer";
 import {useSearch} from '../store/useStore'
 
 function TopItems() {
@@ -21,9 +20,7 @@ const {setSearch, search}=useSearch()
     <div className="flex flex-row flex-wrap justify-center gap-2 z-20 fixed top-0 w-full py-4 bg-slate-950 shadow-md border-b border-slate-800 items-center">
       
       <div className="flex gap-2  justify-around items-center">
-        <div className="lg:hidden">
-          <Drawer />
-        </div>
+        
         <button
           className="border border-slate-700 text-white px-4 py-2 rounded-2xl hover:bg-slate-700 hover:border-slate-500 transition duration-300"
           onClick={() => setSelectedItem("")}
