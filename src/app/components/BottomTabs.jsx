@@ -36,7 +36,7 @@ const {setShowTop, showTop}=useShowTop();
         <HomeIcon className="w-6 h-6" />
       </button>
       <button
-        onClick={() =>{setSearch("Weather");setSelectedItem("")}}
+        // onClick={() =>{setSearch("Weather");setSelectedItem("")}}
         className="text-2xl p-1 w-full rounded-lg hover:text-slate-800 hover:bg-gray-400 flex items-center gap-3 transition"
       >
         <Drawer/>

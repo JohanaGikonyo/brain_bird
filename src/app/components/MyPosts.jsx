@@ -10,7 +10,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import CustomAvatar from "./CustomAvatar";
 import LikeButton from "./LikeButton";
 import Follow from "./Follow"; // Updated for user follow
-import { useUser } from "../store/useStore";
+import { useUser,  useShowTop } from "../store/useStore";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import PostMedia from "./PostMedia";
@@ -20,6 +20,8 @@ import SkeletonChildren from "./Skeleton";
 function MyPosts() {
   const { setSelectedItem } = useSelected();
   const { user } = useUser();
+    const { showTop } = useShowTop();
+  
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentsVisible, setCommentsVisible] = useState(null);
@@ -220,7 +222,7 @@ function MyPosts() {
   }
   return (
     <div className="flex flex-col items-center flex-1  text-slate-100 shadow-lg lg:p-4 p-1">
-      <div className="flex flex-col gap-4 lg:mt-6 mt-28 w-full">
+        <div className={`flex flex-col gap-4 lg:mt-6 ${showTop ? `mt-0` : `mt-28`} w-full`}>
         <UserPost 
         postContentToUpdate={postContentToUpdate}
         setPostContentToUpdate={setPostContentToUpdate}
@@ -232,7 +234,6 @@ function MyPosts() {
           <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
             <Box sx={{ display: "flex" }} className="flex gap-5">
               <CircularProgress size={24} />
-              <p>Please wait ...</p>
             </Box>
           </div>
         ) : (
