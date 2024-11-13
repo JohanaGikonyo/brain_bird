@@ -23,7 +23,14 @@ export default function Home() {
         // Insert the user email into the users table
         const { error: insertError } = await supabase
           .from("users")
-          .upsert([{ email: session.user.email }], { onConflict: ['email'] });
+          .upsert([ {
+            email: session.user.email,
+            profile: {
+              username: session.user.full_name || "", // default to empty string if no full_name
+              profile_pic: session.user.avatar_url || null, 
+              phone: session.user.phone || "" // default to empty string if no phone
+            }
+          }], { onConflict: ['email'] });
         
         if (insertError) {
           console.error("Error upserting user email into users table:", insertError);

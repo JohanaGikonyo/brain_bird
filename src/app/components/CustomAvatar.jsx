@@ -105,6 +105,7 @@ const CustomAvatar = React.memo(({ email, avatarUrl, size }) => {
 
   const initials = !profileData?.profile_pic ? getInitials(email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
+  // const avatarUrl = profileData?.profile_pic || user.avatar_url;
 
   return (
     <div className="flex items-center">
