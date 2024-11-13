@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import { useUser,useShowTop } from "../store/useStore";
-import { Divider } from "@mui/material";
+import {  Divider } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Avatar from "@mui/material/Avatar";
+
 import { useSelected } from "../store/useSection";
 import { CircularProgress, Snackbar, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -49,7 +51,6 @@ const handleCloseSnackbar = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       const data = await fetchProfileData(user.email);
-      console.log(data,"email is ", user.email)
       if (data) {
         setUsername(data.username || "");
         setAbout(data.about || "");
@@ -134,9 +135,11 @@ const handleCloseSnackbar = () => {
         <input
           type="file"
           accept="image/*"
+          placeholder="Set Backgraound"
           onChange={handleBackgroundImgChange}
           className="hidden"
           id="background-upload"
+          
         />
 
         {/* Profile Avatar */}
@@ -148,13 +151,19 @@ const handleCloseSnackbar = () => {
           }}
         >
           {profilePic ? (
-            <Image
-              src={profilePic}
-              width={96}
-              height={96}
-              alt="Profile"
-              className="rounded-full w-24 h-24"
-            />
+            <Avatar
+            alt="User Avatar"
+            src={profilePic}
+            sx={{
+              color: "white",
+              fontSize:  "1.5rem",
+              width:'6rem',
+              height:'6rem'
+              
+            }}
+          >
+          
+            </Avatar>
           ) : (
             <div className="w-24 h-24 rounded-full bg-gray-400 flex items-center justify-center">
               <span className="text-gray-500">Profile</span>

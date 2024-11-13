@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import Avatar from "@mui/material/Avatar";
 import { supabase } from "../lib/supabaseClient";
 import { useRouter } from "next/navigation";
 function CustomProfile({ email }) {
@@ -43,8 +43,19 @@ function CustomProfile({ email }) {
         {/* Profile Avatar */}
         <div className="absolute -bottom-8 left-2">
           {profileData?.profile_pic ? (
-            <Image src={profileData?.profile_pic} width={96} height={96} alt="Profile" className="rounded-full w-24 h-24" />
-          ) : (
+            <Avatar
+            alt="User Avatar"
+            src={profileData?.profile_pic}
+            sx={{
+              color: "white",
+              fontSize:  "1.5rem",
+              width:'6rem',
+              height:'6rem'
+              
+            }}
+          >
+            
+            </Avatar>          ) : (
             <div className="w-24 h-24 rounded-full bg-gray-400 flex items-center justify-center">
               <span className="text-gray-500">Profile</span>
             </div>
@@ -54,7 +65,7 @@ function CustomProfile({ email }) {
 
       {/* Form Fields */}
       <div className="mb-4 text-blue-400">
-        <h3 className="font-semibold text-base hover:cursor-pointer" onClick={() => handleDisplayFollowers(email)}>Followers: {"  " + numberFollowers}</h3>
+        <h3 className="font-semibold text-base mt-5 hover:cursor-pointer" onClick={() => handleDisplayFollowers(email)}>Followers: {"  " + numberFollowers}</h3>
       </div>
       <div className="mb-4">
         <label>

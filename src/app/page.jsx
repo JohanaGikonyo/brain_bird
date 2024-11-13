@@ -31,8 +31,9 @@ export default function Home() {
               profile_pic: session.user.user_metadata?.avatar_url ?? "",
               phone: session.user.user_metadata?.phone ?? "",
             }
-          }], { onConflict: ['email'] });
-
+          }], 
+          { onConflict: ['email'] });
+          console.log('User Metadata:', session.user.user_metadata);
         if (insertError) {
           console.error("Error upserting user email into users table:", insertError);
         }
