@@ -49,6 +49,7 @@ const handleCloseSnackbar = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       const data = await fetchProfileData(user.email);
+      console.log(data,"email is ", user.email)
       if (data) {
         setUsername(data.username || "");
         setAbout(data.about || "");
@@ -178,7 +179,7 @@ const handleCloseSnackbar = () => {
           placeholder="Enter your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-700 text-slate-100 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -187,7 +188,7 @@ const handleCloseSnackbar = () => {
           placeholder="About you"
           value={about}
           onChange={(e) => setAbout(e.target.value)}
-          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-700 text-slate-100 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         ></textarea>
       </div>
 
@@ -197,7 +198,7 @@ const handleCloseSnackbar = () => {
           placeholder="Country"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-700 text-slate-100 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -207,7 +208,7 @@ const handleCloseSnackbar = () => {
           placeholder="City"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-700 text-slate-100 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -217,7 +218,7 @@ const handleCloseSnackbar = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-700 text-slate-100 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
 
@@ -227,7 +228,7 @@ const handleCloseSnackbar = () => {
           placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="bg-gray-400 text-slate-950 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+          className="bg-gray-700 text-slate-100 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
       </div>
       <Snackbar open={openSnackbar} autoHideDuration={8000} onClose={handleCloseSnackbar}>

@@ -73,7 +73,7 @@ const getColorForInitial = (initial) => {
 };
 
 // eslint-disable-next-line react/display-name
-const CustomAvatar = React.memo(({ email, avatarUrl, size }) => {
+const CustomAvatar = React.memo(({ email,  size }) => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -105,7 +105,7 @@ const CustomAvatar = React.memo(({ email, avatarUrl, size }) => {
 
   const initials = !profileData?.profile_pic ? getInitials(email) : "";
   const backgroundColor = initials ? getColorForInitial(initials) : "inherit";
-  // const avatarUrl = profileData?.profile_pic || user.avatar_url;
+  const avatarUrl = profileData?.profile_pic ;
 
   return (
     <div className="flex items-center">

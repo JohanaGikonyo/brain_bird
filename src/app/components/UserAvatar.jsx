@@ -32,7 +32,7 @@ const UserAvatar = () => {
 
   // Get the full name and avatar URL
   const fullName = profileData?.username || user.user_metadata?.full_name || "User";
-  const avatarUrl = profileData?.profile_pic || user.avatar_url;
+  const avatarUrl = profileData?.profile_pic || user.user_metadata?.avatar_url;
 
   const fetchProfileData = async (email) => {
     try {
