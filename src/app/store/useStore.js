@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 export const usePost = create((set) => ({
   postContent: "",
   setPostContent: (value) => set(() => ({ postContent: value })),
