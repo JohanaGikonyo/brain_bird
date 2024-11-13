@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "./lib/supabaseClient";
 import { useUser } from './store/useStore';
-
+import Skeleton from './components/Skeleton'
 export default function Home() {
   const router = useRouter();
   const { setUser } = useUser();
@@ -51,7 +51,7 @@ export default function Home() {
   }, [router, setUser]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div><Skeleton/>.</div>;
   }
 
   return <div></div>;
