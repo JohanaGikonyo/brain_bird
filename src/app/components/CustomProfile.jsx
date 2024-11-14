@@ -64,8 +64,9 @@ function CustomProfile({ email }) {
       </div>
 
       {/* Form Fields */}
-      <div className="mb-4 text-blue-400">
-        <h3 className="font-semibold text-base mt-5 hover:cursor-pointer" onClick={() => handleDisplayFollowers(email)}>Followers: {"  " + numberFollowers}</h3>
+      <div className="mb-4 text-blue-400 flex gap-4  items-center">
+        <button className="font-semibold text-base rounded-lg px-3 py-0 border border-blue-400 mt-5 hover:cursor-pointer" onClick={() => handleDisplayFollowers(email)}>Followers: {"  " + numberFollowers}</button>
+        <button className="border border-blue-400 text-blue-400 py-0 px-3 rounded-lg" onClick={() => handleDisplayFollowers(email)}>View</button>
       </div>
       <div className="mb-4">
         <label>
