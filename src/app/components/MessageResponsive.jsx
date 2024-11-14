@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { toast } from "react-toastify"; 
+
 import { useSelected } from "../store/useSection";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
@@ -75,6 +77,14 @@ function MessageResponsive() {
       supabase.removeChannel(channel);
     };
   }, [user.email]);
+
+  useEffect(() => {
+    Object.entries(unreadCounts).forEach(([email, count]) => {
+      if (count > 0) {
+        toast(`You have ${count} unread messages from ${email}`); // Trigger notification
+      }
+    });
+  }, [unreadCounts]);
   const filteredChatUsers = chatUsers.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
   const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
   const handleSearch = (value) => {
