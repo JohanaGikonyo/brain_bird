@@ -46,7 +46,7 @@ function MessageResponsive() {
           if (!usersMap[otherUser]) {
             usersMap[otherUser] = { email: otherUser, lastMessage: msg.content };
           }
-          if (!msg.is_read && msg.recipient === user.email) {
+          if (!msg.is_read && msg.sender === user.email) {
             if (!unreadMap[otherUser]) {
               unreadMap[otherUser] = 0;
             }
@@ -120,7 +120,7 @@ function MessageResponsive() {
                           setEmail(chatUser.email);
                           setUnreadCounts((prevCounts) => ({
                             ...prevCounts,
-                            [chatUser.email]: "",
+                            [chatUser.email]: 0,
                           }));
                         }}
                       >
@@ -133,11 +133,11 @@ function MessageResponsive() {
                           >
                             {chatUser.lastMessage}
                           </div>
-                          {unreadCounts[chatUser.email] && (
-                            <div className="bg-blue-500 text-white rounded-full px-2 text-xs mr-6">
-                              {unreadCounts[chatUser.email] === "" ? "" : unreadCounts[chatUser.email]}
-                            </div>
-                          )}
+                          {unreadCounts[chatUser.email] > 0 && (
+                          <div className="bg-blue-500 text-white rounded-full px-2 mr-6 text-xs">
+                            {unreadCounts[chatUser.email]}
+                          </div>
+                        )}
                         </div>
                       </div>
                     ))

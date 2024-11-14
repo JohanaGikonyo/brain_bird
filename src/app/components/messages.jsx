@@ -7,7 +7,7 @@ import CustomAvatar from "./CustomAvatar";
 import { supabase } from "../lib/supabaseClient";
 import ChatPlatform from "./ChatPlatform";
 function Messages() {
-  const { setSelectedItem,  setEmail, email, selectedItem } = useSelected();
+  const { setSelectedItem, setEmail, email, selectedItem } = useSelected();
   const { user } = useUser();
   const [chatUsers, setChatUsers] = useState([]);
   const [hasChatHistory, setHasChatHistory] = useState(false);
@@ -46,15 +46,16 @@ function Messages() {
           if (!usersMap[otherUser]) {
             usersMap[otherUser] = { email: otherUser, lastMessage: msg.content };
           }
-          if (!msg.is_read && msg.recipient === user.email) {
+          if (!msg.is_read && msg.sender === user.email) {
             if (!unreadMap[otherUser]) {
               unreadMap[otherUser] = 0;
             }
-            unreadMap[otherUser] += 1;
+            unreadMap[otherUser] += 1; 
           }
         });
         setChatUsers(Object.values(usersMap));
         setHasChatHistory(Object.keys(usersMap).length > 0);
+
         setUnreadCounts(unreadMap);
       } catch (error) {
         console.error("Error fetching chat history:", error);
@@ -75,6 +76,10 @@ function Messages() {
       supabase.removeChannel(channel);
     };
   }, [user.email]);
+   // Log updated unread counts whenever they change
+   useEffect(() => {
+    console.log("Updated Unread Counts:", unreadCounts);
+  }, [unreadCounts]);
   const filteredChatUsers = chatUsers.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
   const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search.toLowerCase()));
   const handleSearch = (value) => {
@@ -82,94 +87,99 @@ function Messages() {
   };
   return (
     <div>
-    {/* Message Overlay */}
-    <div className={`hidden lg:block ${selectedItem==='!Messages'?'lg:hidden':' lg:w-72 xl:w-80'} h-full overflow-y-auto scrollbar-hide fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50`}>
+      {/* Message Overlay */}
       <div
-        className={
-          email
-            ? `fixed top-20 overflow-y-auto scrollbar-hide z-20 p-2 bg-gray-800 flex items-center  justify-center  gap-2`
-            : "flex items-center mb-4 justify-between gap-2"
-        }
+        className={`hidden lg:block ${
+          selectedItem === "!Messages" ? "lg:hidden" : " lg:w-72 xl:w-80"
+        } h-full overflow-y-auto scrollbar-hide fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50`}
       >
-        <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
-        <h2 className="text-xl text-slate-200 font-bold ml-2">
-          {email ? <CustomAvatar email={email} /> : "Chat With"}
-        </h2>
-        <MoreVertIcon className="text-slate-400" />
-      </div>
-      {email ? (
-        <ChatPlatform userEmail={user.email} />
-      ) : (
-        <div>
-          {/* Search Bar */}
-          <input
-            type="text"
-            placeholder="Search messages..."
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="mb-4 p-2 rounded-lg bg-slate-300 text-slate-950 focus:outline-0"
-          />
-  
-          {/* Scrollable container for chat users */}
-          <div className="h-80 overflow-y-auto scrollbar-hide">
-            {/* Display list of users with chat history or all users */}
-            {hasChatHistory ? (
-              filteredChatUsers.length > 0 ? (
-                filteredChatUsers.map((chatUser, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-start mb-2 bg-slate-800 rounded-lg p-2 hover:bg-slate-700 hover:cursor-pointer"
-                    onClick={() => {
-                      setEmail(chatUser.email);
-                      // Reset unread count for this user
-                      setUnreadCounts((prevCounts) => ({
-                        ...prevCounts,
-                        [chatUser.email]: "",
-                      }));
-                    }}
-                  >
-                    <CustomAvatar email={chatUser.email} />
-                    <div className="ml-8 flex justify-between w-full pr-4">
-                      <div
-                        className={`text-slate-400 text-sm truncate ${unreadCounts[chatUser.email] ? "font-bold" : ""}`}
-                      >
-                        {chatUser.lastMessage}
-                      </div>
-                      {unreadCounts[chatUser.email] && (
-                        <div className="bg-blue-500 text-white rounded-full px-2 mr-6 text-xs">
-                          {unreadCounts[chatUser.email]===""?"":unreadCounts[chatUser.email]}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-slate-400">No matching users found</div>
-              )
-            ) : (
-              <div className="flex flex-col space-x-2 gap-4">
-                {/* Display stacked avatars if no chat history */}
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user, idx) => (
+        <div
+          className={
+            email
+              ? `fixed top-20 overflow-y-auto scrollbar-hide z-20 p-2 bg-gray-800 flex items-center  justify-center  gap-2`
+              : "flex items-center mb-4 justify-between gap-2"
+          }
+        >
+          <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />
+          <h2 className="text-xl text-slate-200 font-bold ml-2">
+            {email ? <CustomAvatar email={email} /> : "Chat With"}
+          </h2>
+          <MoreVertIcon className="text-slate-400" />
+        </div>
+        {email ? (
+          <ChatPlatform userEmail={user.email} />
+        ) : (
+          <div>
+            {/* Search Bar */}
+            <input
+              type="text"
+              placeholder="Search messages..."
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="mb-4 p-2 rounded-lg bg-slate-300 text-slate-950 focus:outline-0"
+            />
+
+            {/* Scrollable container for chat users */}
+            <div className="h-80 overflow-y-auto scrollbar-hide">
+              {/* Display list of users with chat history or all users */}
+              {hasChatHistory ? (
+                filteredChatUsers.length > 0 ? (
+                  filteredChatUsers.map((chatUser, index) => (
                     <div
-                      key={idx}
-                      className="hover:bg-slate-600 cursor-pointer p-3 rounded-lg"
-                      onClick={() => setEmail(user.email)}
+                      key={index}
+                      className="flex flex-col items-start mb-2 bg-slate-800 rounded-lg p-2 hover:bg-slate-700 hover:cursor-pointer"
+                      onClick={() => {
+                        setEmail(chatUser.email);
+                        // Reset unread count for this user
+                        setUnreadCounts((prevCounts) => ({
+                          ...prevCounts,
+                          [chatUser.email]: 0,
+                        }));
+                      }}
                     >
-                      <CustomAvatar email={user.email} />
+                      <CustomAvatar email={chatUser.email} />
+                      <div className="ml-8 flex justify-between w-full pr-4">
+                        <div
+                          className={`text-slate-400 text-sm truncate ${
+                            unreadCounts[chatUser.email] ? "font-bold" : ""
+                          }`}
+                        >
+                          {chatUser.lastMessage}
+                        </div>
+                        {unreadCounts[chatUser.email] > 0 && (
+                          <div className="bg-blue-500 text-white rounded-full px-2 mr-6 text-xs">
+                            {unreadCounts[chatUser.email]}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-slate-400">No matching users found</div>
-                )}
-              </div>
-            )}
+                )
+              ) : (
+                <div className="flex flex-col space-x-2 gap-4">
+                  {/* Display stacked avatars if no chat history */}
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user, idx) => (
+                      <div
+                        key={idx}
+                        className="hover:bg-slate-600 cursor-pointer p-3 rounded-lg"
+                        onClick={() => setEmail(user.email)}
+                      >
+                        <CustomAvatar email={user.email} />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-slate-400">No matching users found</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  </div>
-  
   );
 }
 
