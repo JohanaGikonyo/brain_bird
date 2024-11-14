@@ -87,12 +87,14 @@ function Messages() {
   };
   return (
     <div>
+
       {/* Message Overlay */}
       <div
         className={`hidden lg:block ${
           selectedItem === "!Messages" ? "lg:hidden" : " lg:w-72 xl:w-80"
         } h-full overflow-y-auto scrollbar-hide fixed right-0 top-20 rounded-lg p-4 bg-gray-800 z-50`}
       >
+        
         <div
           className={
             email
@@ -118,6 +120,7 @@ function Messages() {
               onChange={(e) => handleSearch(e.target.value)}
               className="mb-4 p-2 rounded-lg bg-slate-300 text-slate-950 focus:outline-0"
             />
+                   <button className="bottom-0 right-0 ml-2  sticky z-50 text-blue-400 px-3 py-1 border border-blue-500 rounded-lg" onClick={()=>setHasChatHistory(!hasChatHistory)}>All</button>
 
             {/* Scrollable container for chat users */}
             <div className="h-80 overflow-y-auto scrollbar-hide">

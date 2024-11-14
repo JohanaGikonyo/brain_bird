@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { toast } from "react-toastify"; 
-
 import { useSelected } from "../store/useSection";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
@@ -118,6 +117,7 @@ function MessageResponsive() {
                 onChange={(e) => handleSearch(e.target.value)}
                 className="mb-4 p-2 rounded-lg bg-slate-300 text-slate-950 focus:outline-0"
               />
+                   <button className="bottom-0 right-0 ml-2  sticky z-50 text-blue-400 px-3 py-1 border border-blue-500 rounded-lg" onClick={()=>setHasChatHistory(!hasChatHistory)}>All</button>
 
               <div className="max-h-80 overflow-y-scroll">
                 {hasChatHistory ? (
