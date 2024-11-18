@@ -40,7 +40,7 @@ const RepostButton = ({ postId, postEmail, onSuccess }) => {
   const handleRepost = async () => {
     setLoading(true);
     try {
-      const fullRepostContent = `${originalPostContent}\n\nRepost comment: ${repostContent}`;
+      const fullRepostContent = `${originalPostContent}\n\nReposted: ${repostContent}`;
 
       const { error } = await supabase.from("posts").insert([
         {
