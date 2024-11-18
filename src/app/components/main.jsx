@@ -237,12 +237,12 @@ function Main() {
               </div>
             ) : (
               filteredSearch.map((post) => {
-                const repost = reposts.find(r => r.post_id === post.id);
+                const associatedReposts  = reposts.filter(r => r.post_id === post.id);
                 return (
                   <Post
                     key={post.id}
                     post={post}
-                    repost={repost}
+                    reposts={associatedReposts }
                     getReposts={getReposts}
                     toggleCommentsVisibility={toggleCommentsVisibility}
                     handleRepost={handleRepost}
