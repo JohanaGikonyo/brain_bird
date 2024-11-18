@@ -10,7 +10,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import Follow from './Follow';
 import CommentSection from './commentsSection';
 
-const Post = ({ post, repost, toggleCommentsVisibility, handleRepost, handleView, commentsVisible, handleAddComment, posts, setPosts }) => {
+const Post = ({ post, repost, getReposts, toggleCommentsVisibility, handleRepost, handleView, commentsVisible, handleAddComment, posts, setPosts }) => {
   const { user } = useUser();
 console.log(repost)
   const formatTimeAgo = (date) => {
@@ -101,7 +101,7 @@ console.log(repost)
             className="flex items-center gap-1"
           >
             <RepeatIcon />
-            <span>{post.reposts}</span>
+            <span>{getReposts(post.id)}</span>
           </button>
           <LikeButton post={post} posts={posts} setPosts={setPosts} />
           <button onClick={() => handleView(post)} className="flex items-center gap-1">

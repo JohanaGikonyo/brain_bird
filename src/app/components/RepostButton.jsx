@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import { supabase } from "../lib/supabaseClient";
 import { useUser } from "../store/useStore";
 
-const RepostButton = ({ postId, onSuccess }) => {
+const RepostButton = ({ postId, onSuccess, setSelectedPost }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [repostContent, setRepostContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,29 +34,49 @@ const RepostButton = ({ postId, onSuccess }) => {
 
   const handleClose = () => {
     setIsOpen(false);
+    setSelectedPost(null);
     setRepostContent(""); // Reset repost content when closing the modal
   };
 
   const handleRepost = async () => {
     setLoading(true);
     try {
-      // Create a new repost that references the original post
+      let originalPostId = postId;
+  
+      // Check if the postId is for a repost and fetch the original post_id
+      const { data: repostData, error: repostError } = await supabase
+        .from("reposts")
+        .select("post_id") // Select the original post_id
+        .eq("repost_id", postId) // Use reposts_id as the identifier
+        .single();
+  
+      if (repostError && repostError.code !== "PGRST116") {
+        // PGRST116 means no rows returned; this is not an error for a non-repost post
+        throw repostError;
+      }
+  
+      // If postId is a repost, use the original post_id
+      if (repostData) {
+        originalPostId = repostData.post_id;
+      }
+  
+      // Insert the repost referencing the original post_id
       const { error } = await supabase.from("reposts").insert([
         {
-          post_id: postId, // Reference to the original post
+          post_id: originalPostId, // Use the original post_id
           reposter_email: user.email, // Email of the current user reposting
           comment: repostContent, // New content for the repost
         },
       ]);
-
+  
       if (error) {
         throw error; // Throw error if the insertion fails
       }
-
+  
       setRepostContent(""); // Reset repost content field
       handleClose(); // Close the modal
       console.log("Repost successful");
-
+  
       // Execute the onSuccess callback if passed
       if (onSuccess) onSuccess();
     } catch (error) {
@@ -65,7 +85,7 @@ const RepostButton = ({ postId, onSuccess }) => {
       setLoading(false); // Stop the loading indicator
     }
   };
-
+  
   return (
     <div>
       <Modal open={isOpen} onClose={handleClose} className="flex items-center justify-center p-4 z-50">

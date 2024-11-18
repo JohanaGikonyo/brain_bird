@@ -92,7 +92,7 @@ function Main() {
         setReposts(repostsData);
       }
     };
-    
+
     fetchReposts();
 
   },[])
@@ -137,25 +137,25 @@ function Main() {
     }
   };
 
-  const handleRepost = async (postId, currentReposts, postEmail) => {
+  const handleRepost =  (postId,  postEmail) => {
     setSelectedPost({ id: postId, email: postEmail });
     console.log("reposting");
-    const { error } = await supabase
-      .from("posts")
-      .update({ reposts: currentReposts + 1 })
-      .eq("id", postId);
-    if (error) {
-      console.error("Error updating reposts:", error);
-    } else {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => (post.id === postId ? { ...post, reposts: currentReposts + 1 } : post))
-      );
-    }
+   
+    
   };
+
+  const getReposts =  (postId) => {
+    const repostsArrayWithPostId=reposts.filter((repost)=>repost.post_id === postId)
+    return repostsArrayWithPostId.length;
+    
+  };
+ 
   const handleRepostSuccess = () => {
     setSelectedPost(null);
     // Optionally refetch posts or update the post list
   };
+
+  
 
   const handleView = async (selectedPost) => {
     const emailToView = selectedPost.original_post_id ? selectedPost.reposter_email : selectedPost.email;
@@ -190,6 +190,7 @@ function Main() {
   const toggleCommentsVisibility = (postId) => {
     setCommentsVisible((prev) => (prev === postId ? null : postId));
   };
+  
 
   const closeModal = () => {
     setViewingPost(null);
@@ -242,6 +243,7 @@ function Main() {
                     key={post.id}
                     post={post}
                     repost={repost}
+                    getReposts={getReposts}
                     toggleCommentsVisibility={toggleCommentsVisibility}
                     handleRepost={handleRepost}
                     handleView={handleView}
@@ -327,6 +329,7 @@ function Main() {
             postEmail={selectedPost.email}
             onSuccess={handleRepostSuccess}
             post={posts}
+            setSelectedPost={setSelectedPost}
           />
         </div>
       )}
