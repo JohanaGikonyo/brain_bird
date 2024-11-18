@@ -4,67 +4,65 @@ import Box from "@mui/material/Box";
 import { supabase } from "../lib/supabaseClient";
 import { useUser } from "../store/useStore";
 
-const RepostButton = ({ postId, postEmail, onSuccess }) => {
+const RepostButton = ({ postId, onSuccess }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [repostContent, setRepostContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [originalPostContent, setOriginalPostContent] = useState("");
-  const [originalMedia, setOriginalMedia] = useState(null); // To store the original media URL
-  const { user } = useUser();
+  const [originalPostContent, setOriginalPostContent] = useState(""); // Store original post content
+  const [originalMedia, setOriginalMedia] = useState(null); // Store original media (image/video URL)
+  const { user } = useUser(); // Get the current user from the store
 
-  // Fetch the original post content and media when modal opens
+  // Fetch the original post content and media when the modal opens
   useEffect(() => {
     const fetchOriginalPost = async () => {
       const { data, error } = await supabase
         .from("posts")
-        .select("post, media") // Fetch both text and media
+        .select("post, media") // Fetch post content and media URL
         .eq("id", postId)
-        .single();
+        .single(); // Get a single post by ID
 
       if (error) {
         console.error("Error fetching original post:", error);
       } else {
-        setOriginalPostContent(data.post);
-        setOriginalMedia(data.media); // Store media URL directly
+        setOriginalPostContent(data.post); // Set original content text
+        setOriginalMedia(data.media); // Set original media URL
       }
     };
 
     fetchOriginalPost();
-  }, [postId]);
+  }, [postId]); // Only run this effect when postId changes
 
   const handleClose = () => {
     setIsOpen(false);
-    setRepostContent("");
+    setRepostContent(""); // Reset repost content when closing the modal
   };
 
   const handleRepost = async () => {
     setLoading(true);
     try {
-      const fullRepostContent = `${originalPostContent}\n\nReposted: ${repostContent}`;
-
-      const { error } = await supabase.from("posts").insert([
+      // Create a new repost that references the original post
+      const { error } = await supabase.from("reposts").insert([
         {
-          post: fullRepostContent,
-          email: postEmail,
-          original_post_id: postId,
-          reposter_email: user.email,
-          media: originalMedia, // Include original media if available
+          post_id: postId, // Reference to the original post
+          reposter_email: user.email, // Email of the current user reposting
+          comment: repostContent, // New content for the repost
         },
       ]);
 
       if (error) {
-        throw error;
+        throw error; // Throw error if the insertion fails
       }
 
-      setRepostContent("");
-      handleClose();
+      setRepostContent(""); // Reset repost content field
+      handleClose(); // Close the modal
       console.log("Repost successful");
 
+      // Execute the onSuccess callback if passed
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Error reposting:", error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop the loading indicator
     }
   };
 
@@ -74,19 +72,52 @@ const RepostButton = ({ postId, postEmail, onSuccess }) => {
         <Box className="p-4 bg-slate-800 rounded-lg shadow-lg max-w-full max-h-[90vh] overflow-auto">
           <h2 className="text-lg font-bold mb-4">Add a comment to your repost</h2>
           
-          {/* Display original post media if it exists */}
-          {originalMedia && (
-            <div className="mb-4">
-              {/* Check if media is an image or video by file extension */}
-              {/\.(jpg|jpeg|png|gif)$/i.test(originalMedia) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={originalMedia} alt="Original media" className="w-full h-auto rounded-lg" />
-              ) : (
-                <video controls src={originalMedia} className="w-full h-auto rounded-lg" />
-              )}
-            </div>
-          )}
+          {/* Display original post content */}
+          <div className="mb-4">
+            <p className="text-gray-300">{originalPostContent}</p>
+          </div>
 
+          {/* Display original post media if available */}
+          {originalMedia && (
+  <div className="mb-4">
+    {Array.isArray(originalMedia)
+      ? originalMedia.map((mediaUrl, index) => (
+          /\.(jpg|jpeg|png|gif)$/i.test(mediaUrl) ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={index}
+              src={mediaUrl}
+              alt="Original media"
+              className="w-full h-auto rounded-lg mb-2"
+            />
+          ) : (
+            <video
+              key={index}
+              controls
+              src={mediaUrl}
+              className="w-full h-auto rounded-lg mb-2"
+            />
+          )
+        ))
+      : /\.(jpg|jpeg|png|gif)$/i.test(originalMedia) ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={originalMedia}
+            alt="Original media"
+            className="w-full h-auto rounded-lg mb-2"
+          />
+        ) : (
+          <video
+            controls
+            src={originalMedia}
+            className="w-full h-auto rounded-lg mb-2"
+          />
+        )}
+  </div>
+)}
+
+
+          {/* Repost content input */}
           <textarea
             value={repostContent}
             onChange={(e) => setRepostContent(e.target.value)}
@@ -94,6 +125,8 @@ const RepostButton = ({ postId, postEmail, onSuccess }) => {
             className="w-full p-2 active:border-0 focus:border-0 outline-0 rounded-lg mb-4 bg-slate-700"
             rows="4"
           ></textarea>
+
+          {/* Repost button */}
           <button
             onClick={handleRepost}
             disabled={loading}

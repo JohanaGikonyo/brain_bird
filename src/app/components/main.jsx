@@ -3,25 +3,17 @@ import { useInView } from "react-intersection-observer";
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
-import CommentSection from "./commentsSection";
-import MessageIcon from "@mui/icons-material/Message";
-import RepeatIcon from "@mui/icons-material/Repeat";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import CustomAvatar from "./CustomAvatar";
-import LikeButton from "./LikeButton";
 import Profile from "./Profile";
-import Follow from "./Follow"; // Updated for user follow
 import { useUser, useSearch } from "../store/useStore";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import PostMedia from "./PostMedia";
 import CustomProfile from "./CustomProfile";
-import PostContent from "./PostContent";
 import SkeletonChildren from "./Skeleton";
 import MyPosts from "./MyPosts";
 import RepostButton from "./RepostButton";
 import Groups from "./Groups";
 import { useShowTop, useShowFollowersPosts } from "../store/useStore";
+import Post from './Post'
 function Main() {
   const { selectedItem, setSelectedItem } = useSelected();
   const { user } = useUser();
@@ -29,6 +21,7 @@ function Main() {
   const { showFollowersPosts } = useShowFollowersPosts();
   const { search } = useSearch();
   const [posts, setPosts] = useState([]);
+  const [reposts, setReposts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentsVisible, setCommentsVisible] = useState(null);
   const [viewingPost, setViewingPost] = useState(null);
@@ -57,6 +50,7 @@ function Main() {
       }
       setLoading(false);
     };
+  
     const checkIfFollowing = async () => {
       try {
         const { data: currentUserData, error: currentUserError } = await supabase
@@ -77,13 +71,31 @@ function Main() {
     };
     checkIfFollowing();
     fetchPosts(page);
-  }, [page, setSelectedItem, user.email]);
+  }, [page,  setSelectedItem, user.email]);
 
   useEffect(() => {
     if (inView && hasMore) {
       setPage((prevPage) => prevPage + 1);
     }
   }, [inView, hasMore]);
+  useEffect(()=>{
+    const fetchReposts = async () => {
+      const { data: repostsData, error } = await supabase
+        .from("reposts")
+        .select("post_id, repost_id, reposter_email, comment, created_at")
+        .order("created_at", { ascending: false });
+    
+      if (error) {
+        console.error("Error fetching reposts:", error);
+      } else {
+        console.log("Reposts data:", repostsData); // Debugging log
+        setReposts(repostsData);
+      }
+    };
+    
+    fetchReposts();
+
+  },[])
 
   // Realtime updates
   useEffect(() => {
@@ -190,33 +202,17 @@ function Main() {
       </div>
     );
   }
-  const formatTimeAgo = (date) => {
-    const diff = Math.abs(new Date() - new Date(date));
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (years > 0) return `${years}y`;
-    if (months > 0) return `${months}mo`;
-    if (days > 0) return `${days}d`;
-    if (hours > 0) return `${hours}h`;
-    if (minutes > 0) return `${minutes}m`;
-    return `${seconds}s`;
-  };
-  
  
+
   const filteredSearch = posts.filter((post) => {
     const matchesSearch =
-      post.email.toLowerCase().includes(search.toLowerCase()) || post.post.toLowerCase().includes(search.toLowerCase());
+      post.email?.toLowerCase().includes(search.toLowerCase()) ||
+      post.post?.toLowerCase().includes(search.toLowerCase());
     const isFollowed = isFollowing.includes(post.email);
-    if(showFollowersPosts){
-       return matchesSearch &&  isFollowed ;
-    }
-    else{  
-        return matchesSearch 
+    if (showFollowersPosts) {
+      return matchesSearch && isFollowed;
+    } else {
+      return matchesSearch;
     }
   });
   return (
@@ -227,86 +223,40 @@ function Main() {
         selectedItem === "!Messages") && (
         <div className={`flex flex-col  ${showTop ? `mt-0` : `mt-28`} lg:mt-6 w-full`}>
           <UserPost />
-<div className={`${selectedItem==='!Messages'?`grid lg:grid-cols-1 xl:grid-cols-2 gap-4 mt-2 `:`flex flex-col gap-4 `}`}>
-          {filteredSearch.length === 0 ? (
-            <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
-              <Box sx={{ display: "flex" }} className="flex gap-5">
-                <CircularProgress size={24} />
-              </Box>
-            </div>
-          ) : (
-            filteredSearch.map((post, index) => (
-              <div
-                key={index}
-                className={` border-b border-slate-900 w-full flex-grow h-full py-4 px-1 lg:px-4 hover:cursor-pointer rounded-lg bg-slate-900 overflow-hidden`}
-              >
-                <div className="flex items-start gap-3 sm:gap-4 ">
-                  <div className="flex-1">
-                    <div className="p-3 sm:p-4 rounded-lg text-gray-400 w-full flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                      <span className="font-bold flex gap-2 items-center" onClick={() => handleView(post)}>
-                        {post.original_post_id ? (
-                          <div className="flex flex-col items-start space-y-2">
-                            {/* Reposted By Section */}
-                            <div className="repost-info flex items-center gap-2">
-                              <CustomAvatar email={post.reposter_email} />
-                              <p className="text-sm text-gray-500">Reposted :</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            {/* Regular Post */}
-                            <CustomAvatar email={post.email} avatarUrl={post.avatar_url} />
-                          </div>
-                        )}
-                      </span>
-
-                      <Follow
-                        email={post.original_post_id ? post.reposter_email : post.email}
-                        currentUserEmail={user.email}
-                        postedDate={` ${formatTimeAgo(post.created_at)}`}
-                      />
-                    </div>
-                    <div className="text-lg text-white mt-2 break-words">
-                      <PostContent content={post.post} />
-                      {post.media && (
-                        <div className="w-full max-w-full mt-2 overflow-hidden rounded-lg">
-                          <PostMedia mediaUrls={post.media} />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-around text-gray-400 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <button onClick={() => toggleCommentsVisibility(post.id)}>
-                          <MessageIcon titleAccess="message" />
-                        </button>
-                        <span>{Array.isArray(post.comments) ? post.comments.length : 0}</span>
-                      </div>
-                      <button
-                        className="flex items-center space-x-1"
-                        onClick={() => handleRepost(post.id, post.reposts, post.email)}
-                      >
-                        <RepeatIcon titleAccess="repost" />
-                        <span>{post.reposts}</span>
-                      </button>
-                      <LikeButton post={post} posts={posts} setPosts={setPosts} />
-                      <button className="flex items-center space-x-1" onClick={() => handleView(post)}>
-                        <VisibilityIcon titleAccess="view" />
-                        <span>{post.views}</span>
-                      </button>
-                    </div>
-                    <CommentSection
-                      postId={post.id}
-                      comments={Array.isArray(post.comments) ? post.comments : []}
-                      showComments={commentsVisible === post.id}
-                      handleAddComment={handleAddComment}
-                    />
-                  </div>
-                </div>
+          <div
+            className={`${
+              selectedItem === "!Messages" ? `grid lg:grid-cols-1 xl:grid-cols-2 gap-4 mt-2 ` : `flex flex-col gap-4 `
+            }`}
+          >
+            {filteredSearch.length === 0 ? (
+              <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
+                <Box sx={{ display: "flex" }} className="flex gap-5">
+                  <CircularProgress size={24} />
+                </Box>
               </div>
-            ))
-          )}
-          <div ref={ref} className="observer" />
-          </div></div>
+            ) : (
+              filteredSearch.map((post) => {
+                const repost = reposts.find(r => r.post_id === post.id);
+                return (
+                  <Post
+                    key={post.id}
+                    post={post}
+                    repost={repost}
+                    toggleCommentsVisibility={toggleCommentsVisibility}
+                    handleRepost={handleRepost}
+                    handleView={handleView}
+                    commentsVisible={commentsVisible}
+                    handleAddComment={handleAddComment}
+                    posts={posts}
+                    setPosts={setPosts}
+                  />
+                );
+              })
+              
+            )}
+            <div ref={ref} className="observer" />
+          </div>
+        </div>
       )}
       {viewingPost && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -361,7 +311,6 @@ function Main() {
               </button>
             </div>
           </div>
-          
         </div>
       )}
       {/* {selectedItem === "Stocks" && <h1>Stocks Selected</h1>} */}
@@ -373,10 +322,14 @@ function Main() {
       {/* RepostButton Modal */}{" "}
       {selectedPost && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <RepostButton postId={selectedPost.id} postEmail={selectedPost.email} onSuccess={handleRepostSuccess} />
+          <RepostButton
+            postId={selectedPost.id}
+            postEmail={selectedPost.email}
+            onSuccess={handleRepostSuccess}
+            post={posts}
+          />
         </div>
       )}
-      
     </div>
   );
 }

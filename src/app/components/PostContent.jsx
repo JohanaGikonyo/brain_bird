@@ -6,7 +6,9 @@ function PostContent({ content }) {
   const toggleShowMore = () => {
     setShowMore(!showMore);
   };
-
+  if (!content) {
+    return "<p class='text-gray-500'>No content available.</p>"; // Display a message if content is empty
+  }
   const processContent = (content) => {
     const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
     const hashtagRegex = /#(\w+)/g;
