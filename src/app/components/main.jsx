@@ -119,6 +119,27 @@ function Main() {
     };
   }, []);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("posts-changes")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "reposts" }, (payload) => {
+        setPosts((prevPosts) => [payload.new, ...prevPosts]);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "reposts" }, (payload) => {
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => (post.id === payload.new.id ? { ...post, ...payload.new } : post))
+        );
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "reposts" }, (payload) => {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== payload.old.id));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const handleAddComment = async (postId, comment) => {
     const { data: post, error: fetchError } = await supabase.from("posts").select("*").eq("id", postId).single();
 

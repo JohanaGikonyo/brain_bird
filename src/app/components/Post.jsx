@@ -23,7 +23,7 @@ const Post = ({
   setPosts,
 }) => {
   const { user } = useUser();
-
+console.log(posts)
   const formatTimeAgo = (date) => {
     const diff = Math.abs(new Date() - new Date(date));
     const seconds = Math.floor(diff / 1000);
@@ -43,11 +43,9 @@ const Post = ({
 
   return (
     <>
-      {reposts.length === 0 ? (
-        // Display Original Post
         <div className="mt-6 bg-gray-800 border border-gray-700 rounded-md p-4">
           {/* Original Post Header */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-4 hover:cursor-pointer" onClick={() => handleView(post)}>
             <CustomAvatar email={post.email} />
             <div className="flex-1">
               <div className="flex justify-between items-center">
@@ -76,16 +74,16 @@ const Post = ({
               className="flex items-center gap-1 hover:text-blue-400"
             >
               <MessageIcon fontSize="small" />
-              <span>{Array.isArray(post.comments) ? post.comments.length : 0} Comments</span>
+              <span>{Array.isArray(post.comments) ? post.comments.length : 0} </span>
             </button>
             <button onClick={() => handleRepost(post.id)} className="flex items-center gap-1 hover:text-blue-400">
               <RepeatIcon fontSize="small" />
-              <span>{getReposts(post.id)} Reposts</span>
+              <span>{getReposts(post.id)}</span>
             </button>
             <LikeButton post={post} posts={posts} setPosts={setPosts} />
             <button onClick={() => handleView(post)} className="flex items-center gap-1 hover:text-blue-400">
               <VisibilityIcon fontSize="small" />
-              <span>{post.views} Views</span>
+              <span>{post.views} </span>
             </button>
           </div>
 
@@ -97,13 +95,10 @@ const Post = ({
             handleAddComment={handleAddComment}
           />
         </div>
-      ) : (
-        // Display Reposts
-        <>
           {reposts.map((repost) => (
             <div key={repost.repost_id} className="mt-6 bg-slate-950 border border-gray-700 rounded-md p-4">
               {/* Repost Header */}
-              <div className="flex items-start gap-4 mb-2 flex-wrap">
+              <div className="flex items-start gap-4 mb-2 flex-wrap hover:cursor-pointer" >
                 <CustomAvatar email={repost.reposter_email} />
                 <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
                   <p className="text-xs text-gray-400">{formatTimeAgo(repost.created_at)}</p>
@@ -126,7 +121,7 @@ const Post = ({
               {/* Original Post Section within the Repost */}
               <div className="mt-4  pt-3 bg-gray-900 p-3 rounded-md">
                 {/* Original Post Header */}
-                <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center justify-between gap-4 flex-wrap hover:cursor-pointer" onClick={() => handleView(post)}>
                   <CustomAvatar email={post.email} />
                   <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
                     <p className="text-xs text-gray-400">{formatTimeAgo(post.created_at)}</p>
@@ -149,16 +144,16 @@ const Post = ({
                     className="flex items-center gap-1 hover:text-blue-400"
                   >
                     <MessageIcon fontSize="small" />
-                    <span>{Array.isArray(post.comments) ? post.comments.length : 0} Comments</span>
+                    <span>{Array.isArray(post.comments) ? post.comments.length : 0} </span>
                   </button>
                   <button onClick={() => handleRepost(post.id)} className="flex items-center gap-1 hover:text-blue-400">
                     <RepeatIcon fontSize="small" />
-                    <span>{getReposts(post.id)} Reposts</span>
+                    <span>{getReposts(post.id)} </span>
                   </button>
                   <LikeButton post={post} posts={posts} setPosts={setPosts} />
                   <button onClick={() => handleView(post)} className="flex items-center gap-1 hover:text-blue-400">
                     <VisibilityIcon fontSize="small" />
-                    <span>{post.views} Views</span>
+                    <span>{post.views} </span>
                   </button>
                 </div>
 
@@ -172,8 +167,6 @@ const Post = ({
               </div>
             </div>
           ))}
-        </>
-      )}
     </>
   );
 };
