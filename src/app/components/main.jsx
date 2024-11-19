@@ -228,8 +228,8 @@ function Main() {
 
   const filteredSearch = posts.filter((post) => {
     const matchesSearch =
-      post.email.toLowerCase().includes(search.toLowerCase() ||
-      post.post.toLowerCase().includes(search.toLowerCase())) 
+      (post.email.toLowerCase().includes(search.toLowerCase()) ||
+      (post.post.toLowerCase().includes(search.toLowerCase())) )
      
     const isFollowed = isFollowing.includes(post.email);
     
