@@ -48,7 +48,7 @@ function Menu({ open }) {
       }
     >
       <div className="flex lg:justify-center justify-between items-center text-slate-50 gap-10">
-        <div className="mb-4 ml-4 rounded-full hover:cursor-pointer" onClick={() => setSelectedItem("")}>
+        <div className="mb-4 ml-4 rounded-full hover:cursor-pointer" onClick={() => {setSelectedItem(""); setSearch("")}}>
           <Image alt="logo image" src={logo} width={100} height={50} className="rounded-2xl" />
         </div>
         <div className="lg:hidden">

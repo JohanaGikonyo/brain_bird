@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import PostContent from "./PostContent";
@@ -22,6 +22,7 @@ const Post = ({
   setPosts,
 }) => {
   const { user } = useUser();
+  const [randomizedPosts, setRandomizedPosts] = useState([]); // State for randomized posts
 
   const formatTimeAgo = (date) => {
     const diff = Math.abs(new Date() - new Date(date));
@@ -67,8 +68,11 @@ const Post = ({
   // Convert Map back to an array
   const uniqueCombinedPosts = Array.from(uniquePostsMap.values());
 
-  // Shuffle the combined array
-  const randomizedPosts = shuffleArray(uniqueCombinedPosts);
+  // Shuffle the combined array only when the page is reloaded (useEffect)
+  useEffect(() => {
+    const shuffledPosts = shuffleArray(uniqueCombinedPosts);
+    setRandomizedPosts(shuffledPosts); // Update state with shuffled posts
+  }, [posts, reposts, uniqueCombinedPosts]); // Trigger reshuffling when posts or reposts change
 
   return (
     <>
@@ -209,7 +213,6 @@ const Post = ({
             </div>
           );
         }
-        return null;
       })}
     </>
   );
