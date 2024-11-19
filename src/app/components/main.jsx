@@ -229,9 +229,9 @@ function Main() {
   const filteredSearch = posts.filter((post) => {
     const matchesSearch =
       (post.email?.toLowerCase().includes(search.toLowerCase()) ||
-      post.post?.toLowerCase().includes(search.toLowerCase()) ||
-      (reposts && reposts.some(repost => repost.comment?.toLowerCase().includes(search.toLowerCase()))) || // Check if any repost comment matches
-      (reposts && reposts.some(repost => repost.reposter_email?.toLowerCase().includes(search.toLowerCase())) )); 
+      (post.post?.toLowerCase().includes(search.toLowerCase())) )
+      // (reposts && reposts.some(repost => repost.comment?.toLowerCase().includes(search.toLowerCase()))) || // Check if any repost comment matches
+      // (reposts && reposts.some(repost => repost.reposter_email?.toLowerCase().includes(search.toLowerCase())) )); 
   
     const isFollowed = isFollowing.includes(post.email);
     

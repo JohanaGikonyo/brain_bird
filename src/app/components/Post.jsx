@@ -72,7 +72,7 @@ const Post = ({
   useEffect(() => {
     const shuffledPosts = shuffleArray(uniqueCombinedPosts);
     setRandomizedPosts(shuffledPosts); // Update state with shuffled posts
-  }, [posts, reposts, uniqueCombinedPosts]); // Trigger reshuffling when posts or reposts change
+  }, [posts, reposts]); // Trigger reshuffling when posts or reposts change
 
   return (
     <>
