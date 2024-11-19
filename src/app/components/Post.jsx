@@ -72,6 +72,7 @@ const Post = ({
   useEffect(() => {
     const shuffledPosts = shuffleArray(uniqueCombinedPosts);
     setRandomizedPosts(shuffledPosts); // Update state with shuffled posts
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts, reposts]); // Trigger reshuffling when posts or reposts change
 
   return (

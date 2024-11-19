@@ -30,7 +30,7 @@ function Main() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isFollowing, setIsFollowing] = useState([]);
-  const { ref, inView } = useInView({ threshold: 0.1 });
+  const {  inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase
@@ -281,7 +281,7 @@ function Main() {
               })
               
             )}
-            <div ref={ref} className="observer" />
+            {/* <div ref={ref} className="observer" /> */}
           </div>
         </div>
       )}
