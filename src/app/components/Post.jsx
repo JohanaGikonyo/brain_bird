@@ -11,7 +11,6 @@ import Follow from "./Follow";
 import CommentSection from "./commentsSection";
 
 const Post = ({
-  post,
   reposts = [],
   getReposts,
   toggleCommentsVisibility,
@@ -19,11 +18,11 @@ const Post = ({
   handleView,
   commentsVisible,
   handleAddComment,
-  posts,
+  posts, // The posts array, which contains the original posts
   setPosts,
 }) => {
   const { user } = useUser();
-console.log(posts)
+
   const formatTimeAgo = (date) => {
     const diff = Math.abs(new Date() - new Date(date));
     const seconds = Math.floor(diff / 1000);
@@ -41,64 +40,104 @@ console.log(posts)
     return `${seconds}s`;
   };
 
+  // Function to shuffle an array
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
+  // Combine posts and reposts into one array without duplicates
+  const combinedPosts = [
+    ...posts.map((p) => ({ type: 'post', data: p })),
+    ...reposts.map((r) => ({ type: 'repost', data: r })),
+  ];
+
+  // Use a Set to filter out duplicates based on unique identifiers
+  const uniquePostsMap = new Map();
+  
+  combinedPosts.forEach(item => {
+    if (!uniquePostsMap.has(item.data.id)) { // Assuming 'id' is a unique identifier
+      uniquePostsMap.set(item.data.id, item);
+    }
+  });
+
+  // Convert Map back to an array
+  const uniqueCombinedPosts = Array.from(uniquePostsMap.values());
+
+  // Shuffle the combined array
+  const randomizedPosts = shuffleArray(uniqueCombinedPosts);
+
   return (
     <>
-        <div className="mt-6 bg-gray-800 border border-gray-700 rounded-md p-4">
-          {/* Original Post Header */}
-          <div className="flex items-start gap-4 hover:cursor-pointer" onClick={() => handleView(post)}>
-            <CustomAvatar email={post.email} />
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs text-gray-400">{formatTimeAgo(post.created_at)}</p>
+      {randomizedPosts.map((item) => {
+        if (item.type === 'post') {
+          const post = item.data;
+          return (
+            <div key={post.id} className="mt-6 bg-gray-800 border border-gray-700 rounded-md p-4">
+              {/* Original Post Header */}
+              <div className="flex items-start gap-4 hover:cursor-pointer" onClick={() => handleView(post)}>
+                <CustomAvatar email={post.email} />
+                <div className="flex-1">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-gray-400">{formatTimeAgo(post.created_at)}</p>
+                    </div>
+                    <Follow email={post.email} currentUserEmail={user.email} />
+                  </div>
                 </div>
-                <Follow email={post.email} currentUserEmail={user.email} />
               </div>
+
+              {/* Original Post Content */}
+              <div className="mt-4">
+                <PostContent content={post.post} />
+                {post.media && (
+                  <div className="mt-3">
+                    <PostMedia mediaUrls={post.media} />
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Section for Original Post */}
+              <div className="flex items-center justify-between text-gray-400 text-sm mt-4 border-gray-600 pt-3">
+                <button
+                  onClick={() => toggleCommentsVisibility(post.id)}
+                  className="flex items-center gap-1 hover:text-blue-400"
+                >
+                  <MessageIcon fontSize="small" />
+                  <span>{Array.isArray(post.comments) ? post.comments.length : 0}</span>
+                </button>
+                <button onClick={() => handleRepost(post.id)} className="flex items-center gap-1 hover:text-blue-400">
+                  <RepeatIcon fontSize="small" />
+                  <span>{getReposts(post.id)}</span>
+                </button>
+                <LikeButton post={post} posts={posts} setPosts={setPosts} />
+                <button onClick={() => handleView(post)} className="flex items-center gap-1 hover:text-blue-400">
+                  <VisibilityIcon fontSize="small" />
+                  <span>{post.views}</span>
+                </button>
+              </div>
+
+              {/* Comments Section for Original Post */}
+              <CommentSection
+                postId={post.id}
+                comments={Array.isArray(post.comments) ? post.comments : []}
+                showComments={commentsVisible === post.id}
+                handleAddComment={handleAddComment}
+              />
             </div>
-          </div>
+          );
+        } else if (item.type === 'repost') {
+          const repost = item.data;
+          // Find the original post using repost.post_id
+          const originalPost = posts.find(p => p.id === repost.post_id);
 
-          {/* Original Post Content */}
-          <div className="mt-4">
-            <PostContent content={post.post} />
-            {post.media && (
-              <div className="mt-3">
-                <PostMedia mediaUrls={post.media} />
-              </div>
-            )}
-          </div>
-
-          {/* Footer Section for Original Post */}
-          <div className="flex items-center justify-between text-gray-400 text-sm mt-4  border-gray-600 pt-3">
-            <button
-              onClick={() => toggleCommentsVisibility(post.id)}
-              className="flex items-center gap-1 hover:text-blue-400"
-            >
-              <MessageIcon fontSize="small" />
-              <span>{Array.isArray(post.comments) ? post.comments.length : 0} </span>
-            </button>
-            <button onClick={() => handleRepost(post.id)} className="flex items-center gap-1 hover:text-blue-400">
-              <RepeatIcon fontSize="small" />
-              <span>{getReposts(post.id)}</span>
-            </button>
-            <LikeButton post={post} posts={posts} setPosts={setPosts} />
-            <button onClick={() => handleView(post)} className="flex items-center gap-1 hover:text-blue-400">
-              <VisibilityIcon fontSize="small" />
-              <span>{post.views} </span>
-            </button>
-          </div>
-
-          {/* Comments Section for Original Post */}
-          <CommentSection
-            postId={post.id}
-            comments={Array.isArray(post.comments) ? post.comments : []}
-            showComments={commentsVisible === post.id}
-            handleAddComment={handleAddComment}
-          />
-        </div>
-          {reposts.map((repost) => (
+          return (
             <div key={repost.repost_id} className="mt-6 bg-slate-950 border border-gray-700 rounded-md p-4">
               {/* Repost Header */}
-              <div className="flex items-start gap-4 mb-2 flex-wrap hover:cursor-pointer" >
+              <div className="flex items-start gap-4 mb-2 flex-wrap hover:cursor-pointer">
                 <CustomAvatar email={repost.reposter_email} />
                 <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
                   <p className="text-xs text-gray-400">{formatTimeAgo(repost.created_at)}</p>
@@ -119,54 +158,59 @@ console.log(posts)
               )}
 
               {/* Original Post Section within the Repost */}
-              <div className="mt-4  pt-3 bg-gray-900 p-3 rounded-md">
-                {/* Original Post Header */}
-                <div className="flex items-center justify-between gap-4 flex-wrap hover:cursor-pointer" onClick={() => handleView(post)}>
-                  <CustomAvatar email={post.email} />
-                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
-                    <p className="text-xs text-gray-400">{formatTimeAgo(post.created_at)}</p>
-                    <Follow email={post.email} currentUserEmail={user.email} />
+              {originalPost && (
+                <div className="mt-4 pt-3 bg-gray-900 p-3 rounded-md">
+                  {/* Original Post Header */}
+                  <div className="flex items-center justify-between gap-4 flex-wrap hover:cursor-pointer" onClick={() => handleView(originalPost)}>
+                    <CustomAvatar email={originalPost.email} />
+                    <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
+                      <p className="text-xs text-gray-400">{formatTimeAgo(originalPost.created_at)}</p>
+                      <Follow email={originalPost.email} currentUserEmail={user.email} />
+                    </div>
                   </div>
-                </div>
 
-                {/* Original Post Content */}
-                <PostContent content={post.post} />
-                {post.media && (
-                  <div className="mt-3">
-                    <PostMedia mediaUrls={post.media} />
+                  {/* Original Post Content */}
+                  <PostContent content={originalPost.post} />
+                  {originalPost.media && (
+                    <div className="mt-3">
+                      <PostMedia mediaUrls={originalPost.media} />
+                    </div>
+                  )}
+
+                  {/* Footer Section for Original Post */}
+                  <div className="flex items-center justify-between text-gray-400 text-sm mt-4 border-gray-600 pt-3">
+                    <button
+                      onClick={() => toggleCommentsVisibility(originalPost.id)}
+                      className="flex items-center gap-1 hover:text-blue-400"
+                    >
+                      <MessageIcon fontSize="small" />
+                      <span>{Array.isArray(originalPost.comments) ? originalPost.comments.length : 0}</span>
+                    </button>
+                    <button onClick={() => handleRepost(originalPost.id)} className="flex items-center gap-1 hover:text-blue-400">
+                      <RepeatIcon fontSize="small" />
+                      <span>{getReposts(originalPost.id)}</span>
+                    </button>
+                    <LikeButton post={originalPost} posts={posts} setPosts={setPosts} />
+                    <button onClick={() => handleView(originalPost)} className="flex items-center gap-1 hover:text-blue-400">
+                      <VisibilityIcon fontSize="small" />
+                      <span>{originalPost.views}</span>
+                    </button>
                   </div>
-                )}
 
-                {/* Footer Section for Original Post */}
-                <div className="flex items-center justify-between text-gray-400 text-sm mt-4  border-gray-600 pt-3">
-                  <button
-                    onClick={() => toggleCommentsVisibility(post.id)}
-                    className="flex items-center gap-1 hover:text-blue-400"
-                  >
-                    <MessageIcon fontSize="small" />
-                    <span>{Array.isArray(post.comments) ? post.comments.length : 0} </span>
-                  </button>
-                  <button onClick={() => handleRepost(post.id)} className="flex items-center gap-1 hover:text-blue-400">
-                    <RepeatIcon fontSize="small" />
-                    <span>{getReposts(post.id)} </span>
-                  </button>
-                  <LikeButton post={post} posts={posts} setPosts={setPosts} />
-                  <button onClick={() => handleView(post)} className="flex items-center gap-1 hover:text-blue-400">
-                    <VisibilityIcon fontSize="small" />
-                    <span>{post.views} </span>
-                  </button>
+                  {/* Comments Section for Original Post */}
+                  <CommentSection
+                    postId={originalPost.id}
+                    comments={Array.isArray(originalPost.comments) ? originalPost.comments : []}
+                    showComments={commentsVisible === originalPost.id}
+                    handleAddComment={handleAddComment}
+                  />
                 </div>
-
-                {/* Comments Section for Original Post */}
-                <CommentSection
-                  postId={post.id}
-                  comments={Array.isArray(post.comments) ? post.comments : []}
-                  showComments={commentsVisible === post.id}
-                  handleAddComment={handleAddComment}
-                />
-              </div>
+              )}
             </div>
-          ))}
+          );
+        }
+        return null;
+      })}
     </>
   );
 };

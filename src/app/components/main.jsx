@@ -228,9 +228,13 @@ function Main() {
 
   const filteredSearch = posts.filter((post) => {
     const matchesSearch =
-      post.email?.toLowerCase().includes(search.toLowerCase()) ||
-      post.post?.toLowerCase().includes(search.toLowerCase());
+      (post.email?.toLowerCase().includes(search.toLowerCase()) ||
+      post.post?.toLowerCase().includes(search.toLowerCase()) ||
+      (Array.isArray(post.reposts) && post.reposts.some(repost => repost.comment?.toLowerCase().includes(search.toLowerCase()))) || // Check if any repost comment matches
+      (Array.isArray(post.comments) && post.comments.some(comment => comment.content?.toLowerCase().includes(search.toLowerCase())))); // Check if any comment matches
+  
     const isFollowed = isFollowing.includes(post.email);
+    
     if (showFollowersPosts) {
       return matchesSearch && isFollowed;
     } else {
@@ -270,7 +274,7 @@ function Main() {
                     handleView={handleView}
                     commentsVisible={commentsVisible}
                     handleAddComment={handleAddComment}
-                    posts={posts}
+                    posts={filteredSearch}
                     setPosts={setPosts}
                   />
                 );
