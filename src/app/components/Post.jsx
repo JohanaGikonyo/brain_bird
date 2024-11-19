@@ -42,13 +42,13 @@ const Post = ({
   };
 
   // Function to shuffle an array
-  const shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
+  // const shuffleArray = (array) => {
+  //   for (let i = array.length - 1; i > 0; i--) {
+  //     const j = Math.floor(Math.random() * (i + 1));
+  //     [array[i], array[j]] = [array[j], array[i]];
+  //   }
+  //   return array;
+  // };
 
   // Combine posts and reposts into one array without duplicates
   const combinedPosts = [
@@ -70,8 +70,8 @@ const Post = ({
 
   // Shuffle the combined array only when the page is reloaded (useEffect)
   useEffect(() => {
-    const shuffledPosts = shuffleArray(uniqueCombinedPosts);
-    setRandomizedPosts(shuffledPosts); // Update state with shuffled posts
+    // const shuffledPosts = shuffleArray(uniqueCombinedPosts);
+    setRandomizedPosts(uniqueCombinedPosts); // Update state with shuffled posts
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts, reposts]); // Trigger reshuffling when posts or reposts change
 
