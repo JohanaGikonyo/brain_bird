@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import PostContent from "./PostContent";
@@ -10,7 +10,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import Follow from "./Follow";
 import CommentSection from "./commentsSection";
 
-const Post = ({
+// eslint-disable-next-line react/display-name
+const Post = memo(({
   reposts = [],
   getReposts,
   toggleCommentsVisibility,
@@ -213,10 +214,13 @@ const Post = ({
               )}
             </div>
           );
+        
         }
       })}
     </>
-  );
-};
+)
+}
+);
+
 
 export default Post;

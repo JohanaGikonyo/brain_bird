@@ -15,7 +15,7 @@ import Groups from "./Groups";
 import { useShowTop, useShowFollowersPosts } from "../store/useStore";
 import Post from './Post'
 function Main() {
-  const { selectedItem, setSelectedItem } = useSelected();
+  const { selectedItem} = useSelected();
   const { user } = useUser();
   const { showTop } = useShowTop();
   const { showFollowersPosts } = useShowFollowersPosts();
@@ -32,24 +32,36 @@ function Main() {
   const [isFollowing, setIsFollowing] = useState([]);
   const {  inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
-    const fetchPosts = async () => {
-      const { data, error } = await supabase
-        .from("posts")
-        .select("id, post, created_at, email, comments, reposts, views,  media, original_post_id, reposter_email")
-        .order("created_at", { ascending: false })
-        .range(page * 10, (page + 1) * 10 - 1);
-      if (error) {
-        console.error("Error fetching posts:", error);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [postsResult, repostsResult] = await Promise.all([
+          supabase.from("posts").select("id, post, created_at, email, comments, reposts, views, media, original_post_id, reposter_email").order("created_at", { ascending: false }).range(page * 10, (page + 1) * 10 - 1),
+          supabase.from("reposts").select("post_id, repost_id, reposter_email, comment, created_at").order("created_at", { ascending: false })
+        ]);
+  
+        if (postsResult.error) throw postsResult.error;
+        if (repostsResult.error) throw repostsResult.error;
+  
+        if (postsResult.data.length === 0) {
+          setHasMore(false);
+        } else {
+          setPosts((prevPosts) => [...prevPosts, ...postsResult.data]);
+        }
+        
+        setReposts(repostsResult.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
         setLoading(false);
-        return;
       }
-      if (data.length === 0) {
-        setHasMore(false);
-      } else {
-        setPosts((prevPosts) => [...prevPosts, ...data]);
-      }
-      setLoading(false);
     };
+  
+    fetchData();
+  }, [page, user.email]);
+  
+  useEffect(() => {
+   
   
     const checkIfFollowing = async () => {
       try {
@@ -70,32 +82,14 @@ function Main() {
       }
     };
     checkIfFollowing();
-    fetchPosts(page);
-  }, [page,  setSelectedItem, user.email]);
+  }, [ user.email]);
 
   useEffect(() => {
     if (inView && hasMore) {
       setPage((prevPage) => prevPage + 1);
     }
   }, [inView, hasMore]);
-  useEffect(()=>{
-    const fetchReposts = async () => {
-      const { data: repostsData, error } = await supabase
-        .from("reposts")
-        .select("post_id, repost_id, reposter_email, comment, created_at")
-        .order("created_at", { ascending: false });
-    
-      if (error) {
-        console.error("Error fetching reposts:", error);
-      } else {
-        console.log("Reposts data:", repostsData); // Debugging log
-        setReposts(repostsData);
-      }
-    };
-
-    fetchReposts();
-
-  },[])
+  
 
   // Realtime updates
   useEffect(() => {
