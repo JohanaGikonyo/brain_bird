@@ -83,8 +83,8 @@ const Post = ({
           return (
             <div key={post.id} className="mt-6 bg-gray-800 border border-gray-700 rounded-md p-4">
               {/* Original Post Header */}
-              <div className="flex items-start gap-4 hover:cursor-pointer" onClick={() => handleView(post)}>
-                <CustomAvatar email={post.email} />
+              <div className="flex items-start gap-4 hover:cursor-pointer" >
+              <div onClick={() => handleView(post)}>  <CustomAvatar email={post.email} /></div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center">
                     <div>
@@ -166,8 +166,8 @@ const Post = ({
               {originalPost && (
                 <div className="mt-4 pt-3 bg-gray-900 p-3 rounded-md">
                   {/* Original Post Header */}
-                  <div className="flex items-center justify-between gap-4 flex-wrap hover:cursor-pointer" onClick={() => handleView(originalPost)}>
-                    <CustomAvatar email={originalPost.email} />
+                  <div className="flex items-center justify-between gap-4 flex-wrap hover:cursor-pointer" >
+                    <div onClick={() => handleView(originalPost)}><CustomAvatar email={originalPost.email} /></div>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
                       <p className="text-xs text-gray-400">{formatTimeAgo(originalPost.created_at)}</p>
                       <Follow email={originalPost.email} currentUserEmail={user.email} />

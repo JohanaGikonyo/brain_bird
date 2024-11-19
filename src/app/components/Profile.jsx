@@ -121,7 +121,7 @@ const handleCloseSnackbar = () => {
   const handleDisplayFollowers=(email)=>{router.push(`/pages/followers?email=${encodeURIComponent(email)}`)}
   return (
     <div className={`${showTop?`mt-0 top-0`:` mt-0`}   mx-auto lg:mt-3 top-0 p-4 bg-slate-900 rounded-xl w-full`}>
-      <div className="flex gap-4 items-center text-xl"><span onClick={() => setSelectedItem("")}><ArrowBackIcon/></span><h3>Update Your Profile</h3></div>
+      <div className="flex gap-4 items-center text-xl"><span onClick={() => setSelectedItem("")} className="hover:cursor-pointer"><ArrowBackIcon/></span><h3>Update Your Profile</h3></div>
       <div className="my-2"><Divider/></div>
       {/* Background Section */}
       <div
