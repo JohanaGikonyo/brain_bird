@@ -12,13 +12,12 @@ import SkeletonChildren from "./Skeleton";
 import MyPosts from "./MyPosts";
 import RepostButton from "./RepostButton";
 import Groups from "./Groups";
-import { useShowTop, useShowFollowersPosts } from "../store/useStore";
-import Post from './Post'
+import { useShowTop } from "../store/useStore";
+import Post from "./Post";
 function Main() {
-  const { selectedItem} = useSelected();
+  const { selectedItem } = useSelected();
   const { user } = useUser();
   const { showTop } = useShowTop();
-  const { showFollowersPosts } = useShowFollowersPosts();
   const { search } = useSearch();
   const [posts, setPosts] = useState([]);
   const [reposts, setReposts] = useState([]);
@@ -28,56 +27,74 @@ function Main() {
   const [postEmail, setPostEmail] = useState("");
   const [selectedPost, setSelectedPost] = useState(null);
   const [page, setPage] = useState(0);
+  const [repostPage, setRepostPage] = useState(0);
+
   const [hasMore, setHasMore] = useState(true);
+  const [hasMoreReposts, setHasMoreReposts] = useState(true);
+
   const [isFollowing, setIsFollowing] = useState([]);
   // const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPosts = async () => {
       setLoading(true);
       try {
-        const [postsResult, repostsResult] = await Promise.all([
-          supabase.from("posts")
-            .select("id, post, created_at, email, comments, reposts, views, media, original_post_id, reposter_email")
-            .order("created_at", { ascending: false })
-            .range(page * 3, (page + 1) * 3 - 1),
-          supabase.from("reposts")
-            .select("post_id, repost_id, reposter_email, comment, created_at")
-            .order("created_at", { ascending: false })
-            .range(page * 3, (page + 1) * 3 - 1)
-        ]);
-  
+        const postsResult = await supabase
+          .from("posts")
+          .select("id, post, created_at, email, comments, reposts, views, media, original_post_id, reposter_email")
+          .order("created_at", { ascending: false })
+          .range(page * 3, (page + 1) * 3 - 1);
+
         if (postsResult.error) throw postsResult.error;
-        if (repostsResult.error) throw repostsResult.error;
-  
-        // Check if both results have data
-        if (postsResult.data.length === 0 && repostsResult.data.length === 0) {
-          setHasMore(false); // Stop further fetching if both are empty
+
+        // Check if posts data exists
+        if (postsResult.data.length === 0) {
+          setHasMore(false); // Stop further fetching if no posts
         } else {
-          // Update posts and reposts state
           setPosts((prevPosts) => [...prevPosts, ...postsResult.data]);
-          setReposts((prevRePosts) => [...prevRePosts, ...repostsResult.data]);
         }
-  
       } catch (error) {
-        console.error("Error fetching data:", error);
-        // Optionally set an error state here to inform users
+        console.error("Error fetching posts:", error);
       } finally {
         setLoading(false);
       }
     };
+
   
+
     // Only fetch data if there are more items
-    if ( hasMore) {
-      fetchData();
+    if (hasMore) {
+      fetchPosts(); // Fetch posts
     }
-  }, [page, user.email, hasMore]); // Ensure dependencies are correct
-  
-  
-  
-  
+    
+  }, [page, user.email, hasMore]); // Dependencies to trigger fetching
+useEffect(()=>{
+  const fetchReposts = async () => {
+    setLoading(true);
+    try {
+      const repostsResult = await supabase
+        .from("reposts")
+        .select("post_id, repost_id, reposter_email, comment, created_at")
+        .order("created_at", { ascending: false })
+        .range(repostPage * 3, (repostPage + 1) * 3 - 1);
+      if (repostsResult.error) throw repostsResult.error;
+       // Check if posts data exists
+       if (repostsResult.data.length === 0) {
+        setHasMoreReposts(false); // Stop further fetching if no posts
+      } else {
+// Update reposts state
+setReposts((prevRePosts) => [...prevRePosts, ...repostsResult.data]);          }
+    }
+    catch (error) {
+      console.error("Error fetching reposts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (hasMoreReposts) {
+    fetchReposts(); // Fetch reposts
+  }
+},[  user.email,hasMoreReposts, repostPage])
   useEffect(() => {
-   
-  
     const checkIfFollowing = async () => {
       try {
         const { data: currentUserData, error: currentUserError } = await supabase
@@ -97,14 +114,21 @@ function Main() {
       }
     };
     checkIfFollowing();
-  }, [ user.email]);
+  }, [user.email]);
 
+useEffect(() => {
+    
+    if(hasMoreReposts){
+      setRepostPage((prevPage) => prevPage + 1);
+
+    }
+  }, [ hasMoreReposts]);
   useEffect(() => {
-    if ( hasMore) {
+    if (hasMore) {
       setPage((prevPage) => prevPage + 1);
     }
-  }, [ hasMore]);
-  
+    
+  }, [hasMore]);
 
   // Realtime updates
   useEffect(() => {
@@ -167,25 +191,20 @@ function Main() {
     }
   };
 
-  const handleRepost =  (postId,  postEmail) => {
+  const handleRepost = (postId, postEmail) => {
     setSelectedPost({ id: postId, email: postEmail });
     console.log("reposting");
-   
-    
   };
 
-  const getReposts =  (postId) => {
-    const repostsArrayWithPostId=reposts.filter((repost)=>repost.post_id === postId)
+  const getReposts = (postId) => {
+    const repostsArrayWithPostId = reposts.filter((repost) => repost.post_id === postId);
     return repostsArrayWithPostId.length;
-    
   };
- 
+
   const handleRepostSuccess = () => {
     setSelectedPost(null);
     // Optionally refetch posts or update the post list
   };
-
-  
 
   const handleView = async (selectedPost) => {
     const emailToView = selectedPost.original_post_id ? selectedPost.reposter_email : selectedPost.email;
@@ -220,7 +239,6 @@ function Main() {
   const toggleCommentsVisibility = (postId) => {
     setCommentsVisible((prev) => (prev === postId ? null : postId));
   };
-  
 
   const closeModal = () => {
     setViewingPost(null);
@@ -233,31 +251,8 @@ function Main() {
       </div>
     );
   }
- 
 
-  const filteredSearch = (posts.filter((post) => {
-    const matchesSearch =
-      (post.email?.toLowerCase().includes(search.toLowerCase()) ||
-      (post.post?.toLowerCase().includes(search.toLowerCase()) 
-    ) )
-     
-    const isFollowed = isFollowing.includes(post.email);
-    
-    if (showFollowersPosts) {
-      return matchesSearch && isFollowed;
-    } else {
-      return matchesSearch;
-    }
-  })  || reposts.filter((repost) => {
-    const matchesSearch =
-      (repost.reposter_email?.toLowerCase().includes(search.toLowerCase()) ||
-      (repost.comment?.toLowerCase().includes(search.toLowerCase()) 
-    ) )
-     
-    
-      return matchesSearch;
-    
-  }));
+ 
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
       {(selectedItem === "" ||
@@ -271,27 +266,26 @@ function Main() {
               selectedItem === "!Messages" ? `grid lg:grid-cols-1 xl:grid-cols-2 gap-4 mt-2 ` : `flex flex-col gap-4 `
             }`}
           >
-            {filteredSearch.length === 0 ? (
+            {posts.length === 0 ? (
               <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
                 <Box sx={{ display: "flex" }} className="flex gap-5">
                   <CircularProgress size={24} />
                 </Box>
               </div>
             ) : (
-              
-                  <Post
-                    reposts={reposts}
-                    getReposts={getReposts}
-                    toggleCommentsVisibility={toggleCommentsVisibility}
-                    handleRepost={handleRepost}
-                    handleView={handleView}
-                    commentsVisible={commentsVisible}
-                    handleAddComment={handleAddComment}
-                    posts={filteredSearch}
-                    setPosts={setPosts}
-                  />
-              
-              
+              <Post
+                reposts={reposts}
+                search={search}
+                isFollowing={isFollowing}
+                getReposts={getReposts}
+                toggleCommentsVisibility={toggleCommentsVisibility}
+                handleRepost={handleRepost}
+                handleView={handleView}
+                commentsVisible={commentsVisible}
+                handleAddComment={handleAddComment}
+                posts={posts}
+                setPosts={setPosts}
+              />
             )}
           </div>
         </div>
