@@ -230,7 +230,7 @@ function MyPosts() {
         editingPost={editingPost}
         />
 
-        {posts.length === 0 ? (
+        {userPosts.length === 0 ? (
           <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
             <Box sx={{ display: "flex" }} className="flex gap-5">
               <CircularProgress size={24} />

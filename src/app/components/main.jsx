@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
+
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
@@ -36,7 +37,7 @@ function Main() {
   const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
     const fetchPosts = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
         const postsResult = await supabase
           .from("posts")
@@ -46,8 +47,7 @@ function Main() {
 
         if (postsResult.error) throw postsResult.error;
 
-        // Check if posts data exists
-        if (!Array.isArray(postsResult.data) || postsResult.data.length === 0) {
+        if (postsResult.length === 0) {
           setHasMore(false);
         } else {
           setPosts((prevPosts) => {
@@ -55,54 +55,42 @@ function Main() {
             const uniquePosts = Array.from(new Map(combined.map((item) => [item.id, item])).values());
             return uniquePosts;
           });
-                  }
+        }
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
         setLoading(false);
       }
     };
-
-  
-
-    // Only fetch data if there are more items
-    if ( hasMore) {
-      fetchPosts(); // Fetch posts
-    }
-    
-  }, [page, user.email, hasMore, inView]); // Dependencies to trigger fetching
-useEffect(()=>{
-  const fetchReposts = async () => {
-    setLoading(true);
-    try {
-      const repostsResult = await supabase
-        .from("reposts")
-        .select("post_id, repost_id, reposter_email, comment, created_at")
-        .order("created_at", { ascending: false })
-        .range(repostPage * 3, (repostPage + 1) * 3 - 1);
-      if (repostsResult.error) throw repostsResult.error;
-       // Check if posts data exists
-       if (!Array.isArray(repostsResult.data) || repostsResult.data.length === 0) {
-        setHasMoreReposts(false);
-      } else {
-// Update reposts state
-setReposts((prevRePosts) => {
-  const combined = [...prevRePosts, ...repostsResult.data];
-  const uniqueReposts = Array.from(new Map(combined.map((item) => [item.repost_id, item])).values());
-  return uniqueReposts;
-});
-         }
-    }
-    catch (error) {
-      console.error("Error fetching reposts:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  if ( hasMoreReposts) {
+    const fetchReposts = async () => {
+      // setLoading(true);
+      try {
+        const repostsResult = await supabase
+          .from("reposts")
+          .select("post_id, repost_id, reposter_email, comment, created_at")
+          .order("created_at", { ascending: false })
+          .range(repostPage * 3, (repostPage + 1) * 3 - 1);
+        if (repostsResult.error) throw repostsResult.error;
+        if (repostsResult.length === 0) {
+          setHasMoreReposts(false);
+        } else {
+          // Update reposts state
+          setReposts((prevRePosts) => {
+            const combined = [...prevRePosts, ...repostsResult.data];
+            const uniqueReposts = Array.from(new Map(combined.map((item) => [item.repost_id, item])).values());
+            return uniqueReposts;
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching reposts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchReposts(); // Fetch reposts
-  }
-},[  user.email,hasMoreReposts, repostPage, inView])
+    fetchPosts(); // Fetch posts
+  }, [page, user.email, repostPage]);
+  
   useEffect(() => {
     const checkIfFollowing = async () => {
       try {
@@ -126,15 +114,14 @@ setReposts((prevRePosts) => {
   }, [user.email]);
 
   useEffect(() => {
-    if (inView && hasMore) {
-      setPage(prevPage => prevPage + 1);
+    if ( hasMore && inView ) {
+      setPage((prevPage) => prevPage + 1);
     }
-    
-    if (inView && hasMoreReposts) {
-      setRepostPage(prevPage => prevPage + 1);
+
+    if ( hasMoreReposts && inView) {
+      setRepostPage((prevPage) => prevPage + 1);
     }
-    
-  }, [hasMore, hasMoreReposts, inView]);
+  }, [hasMore, inView, hasMoreReposts]);
 
   // Realtime updates
   useEffect(() => {
@@ -258,7 +245,6 @@ setReposts((prevRePosts) => {
     );
   }
 
- 
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
       {(selectedItem === "" ||
@@ -274,30 +260,36 @@ setReposts((prevRePosts) => {
           >
             {posts.length === 0 ? (
               <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
-
+                <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 ">
+                  <Box sx={{ display: "flex" }} className="flex gap-5">
+                    <CircularProgress size={24} />
+                  </Box>
+                </div>
               </div>
             ) : (
-              <Post
-                reposts={reposts}
-                search={search}
-                isFollowing={isFollowing}
-                getReposts={getReposts}
-                toggleCommentsVisibility={toggleCommentsVisibility}
-                handleRepost={handleRepost}
-                handleView={handleView}
-                commentsVisible={commentsVisible}
-                handleAddComment={handleAddComment}
-                posts={posts}
-                setPosts={setPosts}
-              />
+              <>
+                <Post
+                  reposts={reposts}
+                  search={search}
+                  isFollowing={isFollowing}
+                  getReposts={getReposts}
+                  toggleCommentsVisibility={toggleCommentsVisibility}
+                  handleRepost={handleRepost}
+                  handleView={handleView}
+                  commentsVisible={commentsVisible}
+                  handleAddComment={handleAddComment}
+                  posts={posts}
+                  setPosts={setPosts}
+                />
+               {hasMore || hasMoreReposts?  <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" ref={ref}>
+                  <Box sx={{ display: "flex" }} className="flex gap-5">
+                    <CircularProgress size={24} />
+                  </Box>
+                </div>
+                :""}
+              </>
             )}
           </div>
-          {hasMore && <div ref={ref}>more...</div>}
-          {hasMore?     <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10" >
-    <Box sx={{ display: "flex" }} className="flex gap-5">
-      <CircularProgress size={24} />
-    </Box>
-  </div>:""}
         </div>
       )}
       {viewingPost && (
