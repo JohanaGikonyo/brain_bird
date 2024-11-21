@@ -139,7 +139,7 @@ const Post = memo(
               <div key={repost.repost_id} className="mt-6 bg-slate-950 border border-gray-700 rounded-md p-4">
                 {/* Repost Header */}
                 <div className="flex items-start gap-4 mb-2 flex-wrap hover:cursor-pointer">
-                  <CustomAvatar email={repost.reposter_email} />
+                <div onClick={() => handleView(repost)} className="hover:cursor-pointer"><CustomAvatar email={repost.reposter_email} /></div>  
                   <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
                     <p className="text-xs text-gray-400">{formatTimeAgo(repost.created_at)}</p>
                     <Follow email={repost.reposter_email} currentUserEmail={user.email} />

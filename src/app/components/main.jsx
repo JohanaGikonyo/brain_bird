@@ -207,7 +207,7 @@ useEffect(() => {
   };
 
   const handleView = async (selectedPost) => {
-    const emailToView = selectedPost.original_post_id ? selectedPost.reposter_email : selectedPost.email;
+    const emailToView = selectedPost.repost_id ? selectedPost.reposter_email : selectedPost.email;
 
     // Update the email state for the post viewer
     const updateEmailState = (email) => {
