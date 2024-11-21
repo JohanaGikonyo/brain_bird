@@ -50,7 +50,7 @@ const Post = memo(
     const combinedPosts = [
       ...posts.map((p) => ({ type: "post", data: p })),
       ...reposts.map((r) => ({ type: "repost", data: r })),
-    ];
+    ].sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));;
 
     const filteredSearch = combinedPosts.filter((post) => {
       const matchesSearch =
