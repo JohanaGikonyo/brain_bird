@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import { useInView } from "react-intersection-observer";
+import { useInView } from "react-intersection-observer";
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
@@ -33,7 +33,7 @@ function Main() {
   const [hasMoreReposts, setHasMoreReposts] = useState(true);
 
   const [isFollowing, setIsFollowing] = useState([]);
-  // const { ref, inView } = useInView({ threshold: 0.1 });
+  const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
@@ -47,11 +47,15 @@ function Main() {
         if (postsResult.error) throw postsResult.error;
 
         // Check if posts data exists
-        if (postsResult.data.length === 0) {
-          setHasMore(false); // Stop further fetching if no posts
+        if (!Array.isArray(postsResult.data) || postsResult.data.length === 0) {
+          setHasMore(false);
         } else {
-          setPosts((prevPosts) => [...prevPosts, ...postsResult.data]);
-        }
+          setPosts((prevPosts) => {
+            const combined = [...prevPosts, ...postsResult.data];
+            const uniquePosts = Array.from(new Map(combined.map((item) => [item.id, item])).values());
+            return uniquePosts;
+          });
+                  }
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -62,11 +66,11 @@ function Main() {
   
 
     // Only fetch data if there are more items
-    if (hasMore) {
+    if ( hasMore) {
       fetchPosts(); // Fetch posts
     }
     
-  }, [page, user.email, hasMore]); // Dependencies to trigger fetching
+  }, [page, user.email, hasMore, inView]); // Dependencies to trigger fetching
 useEffect(()=>{
   const fetchReposts = async () => {
     setLoading(true);
@@ -78,11 +82,16 @@ useEffect(()=>{
         .range(repostPage * 3, (repostPage + 1) * 3 - 1);
       if (repostsResult.error) throw repostsResult.error;
        // Check if posts data exists
-       if (repostsResult.data.length === 0) {
-        setHasMoreReposts(false); // Stop further fetching if no posts
+       if (!Array.isArray(repostsResult.data) || repostsResult.data.length === 0) {
+        setHasMoreReposts(false);
       } else {
 // Update reposts state
-setReposts((prevRePosts) => [...prevRePosts, ...repostsResult.data]);          }
+setReposts((prevRePosts) => {
+  const combined = [...prevRePosts, ...repostsResult.data];
+  const uniqueReposts = Array.from(new Map(combined.map((item) => [item.repost_id, item])).values());
+  return uniqueReposts;
+});
+         }
     }
     catch (error) {
       console.error("Error fetching reposts:", error);
@@ -90,10 +99,10 @@ setReposts((prevRePosts) => [...prevRePosts, ...repostsResult.data]);          }
       setLoading(false);
     }
   };
-  if (hasMoreReposts) {
+  if ( hasMoreReposts) {
     fetchReposts(); // Fetch reposts
   }
-},[  user.email,hasMoreReposts, repostPage])
+},[  user.email,hasMoreReposts, repostPage, inView])
   useEffect(() => {
     const checkIfFollowing = async () => {
       try {
@@ -116,19 +125,16 @@ setReposts((prevRePosts) => [...prevRePosts, ...repostsResult.data]);          }
     checkIfFollowing();
   }, [user.email]);
 
-useEffect(() => {
-    
-    if(hasMoreReposts){
-      setRepostPage((prevPage) => prevPage + 1);
-
-    }
-  }, [ hasMoreReposts]);
   useEffect(() => {
-    if (hasMore) {
-      setPage((prevPage) => prevPage + 1);
+    if (inView && hasMore) {
+      setPage(prevPage => prevPage + 1);
     }
     
-  }, [hasMore]);
+    if (inView && hasMoreReposts) {
+      setRepostPage(prevPage => prevPage + 1);
+    }
+    
+  }, [hasMore, hasMoreReposts, inView]);
 
   // Realtime updates
   useEffect(() => {
@@ -286,7 +292,8 @@ useEffect(() => {
               />
             )}
           </div>
-          {hasMore?     <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10">
+          {hasMore && <div ref={ref}>more...</div>}
+          {hasMore?     <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10" >
     <Box sx={{ display: "flex" }} className="flex gap-5">
       <CircularProgress size={24} />
     </Box>
