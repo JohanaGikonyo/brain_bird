@@ -268,11 +268,7 @@ useEffect(() => {
           >
             {posts.length === 0 ? (
               <div className="text-2xl font-extrabold flex items-center justify-center mt-10">
-                <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10">
-    <Box sx={{ display: "flex" }} className="flex gap-5">
-      <CircularProgress size={24} />
-    </Box>
-  </div>
+
               </div>
             ) : (
               <Post
@@ -290,7 +286,11 @@ useEffect(() => {
               />
             )}
           </div>
-          
+          {hasMore?     <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10">
+    <Box sx={{ display: "flex" }} className="flex gap-5">
+      <CircularProgress size={24} />
+    </Box>
+  </div>:""}
         </div>
       )}
       {viewingPost && (
