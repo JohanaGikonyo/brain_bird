@@ -38,8 +38,8 @@ function MyPosts() {
         .from("posts")
         .select("id, post, created_at, email, comments, reposts, views,  media")
         .order("created_at", { ascending: false })
-        .range(page * 10, (page + 1) * 10 - 1);
-      if (error) {
+        .range(page * 3, (page + 1) * 3 - 1);
+        if (error) {
         console.error("Error fetching posts:", error);
         setLoading(false);
         return;
