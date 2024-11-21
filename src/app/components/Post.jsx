@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from "react";
+import React, {  memo } from "react";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import PostContent from "./PostContent";
@@ -23,7 +23,6 @@ const Post = memo(({
   setPosts,
 }) => {
   const { user } = useUser();
-  const [randomizedPosts, setRandomizedPosts] = useState([]); // State for randomized posts
 
   const formatTimeAgo = (date) => {
     const diff = Math.abs(new Date() - new Date(date));
@@ -42,14 +41,7 @@ const Post = memo(({
     return `${seconds}s`;
   };
 
-  // Function to shuffle an array
-  // const shuffleArray = (array) => {
-  //   for (let i = array.length - 1; i > 0; i--) {
-  //     const j = Math.floor(Math.random() * (i + 1));
-  //     [array[i], array[j]] = [array[j], array[i]];
-  //   }
-  //   return array;
-  // };
+  
 
   // Combine posts and reposts into one array without duplicates
   const combinedPosts = [
@@ -57,28 +49,11 @@ const Post = memo(({
     ...reposts.map((r) => ({ type: 'repost', data: r })),
   ];
 
-  // Use a Set to filter out duplicates based on unique identifiers
-  const uniquePostsMap = new Map();
   
-  combinedPosts.forEach(item => {
-    if (!uniquePostsMap.has(item.data.id)) { // Assuming 'id' is a unique identifier
-      uniquePostsMap.set(item.data.id, item);
-    }
-  });
-
-  // Convert Map back to an array
-  const uniqueCombinedPosts = Array.from(uniquePostsMap.values());
-
-  // Shuffle the combined array only when the page is reloaded (useEffect)
-  useEffect(() => {
-    // const shuffledPosts = shuffleArray(uniqueCombinedPosts);
-    setRandomizedPosts(uniqueCombinedPosts); // Update state with shuffled posts
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posts, reposts]); // Trigger reshuffling when posts or reposts change
 
   return (
     <>
-      {randomizedPosts.map((item) => {
+      {combinedPosts.map((item) => {
         if (item.type === 'post') {
           const post = item.data;
           return (

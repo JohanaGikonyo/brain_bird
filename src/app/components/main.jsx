@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useInView } from "react-intersection-observer";
+// import { useInView } from "react-intersection-observer";
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
@@ -30,35 +30,50 @@ function Main() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isFollowing, setIsFollowing] = useState([]);
-  const {  inView } = useInView({ threshold: 0.1 });
+  // const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const [postsResult, repostsResult] = await Promise.all([
-          supabase.from("posts").select("id, post, created_at, email, comments, reposts, views, media, original_post_id, reposter_email").order("created_at", { ascending: false }).range(page * 10, (page + 1) * 10 - 1),
-          supabase.from("reposts").select("post_id, repost_id, reposter_email, comment, created_at").order("created_at", { ascending: false })
+          supabase.from("posts")
+            .select("id, post, created_at, email, comments, reposts, views, media, original_post_id, reposter_email")
+            .order("created_at", { ascending: false })
+            .range(page * 3, (page + 1) * 3 - 1),
+          supabase.from("reposts")
+            .select("post_id, repost_id, reposter_email, comment, created_at")
+            .order("created_at", { ascending: false })
+            .range(page * 3, (page + 1) * 3 - 1)
         ]);
   
         if (postsResult.error) throw postsResult.error;
         if (repostsResult.error) throw repostsResult.error;
   
-        if (postsResult.data.length === 0) {
-          setHasMore(false);
+        // Check if both results have data
+        if (postsResult.data.length === 0 && repostsResult.data.length === 0) {
+          setHasMore(false); // Stop further fetching if both are empty
         } else {
+          // Update posts and reposts state
           setPosts((prevPosts) => [...prevPosts, ...postsResult.data]);
+          setReposts((prevRePosts) => [...prevRePosts, ...repostsResult.data]);
         }
-        
-        setReposts(repostsResult.data);
+  
       } catch (error) {
         console.error("Error fetching data:", error);
+        // Optionally set an error state here to inform users
       } finally {
         setLoading(false);
       }
     };
   
-    fetchData();
-  }, [page, user.email]);
+    // Only fetch data if there are more items
+    if (hasMore) {
+      fetchData();
+    }
+  }, [page, user.email, hasMore]); // Ensure dependencies are correct
+  
+  
+  
   
   useEffect(() => {
    
@@ -85,10 +100,10 @@ function Main() {
   }, [ user.email]);
 
   useEffect(() => {
-    if (inView && hasMore) {
+    if ( hasMore) {
       setPage((prevPage) => prevPage + 1);
     }
-  }, [inView, hasMore]);
+  }, [ hasMore]);
   
 
   // Realtime updates
@@ -222,8 +237,9 @@ function Main() {
 
   const filteredSearch = posts.filter((post) => {
     const matchesSearch =
-      (post.email.toLowerCase().includes(search.toLowerCase()) ||
-      (post.post.toLowerCase().includes(search.toLowerCase())) )
+      (post.email?.toLowerCase().includes(search.toLowerCase()) ||
+      (post.post?.toLowerCase().includes(search.toLowerCase()) 
+    ) )
      
     const isFollowed = isFollowing.includes(post.email);
     
@@ -253,13 +269,9 @@ function Main() {
                 </Box>
               </div>
             ) : (
-              filteredSearch.map((post) => {
-                const associatedReposts  = reposts.filter(r => r.post_id === post.id);
-                return (
+              
                   <Post
-                    key={post.id}
-                    post={post}
-                    reposts={associatedReposts }
+                    reposts={reposts}
                     getReposts={getReposts}
                     toggleCommentsVisibility={toggleCommentsVisibility}
                     handleRepost={handleRepost}
@@ -269,8 +281,7 @@ function Main() {
                     posts={filteredSearch}
                     setPosts={setPosts}
                   />
-                );
-              })
+              
               
             )}
             {/* <div ref={ref} className="observer" /> */}
