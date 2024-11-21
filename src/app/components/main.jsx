@@ -47,7 +47,7 @@ function Main() {
 
         if (postsResult.error) throw postsResult.error;
 
-        if (postsResult.length === 0) {
+        if (postsResult.data.length === 0) {
           setHasMore(false);
         } else {
           setPosts((prevPosts) => {
@@ -71,7 +71,7 @@ function Main() {
           .order("created_at", { ascending: false })
           .range(repostPage * 3, (repostPage + 1) * 3 - 1);
         if (repostsResult.error) throw repostsResult.error;
-        if (repostsResult.length === 0) {
+        if (repostsResult.data.length === 0) {
           setHasMoreReposts(false);
         } else {
           // Update reposts state
@@ -281,7 +281,7 @@ function Main() {
                   posts={posts}
                   setPosts={setPosts}
                 />
-               {hasMore || hasMoreReposts?  <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" ref={ref}>
+               {hasMore?  <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" ref={ref}>
                   <Box sx={{ display: "flex" }} className="flex gap-5">
                     <CircularProgress size={24} />
                   </Box>
