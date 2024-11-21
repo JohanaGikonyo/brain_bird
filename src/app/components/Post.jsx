@@ -12,7 +12,7 @@ import CommentSection from "./commentsSection";
 
 // eslint-disable-next-line react/display-name
 const Post = memo(({
-  reposts = [],
+  reposts ,
   getReposts,
   toggleCommentsVisibility,
   handleRepost,

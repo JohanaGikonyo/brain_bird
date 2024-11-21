@@ -67,7 +67,7 @@ function Main() {
     };
   
     // Only fetch data if there are more items
-    if (hasMore) {
+    if ( hasMore) {
       fetchData();
     }
   }, [page, user.email, hasMore]); // Ensure dependencies are correct
@@ -235,7 +235,7 @@ function Main() {
   }
  
 
-  const filteredSearch = posts.filter((post) => {
+  const filteredSearch = (posts.filter((post) => {
     const matchesSearch =
       (post.email?.toLowerCase().includes(search.toLowerCase()) ||
       (post.post?.toLowerCase().includes(search.toLowerCase()) 
@@ -248,7 +248,16 @@ function Main() {
     } else {
       return matchesSearch;
     }
-  });
+  })  || reposts.filter((repost) => {
+    const matchesSearch =
+      (repost.reposter_email?.toLowerCase().includes(search.toLowerCase()) ||
+      (repost.comment?.toLowerCase().includes(search.toLowerCase()) 
+    ) )
+     
+    
+      return matchesSearch;
+    
+  }));
   return (
     <div className="flex flex-col items-center flex-1 lg:border border-slate-800 lg:border-y-0 text-slate-100 shadow-lg lg:p-4 p-1">
       {(selectedItem === "" ||
@@ -284,7 +293,6 @@ function Main() {
               
               
             )}
-            {/* <div ref={ref} className="observer" /> */}
           </div>
         </div>
       )}
