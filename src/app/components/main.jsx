@@ -281,7 +281,7 @@ function Main() {
                   posts={posts}
                   setPosts={setPosts}
                 />
-               {hasMore?  <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" ref={ref}>
+               {hasMore || hasMoreReposts?  <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" ref={ref}>
                   <Box sx={{ display: "flex" }} className="flex gap-5">
                     <CircularProgress size={24} />
                   </Box>
