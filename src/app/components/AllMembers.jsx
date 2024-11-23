@@ -3,10 +3,12 @@ import { supabase } from "../lib/supabaseClient";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CustomAvatar from './CustomAvatar';
 import CustomModal from './CustomModal';
+import { useShowTop } from '../store/useStore';
 function AllMembers({ group, setViewAll }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const {showTop}=useShowTop()
 const [viewingPost, setViewingPost] = useState(null);
   useEffect(() => {
     const fetchMembers = async () => {
@@ -45,14 +47,15 @@ const [viewingPost, setViewingPost] = useState(null);
 }
 const filteredMembers=members.filter((member)=>member.user_email.toLowerCase().includes(search.toLowerCase()))
   return (
-    <div>
+    <div className={`w-[80%] flex flex-col  lg:mt-8 ${!showTop?'mt-32':""}`}>
       <h2 className='flex gap-3 items-center text-xl bg-slate-800 rounded-lg p-3 mb-4'> 
-        <div onClick={() => { setViewAll(null) }}>
+        <div onClick={() => { setViewAll(null) }} className='hover:cursor-pointer'>
           <ArrowBackIcon />
         </div> {group.name}</h2>
+        <div className='bg-slate-800 p-3 rounded-lg mb-3'><h5>Group Description</h5>{group.description}</div>
         <input
         type="text"
-        placeholder="Search groups..."
+        placeholder="Search ..."
         value={search}
         onChange={(e) => handleSearch(e.target.value)}
         className="mb-4 p-2 rounded-lg text-slate-950 focus:outline-0"

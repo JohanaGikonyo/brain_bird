@@ -87,11 +87,11 @@ function ChatPlatform({ userEmail }) {
     }
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      sendMessage(); 
-    }
-  };
+  // const handleKeyDown = (event) => {
+  //   if (event.key === 'Enter') {
+  //     sendMessage(); 
+  //   }
+  // };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -125,14 +125,16 @@ function ChatPlatform({ userEmail }) {
       </div>
       <div className="flex-none lg:p-1 bg-gray-600 rounded-lg w-full sticky bottom-0 lg:bottom-4 lg:mb-14">
         <div className="flex items-center space-x-2">
-          <input
+          <textarea
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
+            // onKeyDown={handleKeyDown}
+            multiple
+            
             placeholder="Type a message..."
-            className="flex-grow p-2 rounded-lg bg-gray-600 outline-0 text-white placeholder-gray-400 focus:outline-none "
-          />
+            className="flex-grow p-2 rounded-lg bg-gray-600 text-white placeholder-gray-400 focus:outline-none resize-none overflow-hidden"
+            />
           <button
             onClick={sendMessage}
             className="px-4 py-2 text-blue-500 rounded-lg hover:bg-gray-600 focus:outline-none"

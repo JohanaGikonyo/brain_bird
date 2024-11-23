@@ -248,7 +248,7 @@ function Main() {
         selectedItem === "!Groups" ||
         selectedItem === "Messages" ||
         selectedItem === "!Messages") && (
-        <div className={`flex flex-col  ${showTop ? `mt-0` : `mt-28`} lg:mt-6 w-full`}>
+        <div className={`flex flex-col  ${showTop ? `mt-0` : `mt-32`} lg:mt-6 w-full`}>
           <UserPost />
           <div
             className={`${

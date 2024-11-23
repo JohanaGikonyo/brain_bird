@@ -7,13 +7,15 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AllMembers from "./AllMembers";
 import PostContent from "./PostContent";
 import { format, isToday, isYesterday } from "date-fns";
+import { useShowTop } from "../store/useStore";
 
 function GroupChat({ group, setSelectedGroup }) {
   const { user } = useUser();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [viewAll, setViewAll] = useState(null);
-
+  const { showTop } = useShowTop();
+  
   // Create a ref for the messages container
   const messagesEndRef = useRef(null);
 
@@ -75,7 +77,6 @@ function GroupChat({ group, setSelectedGroup }) {
     return <AllMembers group={viewAll} setViewAll={setViewAll} />;
   }
 
- 
   function formatMessageDate(date) {
     const messageDate = new Date(date);
   
@@ -87,62 +88,33 @@ function GroupChat({ group, setSelectedGroup }) {
       return format(messageDate, "MMM dd, p"); // e.g., "Nov 23, 2:30 PM"
     }
   }
-  
 
   return (
-    <div className="bg-[#e5ddd5] lg:mt-10 h-full flex flex-col flex-grow w-full">
-      {/* Group Name */}
-      <div className="bg-[#25D366] text-white p-4 flex items-center gap-5 text-center text-xl font-bold w-full">
-        <div
-          onClick={() => {
-            setSelectedGroup(null);
-          }}
-        >
+    <div className={`flex flex-col h-screen w-full bg-[#e5ddd5] lg:mt-10 ${!showTop ? "mt-32" : ""}`}>
+      {/* Group Name Header */}
+      <div className="bg-[#25D366] text-white p-4 flex items-center gap-5 text-center text-xl font-bold">
+        <div onClick={() => setSelectedGroup(null)} className='hover:cursor-pointer'>
           <ArrowBackIcon />
         </div>
-        <h2
-          onClick={() => {
-            setViewAll(group);
-          }}
-        >
-          {group.name} Group
-        </h2>
+        <h2 onClick={() => setViewAll(group)} className='hover:cursor-pointer'>{group.name} Group</h2>
       </div>
 
       {/* Messages List */}
-      <div className="flex-1 flex-wrap overflow-y-auto p-4 max-w-full">
+      <div className="flex-1 overflow-y-auto p-4">
         <List>
           {messages.map((message) => (
-            <ListItem
-              key={message.id}
-              className={`mb-3 flex flex-wrap ${message.user_email === user.email ? "justify-end" : ""}`}
-            >
+            <ListItem key={message.id} className={`mb-3 flex ${message.user_email === user.email ? "justify-end" : ""}`}>
               <div className="flex items-center gap-2 flex-col">
                 {/* Avatar */}
                 <CustomAvatar email={message.user_email} color={"text-slate-700"} />
 
                 {/* Message Bubble */}
-                <div
-                  className={`rounded-lg p-3 max-w-[80%] ${
-                    message.user_email === user.email
-                      ? "bg-[#dcf8c6] text-black" // Sent message bubble color
-                      : "bg-white text-black" // Received message bubble color
-                  }`}
-                  style={{
-                    borderRadius: "20px",
-                    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                    wordWrap: "break-word", // Ensure long words break
-                    overflowWrap: "break-word", // Break long words if necessary
-                  }}
-                >
+                <div className={`rounded-lg p-3 max-w-[80%] ${message.user_email === user.email ? "bg-[#dcf8c6] text-black" : "bg-white text-black"}`}>
                   <ListItemText
                     primary={
                       <>
                         <PostContent content={message.content} />
-                        <div className="text-gray-400 text-xs">
-                         
-                         {formatMessageDate(message.created_at)}
-                        </div>
+                        <div className="text-gray-400 text-xs">{formatMessageDate(message.created_at)}</div>
                       </>
                     }
                     className={`whitespace-pre-line ${message.user_email === user.email ? "text-center" : ""}`}
@@ -156,12 +128,13 @@ function GroupChat({ group, setSelectedGroup }) {
         </List>
       </div>
 
-      {/* Input Bar */}
-      <Box className="flex items-center p-4 bg-white border-t-2 border-gray-300 w-full">
+      {/* Input Bar at the Bottom */}
+      <Box className="p-4 bg-white border-t-2 border-gray-300 w-full flex gap-2">
         <TextField
           label="Type a message..."
           variant="outlined"
           fullWidth
+          multiline
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           className="rounded-full"
@@ -170,7 +143,7 @@ function GroupChat({ group, setSelectedGroup }) {
             style: { borderRadius: "20px" },
           }}
         />
-        <Button
+       <div> <Button
           variant="contained"
           color="primary"
           onClick={handleSendMessage}
@@ -179,6 +152,7 @@ function GroupChat({ group, setSelectedGroup }) {
         >
           Send
         </Button>
+        </div>
       </Box>
     </div>
   );

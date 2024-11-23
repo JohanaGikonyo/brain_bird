@@ -134,7 +134,7 @@ function Groups() {
   }
 
   return (
-    <div className={`flex flex-col ${!showTop ? `mt-24` : `mt-0`} lg:mt-14   `}>
+    <div className={`flex flex-col ${!showTop ? `mt-36` : ``} lg:mt-14   `}>
       {/* Search Input */}
      <div className="flex items-start gap-2"> <input
         type="text"
@@ -157,7 +157,7 @@ function Groups() {
             filteredUserGroups.map((group) => (
               <div key={group.id} className="p-3 rounded-lg bg-slate-800 hover:bg-slate-900 cursor-pointer" onClick={() => handleGroupClick(group)}>
                <div className="flex gap-2"> 
-               <h3 className="text-lg font-bold">{group.name}</h3>
+               <h3 className="text-base font-bold">{group.name}</h3>
                 {group.unread_count > 0 && (
           <span className="bg-blue-500 rounded-full  font-semibold text-white">
             {group.unread_count} 
