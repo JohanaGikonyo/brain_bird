@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "./lib/supabaseClient";
 import { useUser } from './store/useStore';
-import Skeleton from './components/Skeleton'
-export default function Home() {
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";export default function Home() {
   const router = useRouter();
   const { setUser } = useUser();
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,11 @@ export default function Home() {
   }, [router, setUser]);
 
   if (loading) {
-    return <div><Skeleton/>.</div>;
+    return <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" >
+    <Box sx={{ display: "flex" }} className="flex gap-5">
+      <CircularProgress size={24} />
+    </Box>
+  </div>;
   }
 
   return <div></div>;

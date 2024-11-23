@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-
 import { useSelected } from "../store/useSection";
 import UserPost from "../components/UserPost";
 import { supabase } from "../lib/supabaseClient";
