@@ -92,12 +92,12 @@ function MessageResponsive() {
   return (
     <div>
       {selectedItem === "Messages" && (
-        <div className="lg:hidden lg:w-72 xl:w-80 w-full h-screen fixed right-0 top-0 rounded-lg p-4 pb-10 bg-gray-800 z-50">
+        <div className="lg:hidden lg:w-72 xl:w-80 w-full h-screen fixed right-0 top-0 rounded-lg p-4  bg-gray-800 z-50">
           <div
             className={
               email
                 ? "fixed lg:top-20 p-2 bg-gray-800 flex items-center w-full justify-around gap-2"
-                : "flex items-center mb-4 justify-between gap-2"
+                : "flex items-center mb-0 justify-between gap-2"
             }
           >
             <ArrowBackIcon className="text-slate-400 cursor-pointer" onClick={toggleView} />

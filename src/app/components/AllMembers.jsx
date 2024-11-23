@@ -3,12 +3,12 @@ import { supabase } from "../lib/supabaseClient";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CustomAvatar from './CustomAvatar';
 import CustomModal from './CustomModal';
-import { useShowTop } from '../store/useStore';
+// import { useShowTop } from '../store/useStore';
 function AllMembers({ group, setViewAll }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const {showTop}=useShowTop()
+  // const {showTop}=useShowTop()
 const [viewingPost, setViewingPost] = useState(null);
   useEffect(() => {
     const fetchMembers = async () => {
@@ -47,31 +47,39 @@ const [viewingPost, setViewingPost] = useState(null);
 }
 const filteredMembers=members.filter((member)=>member.user_email.toLowerCase().includes(search.toLowerCase()))
   return (
-    <div className={`w-[80%] flex flex-col  lg:mt-8 ${!showTop?'mt-32':""}`}>
-      <h2 className='flex gap-3 items-center text-xl bg-slate-800 rounded-lg p-3 mb-4'> 
-        <div onClick={() => { setViewAll(null) }} className='hover:cursor-pointer'>
-          <ArrowBackIcon />
-        </div> {group.name}</h2>
-        <div className='bg-slate-800 p-3 rounded-lg mb-3'><h5>Group Description</h5>{group.description}</div>
-        <input
-        type="text"
-        placeholder="Search ..."
-        value={search}
-        onChange={(e) => handleSearch(e.target.value)}
-        className="mb-4 p-2 rounded-lg text-slate-950 focus:outline-0"
-      />
-      <p>members</p>
-        {filteredMembers.map((member, index) => (
-            <div key={index}
-          className="flex items-center m-4 justify-between bg-slate-900 hover:bg-slate-800 p-4 rounded-lg shadow-sm cursor-pointer transition"
-          onClick={() => handleView(member.user_email)}
-        >
-          <CustomAvatar email={member.user_email} />
-        </div>
-        ))}
-              <CustomModal email={viewingPost} viewingPost={viewingPost} setViewingPost={setViewingPost}/>
-
+<div
+  className={`flex flex-col h-full overflow-y-auto scrollbar-hide fixed  lg:top-10 top-0 z-50 lg:z-0 rounded-lg bg-slate-800  p-5 w-full lg:w-auto`}
+>
+  <h2 className="flex gap-3 items-center w-full text-xl bg-slate-800 rounded-lg p-3 mb-4 ">
+    <div onClick={() => setViewAll(null)} className="hover:cursor-pointer">
+      <ArrowBackIcon />
     </div>
+    {group.name}
+  </h2>
+  <div className="bg-slate-800 p-3 rounded-lg mb-3">
+    <h5>Group Description</h5>
+    {group.description}
+  </div>
+  <input
+    type="text"
+    placeholder="Search ..."
+    value={search}
+    onChange={(e) => handleSearch(e.target.value)}
+    className="py-2 px-1 rounded-lg border border-slate-800 bg-slate-700 text-white focus:outline-none focus:border-slate-500 transition duration-300"
+  />
+  <p>Members</p>
+  {filteredMembers.map((member, index) => (
+    <div
+      key={index}
+      className="flex items-center m-2 justify-between bg-slate-700 hover:bg-slate-800 p-4 rounded-lg shadow-sm cursor-pointer transition"
+      onClick={() => handleView(member.user_email)}
+    >
+      <CustomAvatar email={member.user_email} />
+    </div>
+  ))}
+  <CustomModal email={viewingPost} viewingPost={viewingPost} setViewingPost={setViewingPost} />
+</div>
+
   );
 }
 

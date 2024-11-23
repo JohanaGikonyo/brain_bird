@@ -7,14 +7,14 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AllMembers from "./AllMembers";
 import PostContent from "./PostContent";
 import { format, isToday, isYesterday } from "date-fns";
-import { useShowTop } from "../store/useStore";
+// import { useShowTop } from "../store/useStore";
 
 function GroupChat({ group, setSelectedGroup }) {
   const { user } = useUser();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [viewAll, setViewAll] = useState(null);
-  const { showTop } = useShowTop();
+  // const { showTop } = useShowTop();
   
   // Create a ref for the messages container
   const messagesEndRef = useRef(null);
@@ -90,9 +90,9 @@ function GroupChat({ group, setSelectedGroup }) {
   }
 
   return (
-    <div className={`flex flex-col h-screen w-full bg-[#e5ddd5] lg:mt-10 ${!showTop ? "mt-32" : ""}`}>
+    <div className={`flex flex-col h-full overflow-y-auto scrollbar-hide fixed mb-10 bottom-10 lg:top-10 top-0 z-50 lg:z-0 rounded-lg  bg-[#e5ddd5] lg:mt-10 w-full lg:w-auto `}>
       {/* Group Name Header */}
-      <div className="bg-[#25D366] text-white p-4 flex items-center gap-5 text-center text-xl font-bold">
+      <div className="bg-[#25D366]  text-white w-full p-4 flex items-center gap-5 text-center text-xl font-bold">
         <div onClick={() => setSelectedGroup(null)} className='hover:cursor-pointer'>
           <ArrowBackIcon />
         </div>
@@ -100,7 +100,7 @@ function GroupChat({ group, setSelectedGroup }) {
       </div>
 
       {/* Messages List */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 scrollbar-hide">
         <List>
           {messages.map((message) => (
             <ListItem key={message.id} className={`mb-3 flex ${message.user_email === user.email ? "justify-end" : ""}`}>
@@ -127,6 +127,7 @@ function GroupChat({ group, setSelectedGroup }) {
           <div ref={messagesEndRef} />
         </List>
       </div>
+      <div className="flex-none lg:p-1  rounded-lg w-full sticky bottom-0 mb-0 lg:bottom-6 lg:mb-16">
 
       {/* Input Bar at the Bottom */}
       <Box className="p-4 bg-white border-t-2 border-gray-300 w-full flex gap-2">
@@ -154,6 +155,7 @@ function GroupChat({ group, setSelectedGroup }) {
         </Button>
         </div>
       </Box>
+      </div>
     </div>
   );
 }

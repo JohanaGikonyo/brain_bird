@@ -3,9 +3,9 @@ import React from "react";
 
 function Error() {
   return (
-    <div className="text-3xl font-extrabold flex items-center justify-center">
+    <div className="text-red-400 font-extrabold flex items-center justify-center">
       <div>
-        <h1>An Error ocurred! Please try again.</h1>
+        <h4>An Error ocurred! Please try again.</h4>
       </div>
     </div>
   );

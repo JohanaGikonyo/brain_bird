@@ -7,7 +7,7 @@ import GroupChat from './GroupChat'
 function Groups() {
   const { user } = useUser();
   const { showTop } = useShowTop();
- const [userGroups, setUserGroups] = useState([]);
+  const [userGroups, setUserGroups] = useState([]);
   const [otherGroups, setOtherGroups] = useState([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -134,35 +134,37 @@ function Groups() {
   }
 
   return (
-    <div className={`flex flex-col ${!showTop ? `mt-36` : ``} lg:mt-14   `}>
+    <div className={`flex flex-col ${!showTop ? `mt-36` : ``} lg:mt-14`}>
       {/* Search Input */}
-     <div className="flex items-start gap-2"> <input
-        type="text"
-        placeholder="Search groups..."
-        value={search}
-        onChange={(e) => handleSearch(e.target.value)}
-        className="mb-4 p-2 rounded-lg text-slate-950 focus:outline-0"
-      />
+      <div className="flex items-start gap-2  rounded-lg bg-slate-900 p-4 z-10">
+        <input
+          type="text"
+          placeholder="Search groups..."
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="py-1 px-1 rounded-lg border border-slate-700 bg-slate-900 text-white focus:outline-none focus:border-slate-500 transition duration-300 flex-grow"
+        />
 
-      {/* Create Group Button */}
-      <Button onClick={() => setModalOpen(true)} className="mb-4">
-        Create Group
-      </Button>
+        {/* Create Group Button */}
+        <Button onClick={() => setModalOpen(true)} className="mb-4 text-xs">
+          Create Group
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 mt-2">
         {/* Groups the user is in */}
         <div className="flex flex-col gap-4">
           {filteredUserGroups.length > 0 ? (
             filteredUserGroups.map((group) => (
-              <div key={group.id} className="p-3 rounded-lg bg-slate-800 hover:bg-slate-900 cursor-pointer" onClick={() => handleGroupClick(group)}>
-               <div className="flex gap-2"> 
-               <h3 className="text-base font-bold">{group.name}</h3>
-                {group.unread_count > 0 && (
-          <span className="bg-blue-500 rounded-full  font-semibold text-white">
-            {group.unread_count} 
-          </span>
-        )}</div> 
+              <div key={group.id} className="p-3 rounded-lg bg-slate-900 hover:bg-slate-800 cursor-pointer" onClick={() => handleGroupClick(group)}>
+                <div className="flex gap-2">
+                  <h3 className="text-base font-bold">{group.name}</h3>
+                  {group.unread_count > 0 && (
+                    <span className="bg-blue-500 rounded-full font-semibold text-white">
+                      {group.unread_count}
+                    </span>
+                  )}
+                </div>
                 <p className="text-slate-400">{group.description}</p>
               </div>
             ))
@@ -173,10 +175,10 @@ function Groups() {
 
         {/* Groups the user can join */}
         <div className="flex flex-col gap-4">
-          <Button className="text-xl font-semibold mb-4">Find to Join</Button>
+          <Button className="text-xs mb-4">More to Join</Button>
           {filteredOtherGroups.length > 0 ? (
             filteredOtherGroups.map((group) => (
-              <div key={group.id} className="p-3 rounded-lg bg-slate-600 hover:bg-slate-700 cursor-pointer">
+              <div key={group.id} className="p-3 rounded-lg bg-slate-900 hover:bg-slate-800 cursor-pointer">
                 <h3 className="flex justify-between items-center">
                   {group.name}
                   <Button onClick={() => handleJoinGroup(group.id)} variant="outlined">
@@ -204,7 +206,7 @@ function Groups() {
             width: 400,
           }}
         >
-          <h2 className="text-lg font-bold mb-4 text-slate-800 ">Create New Group</h2>
+          <h2 className="text-lg font-bold mb-4 text-slate-800">Create New Group</h2>
           <TextField
             label="Group Title"
             variant="outlined"
@@ -233,3 +235,4 @@ function Groups() {
 }
 
 export default Groups;
+``

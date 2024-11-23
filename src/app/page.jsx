@@ -51,7 +51,7 @@ import Box from "@mui/material/Box";export default function Home() {
   }, [router, setUser]);
 
   if (loading) {
-    return <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" >
+    return <div className="text-2xl font-extrabold flex items-center justify-center mt-36 mb-10 observer" >
     <Box sx={{ display: "flex" }} className="flex gap-5">
       <CircularProgress size={24} />
     </Box>
