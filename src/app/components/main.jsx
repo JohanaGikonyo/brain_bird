@@ -14,6 +14,7 @@ import Groups from "./Groups";
 import { useShowTop } from "../store/useStore";
 import Post from "./Post";
 import CustomModal from './CustomModal'
+import PostViewModal from './PostViewModal'
 function Main() {
   const { selectedItem } = useSelected();
   const { user } = useUser();
@@ -31,7 +32,7 @@ function Main() {
 
   const [hasMore, setHasMore] = useState(true);
   const [hasMoreReposts, setHasMoreReposts] = useState(true);
-
+const [postToView, setPostToView]=useState(null)
   const [isFollowing, setIsFollowing] = useState([]);
   const { ref, inView } = useInView({ threshold: 0.1 });
   useEffect(() => {
@@ -197,35 +198,39 @@ function Main() {
     setSelectedPost(null);
     // Optionally refetch posts or update the post list
   };
+const handleViewPost=async(selectedPost)=>{
+  setPostToView(selectedPost)
+  const emailToView = selectedPost.repost_id ? selectedPost.reposter_email : selectedPost.email;
 
+  // Update the email state for the post viewer
+  const updateEmailState = (email) => {
+    return new Promise((resolve) => {
+      setPostEmail(email);
+      resolve(email);
+    });
+  };
+
+  await updateEmailState(emailToView);
+  // Update views count for the specific post (original or repost)
+  const { error } = await supabase
+  .from("posts")
+  .update({ views: selectedPost.views + 1 })
+  .eq("id", selectedPost.id);
+
+if (error) {
+  console.error("Error updating views:", error);
+} else {
+  setPosts((prevPosts) =>
+    prevPosts.map((post) => (post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post))
+  );
+}
+}
   const handleView = async (selectedPost) => {
-    const emailToView = selectedPost.repost_id ? selectedPost.reposter_email : selectedPost.email;
-
-    // Update the email state for the post viewer
-    const updateEmailState = (email) => {
-      return new Promise((resolve) => {
-        setPostEmail(email);
-        resolve(email);
-      });
-    };
-
-    await updateEmailState(emailToView);
+   
 
     setViewingPost(selectedPost);
 
-    // Update views count for the specific post (original or repost)
-    const { error } = await supabase
-      .from("posts")
-      .update({ views: selectedPost.views + 1 })
-      .eq("id", selectedPost.id);
-
-    if (error) {
-      console.error("Error updating views:", error);
-    } else {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => (post.id === selectedPost.id ? { ...post, views: selectedPost.views + 1 } : post))
-      );
-    }
+    
   };
 
   const toggleCommentsVisibility = (postId) => {
@@ -277,6 +282,7 @@ function Main() {
                   handleAddComment={handleAddComment}
                   posts={posts}
                   setPosts={setPosts}
+                  handleViewPost={handleViewPost}
                 />
                {hasMore || hasMoreReposts?  <div className="text-2xl font-extrabold flex items-center justify-center mt-10 mb-10 observer" ref={ref}>
                   <Box sx={{ display: "flex" }} className="flex gap-5">
@@ -290,6 +296,7 @@ function Main() {
         </div>
       )}
       <CustomModal email={postEmail} viewingPost={viewingPost} setViewingPost={setViewingPost}/>
+      <PostViewModal postToView={postToView} setPostToView={setPostToView}/>
       {/* {selectedItem === "Stocks" && <h1>Stocks Selected</h1>} */}
       {selectedItem === "profile" && <Profile />}
       {/* {selectedItem === "Weather" && <h1>Weather Selected</h1>} */}

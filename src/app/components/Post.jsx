@@ -25,6 +25,7 @@ const Post = memo(
     handleAddComment,
     posts, // The posts array, which contains the original posts
     setPosts,
+    handleViewPost
   }) => {
     const { user } = useUser();
     const { showFollowersPosts } = useShowFollowersPosts();
@@ -115,7 +116,7 @@ const Post = memo(
                     <span>{getReposts(post.id)}</span>
                   </button>
                   <LikeButton post={post} posts={posts} setPosts={setPosts} />
-                  <button onClick={() => handleView(post)} className="flex items-center gap-1 hover:text-blue-400">
+                  <button onClick={() => handleViewPost(post)} className="flex items-center gap-1 hover:text-blue-400">
                     <VisibilityIcon fontSize="small" />
                     <span>{post.views}</span>
                   </button>
@@ -198,7 +199,7 @@ const Post = memo(
                       </button>
                       <LikeButton post={originalPost} posts={posts} setPosts={setPosts} />
                       <button
-                        onClick={() => handleView(originalPost)}
+                        onClick={() =>  handleViewPost(originalPost)}
                         className="flex items-center gap-1 hover:text-blue-400"
                       >
                         <VisibilityIcon fontSize="small" />
