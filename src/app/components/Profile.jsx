@@ -104,7 +104,7 @@ const handleCloseSnackbar = () => {
     const {  error } = await supabase
       .from("users")
       .update({ profile: updatedProfileData })
-      .eq("email", email);
+      .eq("email", user.email);
     if (error) {
       console.error("Error updating profile data:", error);
       setOpenSnackbar(true);

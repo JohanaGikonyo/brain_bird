@@ -38,7 +38,7 @@ function CustomProfile({ email }) {
 
 
   return (
-    <div className=" w-full">
+    <div className=" w-full ">
       {/* Background Section */}
       <div
         className="relative h-48 mb-8 bg-gray-300 w-full rounded-xl"
@@ -134,7 +134,7 @@ function CustomProfile({ email }) {
         />
       </div>
 
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <label>
           {" "}
           <h3 className="font-semibold text-base">Email:</h3>
@@ -146,7 +146,7 @@ function CustomProfile({ email }) {
           readOnly
           className="text-gray-400 bg-gray-800 px-4 py-2 w-full rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
         />
-      </div>
+      </div> */}
 
       <div className="mb-4">
         <label>
