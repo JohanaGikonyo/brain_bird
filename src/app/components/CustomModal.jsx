@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React from 'react'
 import CustomProfile from "./CustomProfile";
 
 function CustomModal({email, viewingPost, setViewingPost}) {
