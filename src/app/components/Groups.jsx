@@ -112,7 +112,7 @@ function Groups() {
   return (
     <div className={`flex flex-col ${!showTop ? `mt-24` : `mt-0`} lg:mt-14   `}>
       {/* Search Input */}
-      <input
+     <div className="flex items-start gap-2"> <input
         type="text"
         placeholder="Search groups..."
         value={search}
@@ -124,6 +124,7 @@ function Groups() {
       <Button onClick={() => setModalOpen(true)} className="mb-4">
         Create Group
       </Button>
+      </div>
 
       <div className="flex flex-col gap-8">
         {/* Groups the user is in */}
@@ -142,7 +143,7 @@ function Groups() {
 
         {/* Groups the user can join */}
         <div className="flex flex-col gap-4">
-          <Button className="text-xl font-semibold mb-4">Available Groups to Join</Button>
+          <Button className="text-xl font-semibold mb-4">Find to Join</Button>
           {filteredOtherGroups.length > 0 ? (
             filteredOtherGroups.map((group) => (
               <div key={group.id} className="p-3 rounded-lg bg-slate-600 hover:bg-slate-700 cursor-pointer">
