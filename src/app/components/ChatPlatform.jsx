@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useSelected } from '../store/useSection';
 import SendIcon from '@mui/icons-material/Send';
-
+import PostContent from './PostContent';
 function ChatPlatform({ userEmail }) {
   const { email } = useSelected();
   const [messages, setMessages] = useState([]);
@@ -114,7 +114,7 @@ function ChatPlatform({ userEmail }) {
                     message.sender === email ? 'bg-blue-500' : 'bg-gray-600'
                   }`}
                 >
-                  {message.content}
+                <PostContent content={message.content}/>  
                 </div>
                 <div className="text-gray-400 text-xs">{new Date(message.timestamp).toLocaleTimeString()}</div>
               </div>
