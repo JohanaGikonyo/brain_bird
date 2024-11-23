@@ -60,6 +60,7 @@ const filteredMembers=members.filter((member)=>member.user_email.toLowerCase().i
         onChange={(e) => handleSearch(e.target.value)}
         className="mb-4 p-2 rounded-lg text-slate-950 focus:outline-0"
       />
+      <p>members</p>
         {filteredMembers.map((member, index) => (
             <div key={index}
           className="flex items-center m-4 justify-between bg-slate-900 hover:bg-slate-800 p-4 rounded-lg shadow-sm cursor-pointer transition"
