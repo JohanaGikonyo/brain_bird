@@ -175,7 +175,6 @@ function Followers() {
               <div className="flex flex-col items-center space-y-6">
                 <div className="flex flex-col items-center space-y-3">
                   <CustomProfile email={viewingFollower} />
-                  <p className="text-lg font-medium text-gray-800 dark:text-gray-300">{viewingFollower}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400 text-center px-4">
                     Detailed information about the user can be viewed here.
                   </p>

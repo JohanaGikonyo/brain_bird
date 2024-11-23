@@ -25,13 +25,35 @@ function Groups() {
           .eq("user_email", user.email)
           .order("group_id", { ascending: true });
         if (userGroupError) throw userGroupError;
-
+  
         const userGroupsList = userGroupData.map((item) => ({
           id: item.group_id,
           ...item.groups,
         }));
         setUserGroups(userGroupsList);
-
+  
+        // Fetch unread messages count for each group
+        const unreadCountsPromises = userGroupsList.map(async (group) => {
+          const { data: unreadMessagesData, error: unreadMessagesError } = await supabase
+            .from("groupmessages")
+            .select("id")
+            .eq("group_id", group.id)
+            .eq("is_read", false);
+          if (unreadMessagesError) throw unreadMessagesError;
+  
+          return { groupId: group.id, unreadCount: unreadMessagesData.length };
+        });
+  
+        const unreadCounts = await Promise.all(unreadCountsPromises);
+  
+        // Map unread counts back to user groups
+        const userGroupsWithUnreadCount = userGroupsList.map((group) => {
+          const unreadCount = unreadCounts.find((count) => count.groupId === group.id)?.unreadCount || 0;
+          return { ...group, unreadCount };
+        });
+  
+        setUserGroups(userGroupsWithUnreadCount);
+  
         // Fetch groups the user is not in
         const { data: allGroupsData, error: allGroupsError } = await supabase
           .from("groups")
@@ -39,15 +61,17 @@ function Groups() {
           .not("id", "in", `(${userGroupsList.map((g) => g.id).join(",") || 0})`)
           .order("id", { ascending: true });
         if (allGroupsError) throw allGroupsError;
-
+  
         setOtherGroups(allGroupsData);
       } catch (error) {
         console.error(error);
       }
     };
-
+  
     fetchGroups();
   }, [user.email]);
+  
+  
 
   const handleSearch = (value) => {
     setSearch(value);
@@ -131,8 +155,14 @@ function Groups() {
         <div className="flex flex-col gap-4">
           {filteredUserGroups.length > 0 ? (
             filteredUserGroups.map((group) => (
-              <div key={group.id} className="p-3 rounded-lg bg-slate-600 hover:bg-slate-700 cursor-pointer" onClick={() => handleGroupClick(group)}>
-                <h3 className="text-lg font-bold">{group.name}</h3>
+              <div key={group.id} className="p-3 rounded-lg bg-slate-800 hover:bg-slate-900 cursor-pointer" onClick={() => handleGroupClick(group)}>
+               <div className="flex gap-2"> 
+               <h3 className="text-lg font-bold">{group.name}</h3>
+                {group.unread_count > 0 && (
+          <span className="bg-blue-500 rounded-full  font-semibold text-white">
+            {group.unread_count} 
+          </span>
+        )}</div> 
                 <p className="text-slate-400">{group.description}</p>
               </div>
             ))

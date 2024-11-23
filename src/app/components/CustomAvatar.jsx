@@ -73,7 +73,7 @@ const getColorForInitial = (initial) => {
 };
 
 // eslint-disable-next-line react/display-name
-const CustomAvatar = React.memo(({ email,  size }) => {
+const CustomAvatar = React.memo(({ email,  size, color }) => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -122,7 +122,7 @@ const CustomAvatar = React.memo(({ email,  size }) => {
       >
         {!profileData?.profile_pic && initials}
       </Avatar>
-      <span className="ml-2 font-bold">
+      <span className={`ml-2 font-bold ${color}`}>
         {profileData?.username || getUsernameFromEmail(email)}
       </span>
     </div>

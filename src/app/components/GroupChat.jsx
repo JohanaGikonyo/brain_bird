@@ -4,31 +4,43 @@ import { TextField, Button, Box, List, ListItem, ListItemText } from "@mui/mater
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
+import AllMembers from './AllMembers'
 function GroupChat({ group, setSelectedGroup }) {
   const { user } = useUser();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-
-  // Fetch messages for the group
+const [viewAll, setViewAll]=useState(null)
   useEffect(() => {
     const fetchMessages = async () => {
       try {
+        // Step 1: Fetch messages for the group
         const { data: messagesData, error } = await supabase
           .from("groupmessages")
           .select("*")
           .eq("group_id", group.id)
           .order("created_at", { ascending: true });
-
+  
         if (error) throw error;
+        
+        // Step 2: Update is_read field to true for all messages in the group
+        const { error: updateError } = await supabase
+          .from("groupmessages")
+          .update({ is_read: true })
+          .eq("group_id", group.id)
+          .is("is_read", false);  // Only update unread messages (is_read = false)
+  
+        if (updateError) throw updateError;
+  
+        // Step 3: Set the messages in state
         setMessages(messagesData);
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Error fetching or updating messages:", error);
       }
     };
-
+  
     fetchMessages();
   }, [group.id]);
+  
 
   // Handle sending a new message
   const handleSendMessage = async () => {
@@ -52,6 +64,10 @@ function GroupChat({ group, setSelectedGroup }) {
     }
   };
 
+    if(viewAll){
+        return <AllMembers group={viewAll} setViewAll={setViewAll}/>
+    }
+
   return (
     <div className="bg-[#e5ddd5] lg:mt-10 h-full flex flex-col flex-grow w-full">
       {/* Group Name */}
@@ -59,7 +75,8 @@ function GroupChat({ group, setSelectedGroup }) {
         <div onClick={() => { setSelectedGroup(null) }}>
           <ArrowBackIcon />
         </div>
-        <h2>{group.name} Group</h2>
+        <h2 onClick={()=>{    setViewAll(group)
+}}>{group.name} Group</h2>
       </div>
 
       {/* Messages List */}
@@ -72,7 +89,7 @@ function GroupChat({ group, setSelectedGroup }) {
             >
               <div className="flex items-center gap-2 flex-col">
                 {/* Avatar */}
-                <CustomAvatar email={message.user_email} />
+                <CustomAvatar email={message.user_email} color={'text-slate-700'} />
 
                 {/* Message Bubble */}
                 <div

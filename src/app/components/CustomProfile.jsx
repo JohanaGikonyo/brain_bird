@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import { supabase } from "../lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import Follow from "./Follow";
+import { useUser } from "../store/useStore";
 function CustomProfile({ email }) {
+  const {user}=useUser();
     const router=useRouter();
   const [profileData, setProfileData] = useState(null);
   const [numberFollowers, setNumberFollowers] = useState(0);
@@ -64,10 +67,21 @@ function CustomProfile({ email }) {
       </div>
 
       {/* Form Fields */}
-      <div className="mb-4 text-blue-400 flex gap-4  items-center">
-        <button className="font-semibold text-base rounded-lg px-3 py-0 border border-blue-400 mt-5 hover:cursor-pointer" onClick={() => handleDisplayFollowers(email)}>Followers: {"  " + numberFollowers}</button>
-        <button className="border border-blue-400 text-blue-400 py-0 px-3 rounded-lg" onClick={() => handleDisplayFollowers(email)}>View</button>
-      </div>
+      <div className="mb-4 mt-8 text-blue-400 flex gap-4 items-center">
+  <button 
+    className="font-semibold text-base rounded-lg px-3 py-1  hover:cursor-pointer" 
+    onClick={() => handleDisplayFollowers(email)}
+  >
+    Followers: {numberFollowers}
+  </button>
+  <button 
+    className=" text-blue-400 py-1 px-3 rounded-lg hover:cursor-pointer" 
+    onClick={() => handleDisplayFollowers(email)}
+  >
+    View
+  </button>
+  <Follow email={email} currentUserEmail={user.email}/>
+</div>
       <div className="mb-4">
         <label>
           {" "}
