@@ -52,14 +52,14 @@ function Mainpage() {
     <div className="flex flex-col min-h-screen bg-slate-950 text-white">
       {/* TopItems component for all screen sizes */}
       {showTop?
-      <div className="sticky py-5 top-0  mb-10 bg-slate-950 z-50  lg:hidden">
+      <div className="sticky py-5 top-0  mb-0 bg-slate-950 z-50  lg:hidden">
       <TopResponsive/>
       </div>:
-      <div className="sticky top-0  mb-10 bg-slate-950 z-50 lg:hidden">
+      <div className="sticky top-0  mb-0 bg-slate-950 z-50 lg:hidden">
         <TopItems />
       </div>}
 
-      <div className="sticky top-0 lg:mb-0 mb-10 bg-slate-950 z-50 hidden lg:block">
+      <div className="sticky top-0 lg:mb-0 mb-0 bg-slate-950 z-50 hidden lg:block">
         <TopItems />
       </div>
 

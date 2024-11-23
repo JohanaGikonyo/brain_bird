@@ -146,7 +146,7 @@ function Main() {
 
   useEffect(() => {
     const channel = supabase
-      .channel("posts-changes")
+      .channel("reposts-changes")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "reposts" }, (payload) => {
         setPosts((prevPosts) => [payload.new, ...prevPosts]);
       })
