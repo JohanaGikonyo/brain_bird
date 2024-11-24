@@ -6,12 +6,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import UserAvatar from "./UserAvatar";
 import Image from "next/image";
 import AddIcon from "@mui/icons-material/Add";
-import GifIcon from "@mui/icons-material/Gif";
+// import GifIcon from "@mui/icons-material/Gif";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import PollIcon from "@mui/icons-material/Poll";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useSelected } from "../store/useSection";
-
+import EmojiPicker from 'emoji-picker-react'
+import GiphySelector from 'react-giphy-selector';
 function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost, editingPost }) {
   const { setSelectedItem } = useSelected();
   const { postContent, setPostContent } = usePost();
@@ -20,6 +19,9 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]); // Array for storing multiple images/videos
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+
 
   // Update postContent when editingPost changes
   useEffect(() => {
@@ -29,10 +31,11 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
   }, [editingPost, postContentToUpdate, setPostContent]);
 
   const handlePostChange = (e) => {
-    if(editingPost){
-      setPostContentToUpdate(e.target.value)
+    if (editingPost) {
+      setPostContentToUpdate(e.target.value);
+    } else {
+      setPostContent(e.target.value);
     }
-    else{setPostContent(e.target.value);}
   };
 
   const handleMediaUpload = async (files) => {
@@ -80,10 +83,13 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
 
     if (editingPost) {
       // If we're editing, update the post
-      const { data, error } = await supabase.from("posts").update({
-        post: postContent,
-        media: base64MediaPaths,
-      }).match({ id: editingPost }); // Match the post by its ID
+      const { data, error } = await supabase
+        .from("posts")
+        .update({
+          post: postContent,
+          media: base64MediaPaths,
+        })
+        .match({ id: editingPost }); // Match the post by its ID
 
       setLoading(false);
 
@@ -152,15 +158,62 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
     setOpenSnackbar(false);
   };
 
+  
+
+  const handleEmojiClick = ( event,emojiObject) => {
+    event.preventDefault(event);
+    console.log(emojiObject)
+    if (!emojiObject || !emojiObject.emoji) {
+      console.error("Emoji object is undefined or invalid");
+      return;
+  }
+    const updatedContent = editingPost
+      ? postContentToUpdate + emojiObject.emoji
+      : postContent + emojiObject.emoji;
+    if (editingPost) {
+      setPostContentToUpdate(updatedContent);
+    } else {
+      setPostContent(updatedContent);
+    }
+    setShowEmojiPicker(false); // Close the emoji picker after selection
+  };
+
+  const handleGifSelect = (e,gif) => {
+    e.preventDefault(e);
+    console.log(gif)
+    setMediaFiles((prevFiles) => [...prevFiles, gif.images.original.url]);
+    setShowGifPicker(false); // Close the GIF picker after selection
+  };
+  const toggleEmojiPicker = () => {
+    setShowEmojiPicker((prev) => !prev);
+    if (showGifPicker) setShowGifPicker(false); // Ensure GIF picker is closed
+  };
+
+  // const toggleGifPicker = () => {
+  //   setShowGifPicker((prev) => !prev);
+  //   if (showEmojiPicker) setShowEmojiPicker(false); // Ensure emoji picker is closed
+  // };
   return (
     <div className="max-w-2xl mx-auto p-4 border-b border-b-slate-800 w-full shadow-md">
       <div onClick={() => setSelectedItem("profile")} className="cursor-pointer">
         <UserAvatar />
       </div>
+      {showEmojiPicker && (
+        <div className="absolute z-10">
+<EmojiPicker onEmojiClick={(event, emojiObject) => handleEmojiClick(event, emojiObject)} />
+</div>
+      )}
+
+      {showGifPicker && (
+        <div className="absolute z-10">
+          <GiphySelector onGifSelected={(e, gif)=>handleGifSelect(e, gif)} />
+        </div>
+      )}
+
       <div className="flex items-center mb-4">
         <div className="flex-grow ml-4">
           <textarea
-            value={postContentToUpdate?postContentToUpdate:postContent} 
+            value={postContentToUpdate ? postContentToUpdate : postContent}
             onChange={handlePostChange}
             placeholder="What's happening?"
             rows="1"
@@ -170,28 +223,32 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
       </div>
       {/* Preview selected media */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {mediaFiles.map((file, index) => (
-          <div key={index} className="relative">
-            {file.type.startsWith("image") ? (
-              <Image
-                height={200}
-                width={200}
-                src={URL.createObjectURL(file)}
-                alt="preview"
-                className="w-20 h-20 object-cover rounded-lg"
-              />
-            ) : (
-              <video
-                height={200}
-                width={200}
-                src={URL.createObjectURL(file)}
-                controls
-                className="w-20 h-20 object-cover rounded-lg"
-              />
-            )}
-          </div>
-        ))}
-      </div>
+  {mediaFiles.map((file, index) => (
+    <div key={index} className="relative">
+      {file.startsWith("http") ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={file} alt="GIF" className="w-20 h-20 object-cover rounded-lg" />
+      ) : file.type.startsWith("image") ? (
+        <Image
+          height={200}
+          width={200}
+          src={URL.createObjectURL(file)}
+          alt="preview"
+          className="w-20 h-20 object-cover rounded-lg"
+        />
+      ) : (
+        <video
+          height={200}
+          width={200}
+          src={URL.createObjectURL(file)}
+          controls
+          className="w-20 h-20 object-cover rounded-lg"
+        />
+      )}
+    </div>
+  ))}
+</div>
+
       {/* Action icons */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-4">
@@ -208,25 +265,22 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
             style={{ display: "none" }}
             onChange={handleFileChange}
           />
-          <IconButton color="primary">
-            <GifIcon fontSize="small" />
-          </IconButton>
-          <IconButton color="primary">
+          <IconButton color="primary" onClick={toggleEmojiPicker}>
             <EmojiEmotionsIcon fontSize="small" />
           </IconButton>
-          <IconButton color="primary">
-            <PollIcon fontSize="small" />
-          </IconButton>
-          <IconButton color="primary">
-            <LocationOnIcon fontSize="small" />
-          </IconButton>
+{/* 
+          <IconButton color="primary"  onClick={toggleGifPicker}>
+            <GifIcon fontSize="small" />
+          </IconButton> */}
+
+         
         </div>
 
         {/* Post button */}
         {editingPost ? (
           <button
             onClick={handleSavePost}
-            disabled={(!postContentToUpdate || !postContentToUpdate.trim() && mediaFiles.length === 0) || loading}
+            disabled={!postContentToUpdate || (!postContentToUpdate.trim() && mediaFiles.length === 0) || loading}
             className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
           >
             {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
@@ -235,7 +289,7 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
         ) : (
           <button
             onClick={handlePostSubmit}
-            disabled={(!postContent || !postContent.trim() && mediaFiles.length === 0) || loading}
+            disabled={!postContent || (!postContent.trim() && mediaFiles.length === 0) || loading}
             className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center"
           >
             {loading && <CircularProgress size={24} className="mr-2" color="inherit" />}
