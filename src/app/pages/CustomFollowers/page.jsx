@@ -143,7 +143,7 @@ function CustomFollowers() {
             <div className="max-h-[60vh] overflow-y-auto pr-2">
               <div className="flex flex-col items-center space-y-6">
                 <CustomProfile email={viewingFollower} />
-                <p className="text-lg font-medium text-gray-800 dark:text-gray-300">{viewingFollower}</p>
+                {/* <p className="text-lg font-medium text-gray-800 dark:text-gray-300">{viewingFollower}</p> */}
                 <p className="text-sm text-gray-600 dark:text-gray-400 text-center px-4">
                   Detailed information about the user can be viewed here.
                 </p>

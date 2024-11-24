@@ -1,7 +1,7 @@
 import React from 'react'
 import CustomProfile from "./CustomProfile";
 
-function CustomModal({email, viewingPost, setViewingPost}) {
+function CustomModal({ viewingPost, setViewingPost}) {
 
     const closeModal = () => {
         setViewingPost(null);
@@ -26,7 +26,7 @@ function CustomModal({email, viewingPost, setViewingPost}) {
               <div className="flex flex-col items-center space-y-6">
                 {/* Profile Picture and Info */}
                 <div className="flex flex-col items-center space-y-3">
-                  <CustomProfile email={email} />
+                  <CustomProfile email={viewingPost.email || viewingPost.reposter_email} />
                   <p className="text-sm text-gray-600 dark:text-gray-400 text-center px-4">
                     Detailed information about the user can be viewed here.
                   </p>
