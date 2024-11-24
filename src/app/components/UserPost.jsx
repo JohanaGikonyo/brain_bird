@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePost, useUser } from "../store/useStore";
 import { supabase } from "../lib/supabaseClient";
 import { Snackbar, CircularProgress, IconButton } from "@mui/material";
@@ -21,8 +21,34 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
   const [mediaFiles, setMediaFiles] = useState([]); // Array for storing multiple images/videos
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const emojiPickerRef = useRef(null); // Ref for the emoji picker
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside the emoji or GIF picker
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target)
+      ) {
+        setShowEmojiPicker(false); // Close the emoji picker
+      }
+      // if (
+      //   gifPickerRef.current &&
+      //   !gifPickerRef.current.contains(event.target)
+      // ) 
+      {
+        setShowGifPicker(false); // Close the GIF picker
+      }
+    };
 
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   // Update postContent when editingPost changes
   useEffect(() => {
     if (editingPost) {
@@ -199,7 +225,7 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
         <UserAvatar />
       </div>
       {showEmojiPicker && (
-        <div className="absolute z-10">
+        <div className="absolute z-10" ref={emojiPickerRef}>
 <EmojiPicker onEmojiClick={(event, emojiObject) => handleEmojiClick(event, emojiObject)} />
 </div>
       )}
