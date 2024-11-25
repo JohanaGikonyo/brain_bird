@@ -10,7 +10,6 @@ import AddIcon from "@mui/icons-material/Add";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import { useSelected } from "../store/useSection";
 import EmojiPicker from 'emoji-picker-react'
-import GiphySelector from 'react-giphy-selector';
 function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost, editingPost }) {
   const { setSelectedItem } = useSelected();
   const { postContent, setPostContent } = usePost();
@@ -204,12 +203,12 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
     setShowEmojiPicker(false); // Close the emoji picker after selection
   };
 
-  const handleGifSelect = (e,gif) => {
-    e.preventDefault(e);
-    console.log(gif)
-    setMediaFiles((prevFiles) => [...prevFiles, gif.images.original.url]);
-    setShowGifPicker(false); // Close the GIF picker after selection
-  };
+  // const handleGifSelect = (e,gif) => {
+  //   e.preventDefault(e);
+  //   console.log(gif)
+  //   setMediaFiles((prevFiles) => [...prevFiles, gif.images.original.url]);
+  //   setShowGifPicker(false); // Close the GIF picker after selection
+  // };
   const toggleEmojiPicker = () => {
     setShowEmojiPicker((prev) => !prev);
     if (showGifPicker) setShowGifPicker(false); // Ensure GIF picker is closed
@@ -232,7 +231,7 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
 
       {showGifPicker && (
         <div className="absolute z-10">
-          <GiphySelector onGifSelected={(e, gif)=>handleGifSelect(e, gif)} />
+          {/* <GiphySelector onGifSelected={(e, gif)=>handleGifSelect(e, gif)} /> */}
         </div>
       )}
 
