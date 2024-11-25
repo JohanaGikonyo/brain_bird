@@ -1,6 +1,7 @@
 import React from 'react'
 import PostContent from './PostContent';
 import PostMedia from './PostMedia';
+import CustomAvatar from './CustomAvatar';
 function PostViewModal({postToView,setPostToView}) {
 
     const closeModal = () => {
@@ -12,7 +13,7 @@ function PostViewModal({postToView,setPostToView}) {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md md:max-w-lg mx-4 md:mx-0 p-6 overflow-hidden ">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-300 dark:border-gray-600 pb-4 mb-4">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Post</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200"><CustomAvatar email={postToView.email} /></h2>
               <button
                 onClick={closeModal}
                 className="text-gray-500 hover:text-red-500 transition duration-200 text-2xl"
