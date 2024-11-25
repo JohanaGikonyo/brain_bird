@@ -1,17 +1,19 @@
 "use client";
 import React, { useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import TopItems from "../../components/TopItems";
-import Main from "../../components/main";
-import Menu from "../../components/menu";
-import Messages from "../../components/messages";
-import MessageResponsive from "@apply/app/components/MessageResponsive";
+import dynamic from 'next/dynamic';
 import { useUser } from "@apply/app/store/useStore"; 
 import { useRouter } from "next/navigation";
 import { useSelected } from "@apply/app/store/useSection";
-import BottomTabs from '../../components/BottomTabs'
-import TopResponsive from '../../components/TopResponsive'
 import { useShowTop } from "@apply/app/store/useStore";
+
+const TopItems = dynamic(() => import("../../components/TopItems"), { ssr: false });
+const Main = dynamic(() => import("../../components/main"), { ssr: false });
+const Menu = dynamic(() => import("../../components/menu"), { ssr: false });
+const Messages = dynamic(() => import("../../components/messages"), { ssr: false });
+const MessageResponsive = dynamic(() => import("@apply/app/components/MessageResponsive"), { ssr: false });
+const BottomTabs = dynamic(() => import('../../components/BottomTabs'), { ssr: false });
+const TopResponsive = dynamic(() => import('../../components/TopResponsive'), { ssr: false });
 
 function Mainpage() {
   const router = useRouter();
@@ -21,14 +23,12 @@ function Mainpage() {
 
   useEffect(() => {
     const initializeSession = async () => {
-      if (typeof window !== 'undefined') { // Ensure this runs only on the client side
-        // Check for user in localStorage
+      if (typeof window !== 'undefined') {
         const storedUser = JSON.parse(localStorage.getItem('user'));
 
         if (storedUser) {
           setUser(storedUser);
         } else {
-          // Fetch session from Supabase if not found in localStorage
           const { data: { session } } = await supabase.auth.getSession();
 
           if (session) {
@@ -51,14 +51,15 @@ function Mainpage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-white">
       {/* TopItems component for all screen sizes */}
-      {showTop ?
+      {showTop ? (
         <div className="sticky py-5 top-0 mb-0 bg-slate-950 z-50 lg:hidden">
           <TopResponsive />
-        </div> :
+        </div>
+      ) : (
         <div className="sticky top-0 mb-0 bg-slate-950 z-50 lg:hidden">
           <TopItems />
         </div>
-      }
+      )}
 
       <div className="sticky top-0 lg:mb-0 mb-0 bg-slate-950 z-50 hidden lg:block">
         <TopItems />
@@ -72,7 +73,7 @@ function Mainpage() {
         </div>
 
         {/* Main content section */}
-        <div className={`${selectedItem === "!Messages" ? `lg:mr-0` : ' lg:mr-72 xl:mr-80'} flex-1 lg:ml-64 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}>
+        <div className={`${selectedItem === "!Messages" ? 'lg:mr-0' : 'lg:mr-72 xl:mr-80'} flex-1 lg:ml-64 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}>
           <Main />
         </div>
 
