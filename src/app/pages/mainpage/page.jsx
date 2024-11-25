@@ -13,30 +13,31 @@ import { useSelected } from "@apply/app/store/useSection";
 import BottomTabs from '../../components/BottomTabs'
 import TopResponsive from '../../components/TopResponsive'
 import { useShowTop } from "@apply/app/store/useStore";
+
 function Mainpage() {
   const router = useRouter();
   const { user, setUser } = useUser();
   const { selectedItem } = useSelected();
-  const {showTop}=useShowTop();
+  const { showTop } = useShowTop();
 
   useEffect(() => {
     const initializeSession = async () => {
-      // Check for user in localStorage
-      const storedUser = JSON.parse(localStorage.getItem('user'));
+      if (typeof window !== 'undefined') { // Ensure this runs only on the client side
+        // Check for user in localStorage
+        const storedUser = JSON.parse(localStorage.getItem('user'));
 
-      if (storedUser) {
-        setUser(storedUser);
-      } else {
-        // Fetch session from Supabase if not found in localStorage
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session) {
-          setUser(session.user);
-          localStorage.setItem('user', JSON.stringify(session.user));
+        if (storedUser) {
+          setUser(storedUser);
         } else {
-          router.push("/auth/login");
+          // Fetch session from Supabase if not found in localStorage
+          const { data: { session } } = await supabase.auth.getSession();
+
+          if (session) {
+            setUser(session.user);
+            localStorage.setItem('user', JSON.stringify(session.user));
+          } else {
+            router.push("/auth/login");
+          }
         }
       }
     };
@@ -51,13 +52,14 @@ function Mainpage() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 text-white">
       {/* TopItems component for all screen sizes */}
-      {showTop?
-      <div className="sticky py-5 top-0  mb-0 bg-slate-950 z-50  lg:hidden">
-      <TopResponsive/>
-      </div>:
-      <div className="sticky top-0  mb-0 bg-slate-950 z-50 lg:hidden">
-        <TopItems />
-      </div>}
+      {showTop ?
+        <div className="sticky py-5 top-0 mb-0 bg-slate-950 z-50 lg:hidden">
+          <TopResponsive />
+        </div> :
+        <div className="sticky top-0 mb-0 bg-slate-950 z-50 lg:hidden">
+          <TopItems />
+        </div>
+      }
 
       <div className="sticky top-0 lg:mb-0 mb-0 bg-slate-950 z-50 hidden lg:block">
         <TopItems />
@@ -71,17 +73,15 @@ function Mainpage() {
         </div>
 
         {/* Main content section */}
-        <div
-          className={`${selectedItem === "!Messages" ? `lg:mr-0` : ' lg:mr-72 xl:mr-80'} flex-1 lg:ml-64 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}
-        >
+        <div className={`${selectedItem === "!Messages" ? `lg:mr-0` : ' lg:mr-72 xl:mr-80'} flex-1 lg:ml-64 xl:ml-80 p-0 lg:p-8 overflow-y-auto scrollbar-hide sm:m-0`}>
           <Main />
         </div>
 
         {/* Right Sidebar (Messages) */}
-        <div><Messages /></div> 
-         <div> {selectedItem==="Messages" && <> <MessageResponsive/></>}</div>
+        <div><Messages /></div>
+        <div>{selectedItem === "Messages" && <MessageResponsive />}</div>
       </div>
-      <BottomTabs/>
+      <BottomTabs />
     </div>
   );
 }
