@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import TopItems from "../../components/TopItems";
