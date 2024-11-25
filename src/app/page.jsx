@@ -35,8 +35,11 @@ export default function Home() {
 
           if (data) {
             setUser(data);
-            console.log(data)
+            console.log("The data is ",data)
             localStorage.setItem('user', JSON.stringify(data));
+            // Redirect to the main page
+          router.push("/pages/mainpage");
+          console.log("First option used")
           } else {
             // Upsert new user data if not found
             const { error: insertError } = await supabase
@@ -58,12 +61,13 @@ export default function Home() {
 
             setUser(session.user);
             localStorage.setItem('user', JSON.stringify(session.user));
+            // Redirect to the main page
+          router.push("/pages/mainpage");
+          console.log("second option used")
           }
 
-          console.log('User Metadata:', session.user.user_metadata);
 
-          // Redirect to the main page
-          router.push("/pages/mainpage");
+          
         } else {
           // User is not signed in, redirect to login
           router.push("/auth/login");
