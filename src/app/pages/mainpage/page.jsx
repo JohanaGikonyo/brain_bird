@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { supabase } from "../../lib/supabaseClient";
+// import { supabase } from "../../lib/supabaseClient";
 import dynamic from 'next/dynamic';
 import { useUser } from "@apply/app/store/useStore"; 
 import { useRouter } from "next/navigation";
@@ -29,14 +29,9 @@ function Mainpage() {
         if (storedUser) {
           setUser(storedUser);
         } else {
-          const { data: { session } } = await supabase.auth.getSession();
-
-          if (session) {
-            setUser(session.user);
-            localStorage.setItem('user', JSON.stringify(session.user));
-          } else {
+          
             router.push("/auth/login");
-          }
+          
         }
       }
     };

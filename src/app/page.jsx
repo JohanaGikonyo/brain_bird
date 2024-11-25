@@ -35,6 +35,7 @@ export default function Home() {
 
           if (data) {
             setUser(data);
+            console.log(data)
             localStorage.setItem('user', JSON.stringify(data));
           } else {
             // Upsert new user data if not found
