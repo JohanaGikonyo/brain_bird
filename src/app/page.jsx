@@ -12,43 +12,64 @@ import Box from "@mui/material/Box";export default function Home() {
 
   useEffect(() => {
     const checkUser = async () => {
+      setLoading(true); // Ensure loading state is set to true while fetching data
       const { data: { session } } = await supabase.auth.getSession();
-
+  
       if (session) {
-        // Set the user in the Zustand store
-        setUser(session.user);
-
-        // Store the user in localStorage
-        localStorage.setItem('user', JSON.stringify(session.user));
-
-        // Insert the user email into the users table
-        const { error: insertError } = await supabase
+        // Fetch user data from "users" table
+        const { data, error } = await supabase
           .from("users")
-          .upsert([{
-            email: session.user.email,
-            profile: {
-              username: session.user.user_metadata?.full_name ?? "",
-              profile_pic: session.user.user_metadata?.avatar_url ?? "",
-              phone: session.user.user_metadata?.phone ?? "",
-            }
-          }], 
-          { onConflict: ['email'] });
-          console.log('User Metadata:', session.user.user_metadata);
-        if (insertError) {
-          console.error("Error upserting user email into users table:", insertError);
+          .select("profile")
+          .eq("email", session.user.email)
+          .single();
+  
+        if (error && error.code !== 'PGRST116') { 
+          console.error("Error fetching user data:", error);
+          setLoading(false); 
+          return;
         }
-
+  
+        if (data) {
+          await setUser(data);
+          localStorage.setItem('user', JSON.stringify(data));
+        } else {
+          // Upsert new user data if not found
+          const { error: insertError } = await supabase
+            .from("users")
+            .upsert([{
+              email: session.user.email,
+              profile: {
+                username: session.user.user_metadata?.full_name ?? "",
+                profile_pic: session.user.user_metadata?.avatar_url ?? "",
+                phone: session.user.user_metadata?.phone ?? "",
+              }
+            }], { onConflict: ['email'] });
+  
+          if (insertError) {
+            console.error("Error upserting user email into users table:", insertError);
+            setLoading(false); // Ensure loading state is set to false in case of error
+            return;
+          }
+  
+          await setUser(session.user);
+          localStorage.setItem('user', JSON.stringify(session.user));
+        }
+  
+        console.log('User Metadata:', session.user.user_metadata);
+  
         // Redirect to the main page
         router.push("/pages/mainpage");
       } else {
         // User is not signed in, redirect to login
         router.push("/auth/login");
       }
-      setLoading(false);
+      setLoading(false); // Ensure loading state is set to false after processing
     };
-
+  
     checkUser();
   }, [router, setUser]);
+  
+  
 
   if (loading) {
     return <div className="text-2xl font-extrabold flex items-center justify-center mt-36 mb-10 observer" >

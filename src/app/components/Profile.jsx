@@ -180,7 +180,7 @@ const handleCloseSnackbar = () => {
       </div>
 
       {/* Form Fields */}
-      <div className="mb-4 text-blue-400 active:bg-slate-400 rounded-lg px-3 py-2 hover:cursor-pointer hover:bg-slate-300" onClick={() => handleDisplayFollowers(email)} ><h3 className="font-semibold text-base">Followers:  {"  "+numberFollowers}</h3></div>
+      <div className="mb-4 text-blue-400 active:bg-slate-900 rounded-lg px-3 py-2 hover:cursor-pointer hover:bg-slate-800" onClick={() => handleDisplayFollowers(email)} ><h3 className="font-semibold text-base">Followers:  {"  "+numberFollowers}</h3></div>
 <div className="flex flex-col gap-4 items-start justify-start">
       <div className="mb-4">
         <input

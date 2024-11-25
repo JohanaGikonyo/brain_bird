@@ -22,6 +22,24 @@ export default function LogIn() {
     try {
       const { error } = await supabase.auth.signInWithOtp({ email });
 
+ // Insert the user email into the users table
+        const { error: insertError } = await supabase
+          .from("users")
+          .upsert([{
+            email: session.user.email,
+            profile: {
+              username: session.user.user_metadata?.full_name ?? "",
+              profile_pic: session.user.user_metadata?.avatar_url ?? "",
+              phone: session.user.user_metadata?.phone ?? "",
+            }
+          }], 
+          { onConflict: ['email'] });
+          console.log('User Metadata:', session.user.user_metadata);
+        if (insertError) {
+          console.error("Error upserting user email into users table:", insertError);
+        }
+
+
       if (error) {
         throw new Error(error.message);
       }
