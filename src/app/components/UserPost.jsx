@@ -25,30 +25,34 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is outside the emoji or GIF picker
-      if (
-        emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(event.target)
-      ) {
-        setShowEmojiPicker(false); // Close the emoji picker
-      }
-      // if (
-      //   gifPickerRef.current &&
-      //   !gifPickerRef.current.contains(event.target)
-      // ) 
-      {
-        setShowGifPicker(false); // Close the GIF picker
-      }
+        // Check if click is outside the emoji or GIF picker
+        if (
+            emojiPickerRef.current &&
+            !emojiPickerRef.current.contains(event.target)
+        ) {
+            setShowEmojiPicker(false); // Close the emoji picker
+        }
+        // Uncomment if you want to handle GIF picker
+        // if (
+        //     gifPickerRef.current &&
+        //     !gifPickerRef.current.contains(event.target)
+        // ) {
+        //     setShowGifPicker(false); // Close the GIF picker
+        // }
     };
 
-    // Add event listener
-    document.addEventListener("mousedown", handleClickOutside);
+    // Only add event listener if in client-side
+    if (typeof window !== 'undefined') {
+        document.addEventListener("mousedown", handleClickOutside);
+    }
 
     // Cleanup event listener
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+        if (typeof window !== 'undefined') {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
     };
-  }, []);
+}, []);
   // Update postContent when editingPost changes
   useEffect(() => {
     if (editingPost) {
