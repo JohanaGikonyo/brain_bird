@@ -50,7 +50,6 @@ function LikeButton({ post }) {
       }
     };
 
-    console.log("user id in likes ", user.id)
 
     if (user) setUserId(user.id);
 
