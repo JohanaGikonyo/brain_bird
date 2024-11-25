@@ -1,11 +1,11 @@
 import React from "react";
-import { useSelected } from "../store/useSection";
+import { useTopStories } from "../store/useStore";
 import SearchIcon from "@mui/icons-material/Search";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {useSearch} from '../store/useStore'
 
 function TopItems() {
-  const { setSelectedItem } = useSelected();
+  const { setTopStories } = useTopStories();
 const {setSearch, search}=useSearch()
   const handleSearchChange = (e) => {
 
@@ -23,9 +23,9 @@ const {setSearch, search}=useSearch()
         
         <button
           className="border border-slate-700 text-white px-4 py-2 rounded-2xl hover:bg-slate-700 hover:border-slate-500 transition duration-300"
-          onClick={() => setSelectedItem("")}
+          onClick={() => setTopStories(prev=>!prev)}
         >
-          Stories
+         Top Stories
         </button>
         <button className="border border-slate-700 text-white px-4 py-2 rounded-2xl hover:bg-slate-700 hover:border-slate-500 transition duration-300">
           Ads

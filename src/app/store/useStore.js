@@ -20,3 +20,7 @@ export const useShowFollowersPosts = create((set) => ({
   showFollowersPosts: false,
   setShowFollowersPosts: (value) => set(() => ({ showFollowersPosts: value })),
 }));
+export const useTopStories = create((set) => ({
+  topStories: false,
+  setTopStories: (value) => set(() => ({ topStories: value })),
+}));

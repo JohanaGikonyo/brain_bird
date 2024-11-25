@@ -1,4 +1,4 @@
-import React, {  memo } from "react";
+import React, { memo } from "react";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import PostContent from "./PostContent";
@@ -10,7 +10,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import Follow from "./Follow";
 import CommentSection from "./commentsSection";
 import { useShowFollowersPosts } from "../store/useStore";
-
+import { useTopStories } from "../store/useStore";
 // eslint-disable-next-line react/display-name
 const Post = memo(
   ({
@@ -25,11 +25,11 @@ const Post = memo(
     handleAddComment,
     posts, // The posts array, which contains the original posts
     setPosts,
-    handleViewPost
+    handleViewPost,
   }) => {
     const { user } = useUser();
     const { showFollowersPosts } = useShowFollowersPosts();
-
+    const { topStories } = useTopStories();
     const formatTimeAgo = (date) => {
       const diff = Math.abs(new Date() - new Date(date));
       const seconds = Math.floor(diff / 1000);
@@ -51,7 +51,24 @@ const Post = memo(
     const combinedPosts = [
       ...posts.map((p) => ({ type: "post", data: p })),
       ...reposts.map((r) => ({ type: "repost", data: r })),
-    ].sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
+    ];
+
+    // Sort by likes and date if topStories is true
+    if (topStories) {
+      combinedPosts.sort((a, b) => {
+        const likesA = a.data.likes || 0;
+        const likesB = b.data.likes || 0;
+        const dateA = new Date(a.data.created_at);
+        const dateB = new Date(b.data.created_at); // First sort by likes, then by date
+        if (likesB !== likesA) {
+          return likesB- likesA;
+        } else {
+          return dateA - dateB;
+        }
+      });
+    } else {
+      combinedPosts.sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
+    }
 
     const filteredSearch = combinedPosts.filter((post) => {
       const matchesSearch =
@@ -59,16 +76,16 @@ const Post = memo(
         post.data.post?.toLowerCase().includes(search.toLowerCase()) ||
         post.data.comment?.toLowerCase().includes(search.toLowerCase()) ||
         post.data.reposter_email?.toLowerCase().includes(search.toLowerCase());
-    
+
       const isFollowed = isFollowing.includes(post.data.email) || isFollowing.includes(post.data.reposter_email);
-    
+
       if (showFollowersPosts) {
         return matchesSearch && isFollowed;
       } else {
         return matchesSearch;
       }
     });
-    
+
     return (
       <>
         {filteredSearch.map((item) => {
@@ -140,7 +157,9 @@ const Post = memo(
               <div key={repost.repost_id} className="mt-6 bg-slate-950 border border-gray-700 rounded-md p-4">
                 {/* Repost Header */}
                 <div className="flex items-start gap-4 mb-2 flex-wrap hover:cursor-pointer">
-                <div onClick={() => handleView(repost)} className="hover:cursor-pointer"><CustomAvatar email={repost.reposter_email} /></div>  
+                  <div onClick={() => handleView(repost)} className="hover:cursor-pointer">
+                    <CustomAvatar email={repost.reposter_email} />
+                  </div>
                   <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between">
                     <p className="text-xs text-gray-400">{formatTimeAgo(repost.created_at)}</p>
                     <Follow email={repost.reposter_email} currentUserEmail={user.email} />
@@ -199,7 +218,7 @@ const Post = memo(
                       </button>
                       <LikeButton post={originalPost} posts={posts} setPosts={setPosts} />
                       <button
-                        onClick={() =>  handleViewPost(originalPost)}
+                        onClick={() => handleViewPost(originalPost)}
                         className="flex items-center gap-1 hover:text-blue-400"
                       >
                         <VisibilityIcon fontSize="small" />
