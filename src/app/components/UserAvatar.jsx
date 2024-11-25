@@ -35,6 +35,7 @@ const UserAvatar = () => {
   const avatarUrl = profileData?.profile_pic || user.user_metadata?.avatar_url;
 
   const fetchProfileData = async (email) => {
+    console.log(email)
     try {
       const { data, error } = await supabase
         .from("users")
