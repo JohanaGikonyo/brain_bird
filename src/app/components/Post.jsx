@@ -58,14 +58,9 @@ const Post = memo(
       combinedPosts.sort((a, b) => {
         const likesA = a.data.likes || 0;
         const likesB = b.data.likes || 0;
-        const dateA = new Date(a.data.created_at);
-        const dateB = new Date(b.data.created_at); // First sort by likes, then by date
-        if (likesB !== likesA) {
-          return likesB- likesA;
-        } else {
-          return dateA - dateB;
-        }
-      });
+    
+        return likesB - likesA; 
+    });
     } else {
       combinedPosts.sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
     }
