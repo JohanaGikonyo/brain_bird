@@ -56,11 +56,11 @@ const Post = memo(
     // Sort by likes and date if topStories is true
     if (topStories) {
       combinedPosts.sort((a, b) => {
-        const likesA = a.data.likes || 0;
-        const likesB = b.data.likes || 0;
-    
-        return likesB - likesA; 
-    });
+        const likesA = a.data.likes ;
+        const likesB = b.data.likes ;
+        return likesB - likesA; // Higher likes first
+      });
+      
     } else {
       combinedPosts.sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
     }

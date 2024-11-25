@@ -35,7 +35,6 @@ const UserAvatar = () => {
   const avatarUrl = profileData?.profile_pic || user.user_metadata?.avatar_url;
 
   const fetchProfileData = async (email) => {
-    console.log(email)
     try {
       const { data, error } = await supabase
         .from("users")
@@ -66,7 +65,7 @@ const UserAvatar = () => {
     if (user.email) {
       fetchProfile();
     }
-  }, [user.email]);
+  }, [ user.email]);
 
   // Determine initials and background color if avatar does not exist
   const initials = !avatarUrl ? getInitials(user.email) : "";

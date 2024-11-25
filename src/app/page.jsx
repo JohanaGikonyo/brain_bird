@@ -23,7 +23,7 @@ export default function Home() {
           // Fetch user data from "users" table
           const { data, error } = await supabase
             .from("users")
-            .select("profile")
+            .select("id,profile, email")
             .eq("email", session.user.email)
             .single();
 
@@ -35,7 +35,7 @@ export default function Home() {
 
           if (data) {
             setUser(data);
-            console.log("The data is ",data)
+            console.log("The data is ",data.profile)
             localStorage.setItem('user', JSON.stringify(data));
             // Redirect to the main page
           router.push("/pages/mainpage");
