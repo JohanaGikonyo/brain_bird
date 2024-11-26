@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo,useState, useEffect } from "react";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import PostContent from "./PostContent";
@@ -11,9 +11,10 @@ import Follow from "./Follow";
 import CommentSection from "./commentsSection";
 import { useShowFollowersPosts } from "../store/useStore";
 import { useTopStories } from "../store/useStore";
+import { supabase } from "../lib/supabaseClient";
 // eslint-disable-next-line react/display-name
 const Post = memo(
-  ({
+   ({
     isFollowing,
     search,
     reposts,
@@ -30,6 +31,7 @@ const Post = memo(
     const { user } = useUser();
     const { showFollowersPosts } = useShowFollowersPosts();
     const { topStories } = useTopStories();
+  const[ combinedSortedPosts, setCombinedSortedPosts]=useState([]);
     const formatTimeAgo = (date) => {
       const diff = Math.abs(new Date() - new Date(date));
       const seconds = Math.floor(diff / 1000);
@@ -51,20 +53,65 @@ const Post = memo(
     const combinedPosts = [
       ...posts.map((p) => ({ type: "post", data: p })),
       ...reposts.map((r) => ({ type: "repost", data: r })),
-    ];
+  ];
+  
+  
 
-    // Sort by likes and date if topStories is true
-    if (topStories) {
-      combinedPosts.sort((a, b) => 
-         b.data.likes - a.data.likes 
-         
-     );
-      
-    } else {
-      combinedPosts.sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
-    }
+  useEffect(() => {
+    const fetchLikes = async () => {
+        const { data: likesData, error } = await supabase
+            .from("likes")
+            .select("post_id");
 
-    const filteredSearch = combinedPosts.filter((post) => {
+        if (error) {
+            console.error("Error fetching likes:", error);
+            return []; // Return an empty array on error
+        }
+
+        const likesCount = likesData.reduce((acc, like) => {
+            acc[like.post_id] = (acc[like.post_id] || 0) + 1;
+            return acc;
+        }, {});
+
+        return Object.keys(likesCount).map(postId => ({
+            post_id: postId,
+            likes_count: likesCount[postId],
+        }));
+    };
+
+    const sortPostsByLikes = async () => {
+        let sortedPosts;
+
+        if (topStories) {
+            const likesData = await fetchLikes(); // Await the fetchLikes call
+
+            // Create a map of likes count
+            const likesMap = {};
+            for (const like of likesData) {
+                likesMap[like.post_id] = like.likes_count;
+            }
+
+            // Sort combinedPosts based on likes count
+            sortedPosts = [...combinedPosts].sort((a, b) => {
+                const aLikes = likesMap[a.data.post_id] || 0; // Default to 0 if no likes
+                const bLikes = likesMap[b.data.post_id] || 0; // Default to 0 if no likes
+                return bLikes - aLikes; // Sort in descending order
+            });
+        } else {
+            sortedPosts = [...combinedPosts].sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
+        }
+
+        setCombinedSortedPosts(sortedPosts); // Update state with sorted posts
+    };
+
+    sortPostsByLikes(); // Call the sorting function
+
+}, [combinedPosts, topStories]);
+
+
+  
+
+    const filteredSearch = combinedSortedPosts.filter((post) => {
       const matchesSearch =
         post.data.email?.toLowerCase().includes(search.toLowerCase()) ||
         post.data.post?.toLowerCase().includes(search.toLowerCase()) ||
