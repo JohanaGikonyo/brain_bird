@@ -162,7 +162,7 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-
+  
     files.forEach((file) => {
       if (file.type.startsWith("video")) {
         const video = document.createElement("video");
@@ -183,6 +183,7 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
       }
     });
   };
+  
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
@@ -255,7 +256,7 @@ function UserPost({ postContentToUpdate, setPostContentToUpdate, handleSavePost,
       <div className="flex flex-wrap gap-2 mb-4">
   {mediaFiles.map((file, index) => (
     <div key={index} className="relative">
-      {file.startsWith("http") ? (
+      {file.type.startsWith("http") ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={file} alt="GIF" className="w-20 h-20 object-cover rounded-lg" />
       ) : file.type.startsWith("image") ? (
