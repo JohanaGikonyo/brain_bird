@@ -1,4 +1,4 @@
-import React, { useState,  useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Image from "next/image";
@@ -20,37 +20,51 @@ const PostMedia = ({ mediaUrls }) => {
     setIsOpen(false);
   };
 
-  // useEffect(() => {
-  //   const options = {
-  //     root: null, // Use the viewport as the root
-  //     threshold: 0.7, // Video should be 70% visible to trigger play
-  //   };
+  useEffect(() => {
+    const options = {
+      root: null, // Use the viewport as the root
+      threshold: 0.7, // Video should be 70% visible to trigger play
+    };
 
-  //   const observer = new IntersectionObserver((entries) => {
-  //     entries.forEach((entry) => {
-  //       const videoElement = entry.target;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const videoElement = entry.target;
 
-  //       if (entry.isIntersecting) {
-  //         videoElement.play(); // Play video when in view
-  //       } else {
-  //         videoElement.pause(); // Pause video when out of view
-  //       }
-  //     });
-  //   }, options);
+        if (entry.isIntersecting) {
+          videoElement.play(); // Play video when in view
+        } else {
+          videoElement.pause(); // Pause video when out of view
+        }
+      });
+    }, options);
 
-  //   // Observe each video
-  //   videoRefs.current.forEach((video) => {
-  //     if (video) observer.observe(video);
-  //   });
+    // Observe each video
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        observer.observe(video);
+        // Ensure video remains muted after it pauses or finishes playing
+        const handlePauseOrEnd = () => {
+          video.muted = true;
+        };
+        video.addEventListener('pause', handlePauseOrEnd);
+        video.addEventListener('ended', handlePauseOrEnd);
+        
+        // Clean up event listeners on unmount
+        return () => {
+          video.removeEventListener('pause', handlePauseOrEnd);
+          video.removeEventListener('ended', handlePauseOrEnd);
+        };
+      }
+    });
 
-  //   return () => {
-  //     // Unobserve videos on cleanup
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //     videoRefs.current.forEach((video) => {
-  //       if (video) observer.unobserve(video);
-  //     });
-  //   };
-  // }, []);
+    return () => {
+      // Unobserve videos on cleanup
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      videoRefs.current.forEach((video) => {
+        if (video) observer.unobserve(video);
+      });
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-2 mt-2">
@@ -68,15 +82,17 @@ const PostMedia = ({ mediaUrls }) => {
             />
           ) : (
             <video
-            ref={(el) => (videoRefs.current[0] = el)} // Reference to the video element
-            controls
-            controlsList="nodownload" // Prevent download option
-            disablePictureInPicture // Disable Picture-in-Picture
-            onContextMenu={(e) => e.preventDefault()} // Disable right-click
-            className="w-full h-full max-w-full object-cover cursor-pointer rounded-lg"
-          >
-            <source src={mediaUrls[0]} type="video/mp4" />
-          </video>
+              ref={(el) => (videoRefs.current[0] = el)} // Reference to the video element
+              controls
+              controlsList="nodownload" // Prevent download option
+              disablePictureInPicture // Disable Picture-in-Picture
+              onContextMenu={(e) => e.preventDefault()} // Disable right-click
+              className="w-full h-full max-w-full object-cover cursor-pointer rounded-lg"
+              muted // Mute video by default
+              autoPlay // Autoplay video
+            >
+              <source src={mediaUrls[0]} type="video/mp4" />
+            </video>
           )
         ) : (
           <Carousel showThumbs={false} infiniteLoop useKeyboardArrows>
@@ -93,16 +109,17 @@ const PostMedia = ({ mediaUrls }) => {
                   />
                 ) : (
                   <video
-                  ref={(el) => (videoRefs.current[i] = el)} // Reference to the video element
-                  controls
-                  controlsList="nodownload" // Prevent download option
-                  disablePictureInPicture // Disable Picture-in-Picture mode
-                  onContextMenu={(e) => e.preventDefault()} // Disable right-click menu
-                  className="w-full h-full object-cover cursor-pointer rounded-lg"
-                >
-                  <source src={mediaUrl} type="video/mp4" />
-                </video>
-                
+                    ref={(el) => (videoRefs.current[i] = el)} // Reference to the video element
+                    controls
+                    controlsList="nodownload" // Prevent download option
+                    disablePictureInPicture // Disable Picture-in-Picture mode
+                    onContextMenu={(e) => e.preventDefault()} // Disable right-click menu
+                    className="w-full h-full object-cover cursor-pointer rounded-lg"
+                    muted // Mute video by default
+                    autoPlay // Autoplay video
+                  >
+                    <source src={mediaUrl} type="video/mp4" />
+                  </video>
                 )}
               </div>
             ))}

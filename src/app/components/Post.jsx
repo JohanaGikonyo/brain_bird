@@ -1,4 +1,4 @@
-import React, { memo,useState, useEffect } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { useUser } from "../store/useStore";
 import CustomAvatar from "./CustomAvatar";
 import PostContent from "./PostContent";
@@ -14,7 +14,7 @@ import { useTopStories } from "../store/useStore";
 import { supabase } from "../lib/supabaseClient";
 // eslint-disable-next-line react/display-name
 const Post = memo(
-   ({
+  ({
     isFollowing,
     search,
     reposts,
@@ -31,7 +31,7 @@ const Post = memo(
     const { user } = useUser();
     const { showFollowersPosts } = useShowFollowersPosts();
     const { topStories } = useTopStories();
-  const[ combinedSortedPosts, setCombinedSortedPosts]=useState([]);
+    const [combinedSortedPosts, setCombinedSortedPosts] = useState([]);
     const formatTimeAgo = (date) => {
       const diff = Math.abs(new Date() - new Date(date));
       const seconds = Math.floor(diff / 1000);
@@ -53,63 +53,55 @@ const Post = memo(
     const combinedPosts = [
       ...posts.map((p) => ({ type: "post", data: p })),
       ...reposts.map((r) => ({ type: "repost", data: r })),
-  ];
-  
-  
+    ];
 
-  useEffect(() => {
-    const fetchLikes = async () => {
-        const { data: likesData, error } = await supabase
-            .from("likes")
-            .select("post_id");
+    useEffect(() => {
+      const fetchLikes = async () => {
+        const { data: likesData, error } = await supabase.from("likes").select("post_id");
 
         if (error) {
-            console.error("Error fetching likes:", error);
-            return []; // Return an empty array on error
+          console.error("Error fetching likes:", error);
+          return []; // Return an empty array on error
         }
 
         const likesCount = likesData.reduce((acc, like) => {
-            acc[like.post_id] = (acc[like.post_id] || 0) + 1;
-            return acc;
+          acc[like.post_id] = (acc[like.post_id] || 0) + 1;
+          return acc;
         }, {});
 
-        return Object.keys(likesCount).map(postId => ({
-            post_id: postId,
-            likes_count: likesCount[postId],
+        return Object.keys(likesCount).map((postId) => ({
+          post_id: postId,
+          likes_count: likesCount[postId],
         }));
-    };
+      };
 
-    const sortPostsByLikes = async () => {
+      const sortPostsByLikes = async () => {
         let sortedPosts;
 
         if (topStories) {
-            const likesData = await fetchLikes(); // Await the fetchLikes call
+          const likesData = await fetchLikes(); // Await the fetchLikes call
 
-            // Create a map of likes count
-            const likesMap = {};
-            for (const like of likesData) {
-                likesMap[like.post_id] = like.likes_count;
-            }
+          // Create a map of likes count
+          const likesMap = {};
+          for (const like of likesData) {
+            likesMap[like.post_id] = like.likes_count;
+          }
 
-            // Sort combinedPosts based on likes count
-            sortedPosts = [...combinedPosts].sort((a, b) => {
-                const aLikes = likesMap[a.data.post_id] || 0; // Default to 0 if no likes
-                const bLikes = likesMap[b.data.post_id] || 0; // Default to 0 if no likes
-                return bLikes - aLikes; // Sort in descending order
-            });
+          // Sort combinedPosts based on likes count
+          sortedPosts = [...combinedPosts].sort((a, b) => {
+            const aLikes = likesMap[a.data.post_id] || 0; // Default to 0 if no likes
+            const bLikes = likesMap[b.data.post_id] || 0; // Default to 0 if no likes
+            return bLikes - aLikes; // Sort in descending order
+          });
         } else {
-            sortedPosts = [...combinedPosts].sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
+          sortedPosts = [...combinedPosts].sort((a, b) => new Date(b.data.created_at) - new Date(a.data.created_at));
         }
 
         setCombinedSortedPosts(sortedPosts); // Update state with sorted posts
-    };
+      };
 
-    sortPostsByLikes(); // Call the sorting function
-
-}, [combinedPosts, topStories]);
-
-
-  
+      sortPostsByLikes(); // Call the sorting function
+    }, [combinedPosts, topStories]);
 
     const filteredSearch = combinedSortedPosts.filter((post) => {
       const matchesSearch =
@@ -151,7 +143,7 @@ const Post = memo(
                 </div>
 
                 {/* Original Post Content */}
-                <div className="mt-4">
+                <div className="mt-4 hover:cursor-pointer" onClick={() => handleViewPost(post)}>
                   <PostContent content={post.post} />
                   {post.media && (
                     <div className="mt-3">
@@ -232,15 +224,15 @@ const Post = memo(
                         <Follow email={originalPost.email} currentUserEmail={user.email} />
                       </div>
                     </div>
-
-                    {/* Original Post Content */}
-                    <PostContent content={originalPost.post} />
-                    {originalPost.media && (
-                      <div className="mt-3">
-                        <PostMedia mediaUrls={originalPost.media} />
-                      </div>
-                    )}
-
+                    <div onClick={() => handleViewPost(originalPost)} className="hover:cursor-pointer">
+                      {/* Original Post Content */}
+                      <PostContent content={originalPost.post} />
+                      {originalPost.media && (
+                        <div className="mt-3">
+                          <PostMedia mediaUrls={originalPost.media} />
+                        </div>
+                      )}
+                    </div>
                     {/* Footer Section for Original Post */}
                     <div className="flex items-center justify-between text-gray-400 text-sm mt-4 border-gray-600 pt-3">
                       <button
