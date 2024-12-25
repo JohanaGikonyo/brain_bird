@@ -57,8 +57,8 @@ const PostMedia = ({ mediaUrls }) => {
       }
     });
 
-    return () => {
-      // Unobserve videos on cleanup
+    return () => {` `
+<      // Unobserve videos on cleanup
       // eslint-disable-next-line react-hooks/exhaustive-deps
       videoRefs.current.forEach((video) => {
         if (video) observer.unobserve(video);

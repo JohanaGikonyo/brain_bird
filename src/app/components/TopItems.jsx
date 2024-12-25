@@ -30,7 +30,7 @@ const {setSearch, search}=useSearch()
         <button className="border border-slate-700 text-white px-4 py-2 rounded-2xl hover:bg-slate-700 hover:border-slate-500 transition duration-300">
           Ads
         </button>
-        <button className="border border-slate-700 text-white px-4 py-2 rounded-2xl hover:bg-slate-700 hover:border-slate-500 transition duration-300">
+        <button className="border border-slate-700 text-white px-4 py-2 rounded-2xl hover:bg-slate-700 hover:border-slate-500 transition duration-300" onClick={()=>setSearch('kidsstories')}>
           Kids Stories
         </button>
         
