@@ -23,7 +23,7 @@ export default function Home() {
           // Fetch user data from "users" table
           const { data, error } = await supabase
             .from("users")
-            .select("id,profile, email")
+            .select("id, profile, email")
             .eq("email", session.user.email)
             .single();
 
@@ -35,11 +35,11 @@ export default function Home() {
 
           if (data) {
             setUser(data);
-            console.log("The data is ",data.profile)
+            console.log("The data is ", data.profile);
             localStorage.setItem('user', JSON.stringify(data));
             // Redirect to the main page
-          router.push("/pages/mainpage");
-          console.log("First option used")
+            router.push("/pages/mainpage");
+            console.log("First option used");
           } else {
             // Upsert new user data if not found
             const { error: insertError } = await supabase
@@ -62,12 +62,9 @@ export default function Home() {
             setUser(session.user);
             localStorage.setItem('user', JSON.stringify(session.user));
             // Redirect to the main page
-          router.push("/pages/mainpage");
-          console.log("second option used")
+            router.push("/pages/mainpage");
+            console.log("Second option used");
           }
-
-
-          
         } else {
           // User is not signed in, redirect to login
           router.push("/auth/login");
@@ -77,6 +74,18 @@ export default function Home() {
     };
 
     checkUser();
+
+    // Register Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((registration) => {
+          console.log("Service Worker registered:", registration);
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
+    }
   }, [router, setUser]);
 
   if (loading) {
